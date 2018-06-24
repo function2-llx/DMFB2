@@ -2,10 +2,8 @@
 #define DROPLET_H
 
 #include <iostream>
-#include "Mixer.h"
 #include "Direction.h"
 #include "Dispenser.h"
-#include "Dispensation.h"
 #include "Detection.h"
 
 typedef unsigned long long ULL;

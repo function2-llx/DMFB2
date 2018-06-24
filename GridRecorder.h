@@ -1,8 +1,8 @@
 #pragma once
 
 #include "Droplet.h"
-#include "Mixer.h"
 #include "Point.h"
+
 
 class GridRecorder {
 private:

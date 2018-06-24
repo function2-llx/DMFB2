@@ -1,8 +1,5 @@
 #include "Cmp.h"
-#include "Dispensation.h"
 #include "Droplet.h"
-#include "MixingOperation.h"
-#include "Mixer.h"
 #include "Detector.h"
 
 bool cmpDispensation(Dispensation* a, Dispensation* b)

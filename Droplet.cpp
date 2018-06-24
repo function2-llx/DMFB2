@@ -3,12 +3,10 @@
 #include <iostream>
 #include "Grid.h"
 #include "DMFB.h"
-#include "Mixer.h"
 #include "Droplet.h"
 #include "Dispenser.h"
 #include "Direction.h"
 #include "Detection.h"
-#include "MixingOperation.h"
 #include "Detector.h"
 
 using namespace std;
