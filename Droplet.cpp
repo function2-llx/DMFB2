@@ -11,16 +11,6 @@
 
 using namespace std;
 
-Droplet::Droplet(Dispenser* dispenser, Dispensation* dispensation)
-{
-    this->type = dispenser->getType();
-    this->identifier = dispensation->identifier;
-    this->position = dispenser->getPosition();
-    assert(grid->inside(position));
-    this->detecting = false;
-    this->remainingDetectingTime = detection[this->identifier]->duration;
-}
-
 Droplet::Droplet(Droplet* precursor, Direction direction)
 {
     this->identifier = precursor->identifier;
@@ -35,20 +25,6 @@ Droplet::Droplet(Droplet* precursor, Direction direction)
     } else {
         this->remainingDetectingTime = precursor->remainingDetectingTime;
     }
-}
-
-Droplet::Droplet(Mixer* mixer)
-{
-    assert(mixer->getRemainingTime() == 1);
-    this->identifier = mixer->getOutputIdentifier();
-    this->type = mixer->getOutputType();
-    this->position = mixer->getOutputPosition();
-    this->detecting = false;
-    this->remainingDetectingTime = detection[this->identifier]->duration;
-}
-
-Droplet::~Droplet()
-{
 }
 
 ULL Droplet::hash()

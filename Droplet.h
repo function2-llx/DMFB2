@@ -13,25 +13,30 @@ private:
     int identifier;
     int type;
     Point position;
+
+    bool mixing;
+    int remainingMixingTime;    
+
     bool detecting;
     int remainingDetectingTime;
 
-//    Droplet(const Droplet&);
     Droplet& operator = (const Droplet& droplet);
 public:
-    Droplet(Dispenser* dispenser, Dispensation* dispensation);
     Droplet(Droplet* precursor, Direction direction);
-    Droplet(Mixer* mixer);
     ~Droplet();
 
     ULL hash();
+
+    
+
     void startDetection();
     bool underDetection();
     bool detected() const;
+
     int getIdentifier();
     int getType();
-    int getRemainingDetectinTime();
     Point getPosition();
+
     int estimatedTime();
     
     friend std::ostream& operator << (std::ostream&, const Droplet&);
