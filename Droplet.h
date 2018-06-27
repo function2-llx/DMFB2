@@ -23,11 +23,12 @@ private:
     Droplet& operator = (const Droplet& droplet);
 public:
     Droplet(Droplet* precursor, Direction direction);
+    Droplet(Droplet* droplet1, Droplet* droplet2);
     ~Droplet();
 
     ULL hash();
 
-    
+    bool underMixing();
 
     void startDetection();
     bool underDetection();

@@ -11,6 +11,7 @@
 #include "Grid.h"
 #include "Dispenser.h"
 #include "Hash.h"
+#include "Tools.h"
 
 using namespace std;
 
@@ -145,7 +146,6 @@ void DMFB::loadSequencingGraph()
 		}
 		if (node[i]->ch[0] == nullptr) {
 			assert(node[i]->ch[0] == nullptr);
-			allDispensations.push_back(new Dispensation(i, node[i]->type));
 			cnt++;
 		} else {
 			nMixers++;
@@ -180,28 +180,6 @@ void DMFB::loadModuleLibrary()
 		leastTime[i] = 0;
 	}
 	mixPair = new bool*[this->nDroplets];
-	mixingData = new MixingOperation*[this->nDroplets];
-	for (int i = 0; i < this->nDroplets; i++) {
-		mixPair[i] = new bool[this->nDroplets];
-		mixingData[i] = new MixingOperation[this->nDroplets];
-		for (int j = 0; j < this->nDroplets; j++) mixPair[i][j] = false;
-	}
-	for (int identifier = 0; identifier < nMixingOperations; identifier++) {
-		MixingOperation* mixingOperation = new MixingOperation();
-		is >> *mixingOperation;
-		for (int i = 0; i < 2; i++) {
-			leastTime[mixingOperation->inputIdentifier[i]] = mixingOperation->duration;
-		}
-		mixingOperation->mixerIdentifer = identifier;
-		for (int i = 0; i < 2; i++) {
-			assert(range(mixingOperation->inputIdentifier[i], this->nDroplets));
-		}
-		Node* mixture = node[mixingOperation->inputIdentifier[0]]->fa;
-		assert(mixture == node[mixingOperation->inputIdentifier[1]]->fa);
-		mixingOperation->outputIdentifier = mixture->identifier;
-		mixingOperation->outputType = mixture->type;
-		allMixingOperations.push_back(mixingOperation);
-	}
 	is >> this->nSinks;
 	for (int i = 0; i < this->nDroplets; i++) {
 		if (node[i]->fa == nullptr) {
@@ -371,12 +349,6 @@ void DMFB::placeDispenser(int dispenserCount)
 					dispenser[dispenserCount]->setPosition(position);
 					curBoundary[k][i] = dispenserCount;
 					bool flag = true;
-					for (auto dispensation: allDispensations) {
-						if (dispensation->type == dispenserCount && dispensation->estimatedTime() > target) {
-							flag = false;
-							break;
-						}
-					}
 					if (flag) this->placeDispenser(dispenserCount + 1);
 					curBoundary[k][i] = -1;
 					if (target < stepLowerBound) return;

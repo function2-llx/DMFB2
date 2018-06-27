@@ -18,6 +18,7 @@ Droplet::Droplet(Droplet* precursor, Direction direction)
     this->position = precursor->getPosition() + direction;
     this->detecting = precursor->detecting;
     assert(grid->inside(this->position));
+    
     if (precursor->underDetection()) {
         assert(direction == zeroDirection);
         this->remainingDetectingTime = precursor->remainingDetectingTime - 1;
