@@ -4,7 +4,7 @@
 #include <iostream>
 #include "Direction.h"
 #include "Dispenser.h"
-#include "Detection.h"
+#include "DropletData.h"
 
 typedef unsigned long long ULL;
 
@@ -14,31 +14,36 @@ private:
     int type;
     Point position;
 
+    bool dispensed;
+
     bool mixing;
     int remainingMixingTime;    
 
     bool detecting;
     int remainingDetectingTime;
 
+    void setData(const DropletData& dropletData);
+
     Droplet& operator = (const Droplet& droplet);
 public:
-    Droplet(Droplet* precursor, Direction direction);
-    Droplet(Droplet* droplet1, Droplet* droplet2);
-    ~Droplet();
+    Droplet(const DropletData& dropletData);
+    Droplet(const Droplet* precursor, const Direction& direction);
+    Droplet(const Droplet* droplet1, const Droplet* droplet2);
 
-    ULL hash();
 
-    bool underMixing();
+    ULL hash() const;
+
+    bool underMixing() const;
 
     void startDetection();
-    bool underDetection();
+    bool underDetection() const;
     bool detected() const;
 
-    int getIdentifier();
-    int getType();
-    Point getPosition();
+    int getIdentifier() const;
+    int getType() const;
+    Point getPosition() const;
 
-    int estimatedTime();
+    int estimatedTime() const;
     
     friend std::ostream& operator << (std::ostream&, const Droplet&);
 };

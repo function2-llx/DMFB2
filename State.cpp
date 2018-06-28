@@ -103,7 +103,7 @@ void State::dfsMove(vector<Droplet*>::iterator it)
     if (it == this->droplets.end()) {
 
     } else {
-
+        
     }
 }
 

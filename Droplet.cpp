@@ -3,23 +3,32 @@
 #include <iostream>
 #include "Grid.h"
 #include "DMFB.h"
+#include "Tools.h"
 #include "Droplet.h"
 #include "Dispenser.h"
 #include "Direction.h"
-#include "Detection.h"
 #include "Detector.h"
+#include "DropletData.h"
 
 using namespace std;
 
-Droplet::Droplet(Droplet* precursor, Direction direction)
+Droplet::Droplet(const Droplet* precursor, const Direction& direction)
 {
     this->identifier = precursor->identifier;
     this->type = precursor->getType();
     this->position = precursor->getPosition() + direction;
     this->detecting = precursor->detecting;
-    assert(grid->inside(this->position));
-    
-    if (precursor->underDetection()) {
+    this->mixing = precursor->mixing;
+    this->dispensed = true;
+    if (precursor->mixing) {
+        this->remainingMixingTime = precursor->remainingMixingTime - 1;
+        if (this->remainingMixingTime == 0) {
+            this->mixing = false;
+        }
+    } else {
+        this->remainingMixingTime = 0;
+    }
+    if (precursor->detecting) {
         assert(direction == zeroDirection);
         this->remainingDetectingTime = precursor->remainingDetectingTime - 1;
         if (this->remainingDetectingTime == 0) this->detecting = false;
@@ -28,12 +37,33 @@ Droplet::Droplet(Droplet* precursor, Direction direction)
     }
 }
 
-ULL Droplet::hash()
+Droplet::Droplet(const Droplet* droplet1, const Droplet* droplet2)
+{
+    assert(!droplet1->underMixing());
+    assert(!droplet1->underDetection());
+    assert(!droplet2->underMixing());
+    assert(!droplet2->underDetection());
+    assert(droplet1->position == droplet2->position);
+    assert(mixPair[droplet1->identifier][droplet2->identifier] != -1);
+    this->identifier = mixPair[droplet1->identifier][droplet2->identifier];
+}
+
+void Droplet::setData(const DropletData& dropletData)
+{
+    this->identifier = dropletData.identifier;
+    this->type = dropletData.type;
+    this->remainingMixingTime = dropletData.mixingTime;
+    this->remainingDetectingTime = dropletData.detectingTime;
+}
+
+ULL Droplet::hash() const
 {
     static ULL hashBase = 894137589146ull;
     static ULL shift = 7891746412ull;
     ULL ret = this->identifier;
     ret = grid->getPointIdentifier(this->position) + shift + hashBase * ret;
+    ret = this->mixing + shift + hashBase * ret;
+    ret = this->remainingMixingTime + shift + hashBase * ret;
     ret = this->detecting + shift + hashBase * ret;
     ret = this->remainingDetectingTime + shift + hashBase * ret;
     return ret;
@@ -50,7 +80,7 @@ void Droplet::startDetection()
     }
 }
 
-bool Droplet::underDetection()
+bool Droplet::underDetection() const
 {
     return this->detecting;
 }
@@ -60,17 +90,17 @@ bool Droplet::detected() const
 return this->detecting == false && this->remainingDetectingTime == 0;
 }
 
-int Droplet::getIdentifier()
+int Droplet::getIdentifier() const
 {
     return this->identifier;
 }
 
-int Droplet::getType()
+int Droplet::getType() const
 {
     return this->type;
 }
 
-Point Droplet::getPosition()
+Point Droplet::getPosition() const
 {
     return this->position;
 }
@@ -99,7 +129,7 @@ ostream& operator << (ostream& os, const Droplet& droplet)
     return os;
 }
 
-int Droplet::estimatedTime()
+int Droplet::estimatedTime() const
 {
     int ret = leastTime[this->identifier];
     if (!this->detected()) {

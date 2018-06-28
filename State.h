@@ -20,7 +20,6 @@ private:
     void addDroplet(Droplet* droplet);
 
     bool canDump(Droplet* droplet);
-    Droplet* findDroplet(Detection* detection);
     void check();
     void dfsMove(std::vector<Droplet*>::iterator);
     bool fluidicConstraints(Droplet*);

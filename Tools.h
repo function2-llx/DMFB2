@@ -1,4 +1,4 @@
 #pragma once
 
-bool* toBeMixed;
-bool** mixPair;
+extern bool* toBeMixed;
+extern int** mixPair;

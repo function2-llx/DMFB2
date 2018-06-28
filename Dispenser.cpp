@@ -23,4 +23,4 @@ Point Dispenser::getPosition()
     return this->position;
 }
 
-Dispenser** dispenser;
+Dispenser* dispenser;
