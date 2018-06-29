@@ -5,7 +5,11 @@ CXX_FLAGS = -Wall -std=c++11 -D NDEBUG -O3
 TARGET = target/main
 
 .PHONY: all
-all: $(TARGET)
+all: directory $(TARGET)
+.PHONY: directory
+directory:
+	mkdir -p objects
+	mkdir -p target
 $(TARGET): $(OBJECTS) objects/main.o
 	g++ $(CXX_FLAGS) $^ -o $@
 objects/%.o: sources/%.cpp sources/%.h
