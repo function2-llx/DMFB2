@@ -19,7 +19,7 @@ private:
 	void placeSink(int sinkCount);
 	void placeDispenser(int dispenserCount);
 	void placeDetector(int detectorCount);
-	bool dfs(State*);
+	bool dfs(const State*);
 public:
 	DMFB();
 	~DMFB();

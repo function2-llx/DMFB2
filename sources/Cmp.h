@@ -3,6 +3,6 @@
 
 #include "Droplet.h"
 
-bool cmpDroplet(Droplet* a, Droplet* b);
+bool cmpDroplet(const Droplet* a, const Droplet* b);
 
 #endif

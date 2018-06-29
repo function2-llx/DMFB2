@@ -201,14 +201,14 @@ void DMFB::loadDesignObejective()
 	}
 }
 
-State* ret;
+const State* ret;
 int* curBoundary[4];
 int** curDetector;
 int stepLowerBound, stepUpperBound;
 int retStep;
 int target;
 
-bool DMFB::dfs(State* currentState)
+bool DMFB::dfs(const State* currentState)
 {
 	if (currentState->isEndState()) {
 		for (int k = 0; k < 4; k++) {
@@ -241,8 +241,8 @@ bool DMFB::dfs(State* currentState)
 		return true;
 	}
 	bool flag = false;
-	if (currentState->step + currentState->estimatedTime() <= stepUpperBound) {
-		vector<State*> successors = currentState->getSuccessors();
+	if (currentState->step + currentState->estimationTime() <= stepUpperBound) {
+		vector<const State*> successors = currentState->getSuccessors();
 		sort(successors.begin(), successors.end());
 		for (auto successor: successors) {
 			if (successor->isEndState()) {
@@ -278,7 +278,7 @@ void DMFB::placeDetector(int detectorCount)
 	if (detectorCount == this->nTypes) {
 		for (stepUpperBound = stepLowerBound; stepUpperBound <= target; stepUpperBound++) {
 			hashSet.clear();
-			State* init = State::initialState();
+			State* init = new State;
 			hashSet.insert(init->hash());
 			if (dfs(init)) {
 				assert(ret != nullptr);
@@ -357,8 +357,8 @@ void DMFB::placeDispenser(int dispenserCount)
 void DMFB::solve()
 {
 	target = 20;
-	State* init = State::initialState();
-	stepLowerBound = init->estimatedTime();
+	State* init = new State;
+	stepLowerBound = init->estimationTime();
 	delete init;
 	curDetector = new int*[grid->getRows()];
 	for (int i = 0; i < grid->getRows(); i++) {

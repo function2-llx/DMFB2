@@ -8,40 +8,40 @@
 typedef unsigned long long ULL;
 
 class State {
-    friend std::ostream& operator << (std::ostream&, State&);
+    friend std::ostream& operator << (std::ostream&, const State&);
 private:
-    std::vector<Droplet*> droplets;
+    std::vector<const Droplet*> droplets;
     int estimation;
     
     State& operator = (const State& state);
     State(const State&);
+    State(const State* precursor);
     void clear();
 
     void addDroplet(Droplet* droplet);
 
-    void check();
-    void dfsMove(const std::vector<Droplet*>::iterator) const;
-    void pushDroplet(const Droplet& droplet, const std::vector<Droplet*>::iterator) const;
-    bool fluidicConstraints(Droplet*);
+    void check() const;
+    void dfsMove(unsigned int number) const;
+    void pushDroplet(const Droplet& droplet, unsigned int number) const;
 public:
-    static State* initialState();
-
     int step;
-    State* decision;
+    const State* decision;
 
     State();
     ~State();
     
     ULL hash() const;
-    bool isEndState();
-    std::vector<State*> getSuccessors();
-    void printSolution(std::ostream&);
-    void clean();
-    int estimatedTime();
-    void textPrint(std::ostream&);
-    void visualPrint(std::ostream&);
-    void allPrint(std::ostream&);
+    void clean() const;
+
+    bool isEndState() const;
+    std::vector<const State*> getSuccessors() const;
+    int estimationTime() const;
     bool operator < (const State&) const;
+
+    void printSolution(std::ostream&) const;
+    void textPrint(std::ostream&) const;
+    void visualPrint(std::ostream&) const;
+    void allPrint(std::ostream&) const;
 };
 
 #endif  //STATE_H

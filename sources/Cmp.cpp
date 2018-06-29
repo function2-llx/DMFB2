@@ -2,7 +2,7 @@
 #include "Droplet.h"
 #include "Detector.h"
 
-bool cmpDroplet(Droplet* a, Droplet* b)
+bool cmpDroplet(const Droplet* a, const Droplet* b)
 {
 	return a->getIdentifier() < b->getIdentifier();
 }
