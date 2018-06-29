@@ -106,14 +106,14 @@ int** occupy;
 
 void State::dfsMove(vector<Droplet*>::iterator it)
 {
-    if (it == this->droplets.end()) {
+    if (it == this->droplets.end()){
 
     } else {
         Droplet* droplet = *it;
         if (!droplet->inGrid()) {
             
         } else {
-            
+
         }
     }
 }
