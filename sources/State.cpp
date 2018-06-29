@@ -10,7 +10,7 @@
 #include "Cell.h"
 #include "Cmp.h"
 #include "Hash.h"
-#include "Tools.h"
+#include "Global.h"
 
 
 using namespace std;
@@ -50,7 +50,7 @@ void State::addDroplet(Droplet* droplet)
 bool State::canDump(const Droplet* droplet) const
 {
     assert(!droplet->underDetection());
-    return !toBeMixed[droplet->getIdentifier()] && droplet->detected();
+    return Global::toBeMixed[droplet->getIdentifier()] && droplet->detected();
 }
 //check if current necessary detection is available
 void State::check()
@@ -84,10 +84,15 @@ vector<State*> successors;
 
 State* State::initialState()
 {
+    using namespace Global;
     State* state = new State();
     state->decision = nullptr;
     state->step = 0;
-    
+    for (int i = 0; i < nDroplets; i++) {
+        if (toBeDispensed[i]) {
+            state->addDroplet(new Droplet(dropletData[i]));
+        }
+    }
     return state;
 }
 
@@ -104,7 +109,12 @@ void State::dfsMove(vector<Droplet*>::iterator it)
     if (it == this->droplets.end()) {
 
     } else {
-        
+        Droplet* droplet = *it;
+        if (!droplet->inGrid()) {
+            
+        } else {
+            
+        }
     }
 }
 

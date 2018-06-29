@@ -33,6 +33,8 @@ public:
 
     ULL hash() const;
 
+    bool inGrid() const;
+
     bool underMixing() const;
 
     void startDetection();

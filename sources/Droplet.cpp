@@ -88,6 +88,11 @@ ULL Droplet::hash() const
     return ret;
 }
 
+bool Droplet::inGrid() const
+{
+    return this->dispensed;
+}
+
 void Droplet::startDetection()
 {
     assert(this->detecting == false);
