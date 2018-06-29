@@ -15,7 +15,6 @@
 
 using namespace std;
 
-
 struct Node {
 	int identifier, type;
 	Node* fa;
@@ -64,7 +63,7 @@ void dfsLeast(Node* cur)
 		return;
 	}
 	if (cur->fa != nullptr) {
-		leastTime[cur->identifier] += leastTime[cur->fa->identifier] + detection[cur->fa->identifier]->duration;
+		leastTime[cur->identifier] += leastTime[cur->fa->identifier] + dropletData[cur->fa->identifier].detectingTime;
 	}
 	for (int i = 0; i < 2; i++) {
 		dfsLeast(cur->ch[i]);
@@ -158,11 +157,6 @@ void DMFB::loadSequencingGraph()
 			}
 		}
 	}
-	detection = new Detection*[this->nDroplets];
-	for (int i = 0; i < this->nDroplets; i++) {
-		detection[i] = new Detection();
-		is >> *detection[i];
-	}
 }
 
 bool range(int a, int n)
@@ -179,7 +173,7 @@ void DMFB::loadModuleLibrary()
 	for (int i = 0; i < this->nDroplets; i++) {
 		leastTime[i] = 0;
 	}
-	mixPair = new bool*[this->nDroplets];
+	mixPair = new int*[this->nDroplets];
 	is >> this->nSinks;
 	for (int i = 0; i < this->nDroplets; i++) {
 		if (node[i]->fa == nullptr) {

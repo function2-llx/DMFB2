@@ -12,11 +12,21 @@
 
 using namespace std;
 
+Droplet::Droplet(const DropletData& dropletData)
+{
+    this->setData(dropletData);
+    this->dispensed = false;
+    this->mixing = false;
+    this->detecting = false;
+    this->position = dispenser[this->type]->getPosition();
+}
+
 Droplet::Droplet(const Droplet* precursor, const Direction& direction)
 {
     this->identifier = precursor->identifier;
-    this->type = precursor->getType();
-    this->position = precursor->getPosition() + direction;
+    this->type = precursor->type;
+    this->position = precursor->position + direction;
+    assert(grid->inside(this->position));
     this->detecting = precursor->detecting;
     this->mixing = precursor->mixing;
     this->dispensed = true;
@@ -44,8 +54,11 @@ Droplet::Droplet(const Droplet* droplet1, const Droplet* droplet2)
     assert(!droplet2->underMixing());
     assert(!droplet2->underDetection());
     assert(droplet1->position == droplet2->position);
+    assert(grid->inside(droplet1->position));
     assert(mixPair[droplet1->identifier][droplet2->identifier] != -1);
     this->identifier = mixPair[droplet1->identifier][droplet2->identifier];
+    this->setData(dropletData[identifier]);
+    this->dispensed = true;
 }
 
 void Droplet::setData(const DropletData& dropletData)
@@ -139,4 +152,9 @@ int Droplet::estimatedTime() const
         }
     }
     return ret;
+}
+
+bool Droplet::isEndDroplet() const
+{
+    return !toBeMixed[this->identifier];
 }

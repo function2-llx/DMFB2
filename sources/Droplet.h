@@ -21,7 +21,7 @@ private:
 
     bool detecting;
     int remainingDetectingTime;
-
+    //call when a droplet first appears
     void setData(const DropletData& dropletData);
 
     Droplet& operator = (const Droplet& droplet);
@@ -44,6 +44,7 @@ public:
     Point getPosition() const;
 
     int estimatedTime() const;
+    bool isEndDroplet() const;
     
     friend std::ostream& operator << (std::ostream&, const Droplet&);
 };

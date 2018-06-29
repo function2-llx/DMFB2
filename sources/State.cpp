@@ -6,7 +6,6 @@
 #include "State.h"
 #include "Direction.h"
 #include "Grid.h"
-#include "Detection.h"
 #include "Dispenser.h"
 #include "Cell.h"
 #include "Cmp.h"
@@ -41,7 +40,6 @@ State::~State()
 void State::clear()
 {
     this->droplets.clear();
-
 }
 
 void State::addDroplet(Droplet* droplet)
@@ -49,7 +47,7 @@ void State::addDroplet(Droplet* droplet)
     this->droplets.push_back(droplet);
 }
 
-bool State::canDump(Droplet* droplet)
+bool State::canDump(const Droplet* droplet) const
 {
     assert(!droplet->underDetection());
     return !toBeMixed[droplet->getIdentifier()] && droplet->detected();
@@ -60,7 +58,7 @@ void State::check()
 
 }
 
-ULL State::hash()
+ULL State::hash() const
 {
     static ULL hashBase = 75487475995782307ull;
     static ULL shift = 3751046701ull;
@@ -75,8 +73,10 @@ ULL State::hash()
 
 bool State::isEndState()
 {
-
-    return false;
+    for (auto droplet: this->droplets) {
+        if (!droplet->detected() || !droplet->isEndDroplet()) return false;
+    }
+    return true;
 }
 
 State sucState;
@@ -87,6 +87,7 @@ State* State::initialState()
     State* state = new State();
     state->decision = nullptr;
     state->step = 0;
+    
     return state;
 }
 

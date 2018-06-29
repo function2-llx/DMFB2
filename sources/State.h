@@ -19,7 +19,7 @@ private:
 
     void addDroplet(Droplet* droplet);
 
-    bool canDump(Droplet* droplet);
+    bool canDump(const Droplet* droplet) const;
     void check();
     void dfsMove(std::vector<Droplet*>::iterator);
     bool fluidicConstraints(Droplet*);
@@ -32,7 +32,7 @@ public:
     State();
     ~State();
     
-    ULL hash();
+    ULL hash() const;
     bool isEndState();
     std::vector<State*> getSuccessors();
     void printSolution(std::ostream&);

@@ -21,6 +21,6 @@ public:
 };
 
 //dispenser for each type
-extern Dispenser* dispenser;
+extern Dispenser** dispenser;
 
 #endif  //DISPENSER_H
