@@ -18,7 +18,7 @@ private:
     State(const State* precursor);
     void clear();
 
-    void addDroplet(Droplet* droplet);
+    void addDroplet(const Droplet* droplet);
 
     void check() const;
     void dfsMove(unsigned int number) const;

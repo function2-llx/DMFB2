@@ -28,7 +28,7 @@ private:
 public:
     Droplet(const DropletData& dropletData);
     Droplet(const Droplet* precursor, const Direction& direction);
-    Droplet(const Droplet* droplet1, const Droplet* droplet2);
+    Droplet(const Droplet& droplet1, const Droplet& droplet2);
 
 
     ULL hash() const;

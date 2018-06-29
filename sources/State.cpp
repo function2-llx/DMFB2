@@ -43,7 +43,7 @@ void State::clear()
     this->droplets.clear();
 }
 
-void State::addDroplet(Droplet* droplet)
+void State::addDroplet(const Droplet* droplet)
 {
     this->droplets.push_back(droplet);
     this->estimation = max(estimation, droplet->estimatedTime());
@@ -103,7 +103,6 @@ int State::estimationTime() const
 
 vector<const State*> successors;
 
-
 int **curInfluence, **preInfluence;
 vector<Droplet> **content;  //record droplets in every grid
 vector<const Droplet*> undispensed;   //record undispensed droplets
@@ -154,14 +153,25 @@ void State::pushDroplet(const Droplet& droplet, unsigned int number) const
 void State::dfsMove(unsigned int number) const
 {
     if (number == this->droplets.size()){
-		State* state;
+		State* successor = new State(this);
+        for (unsigned int i = 0; i < undispensed.size(); i++) {
+            successor->addDroplet(new Droplet(*undispensed[i]));
+        }
         for (int i = 0; i < grid->getRows(); i++) {
 			for (int j = 0; j < grid->getColumns(); j++) {
-				if (content[i][j].size() == 1) {
-
-				}
+                if (content[i][j].size() == 1) {
+                    successor->addDroplet(new Droplet(content[i][j][0]));
+                }
+                if (content[i][j].size() == 2) {
+                    successor->addDroplet(new Droplet(content[i][j][0], content[i][j][1]));
+                }
 			}
 		}
+        ULL hash = successor->hash();
+        if (!hashSet.count(hash)) {
+            hashSet.insert(hash);
+            successors.push_back(successor);
+        }
     } else {
         const Droplet* droplet = droplets[number];
         int identifier = droplet->getIdentifier();
