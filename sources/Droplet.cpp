@@ -3,7 +3,7 @@
 #include <iostream>
 #include "Grid.h"
 #include "DMFB.h"
-#include "Tools.h"
+#include "Global.h"
 #include "Droplet.h"
 #include "Dispenser.h"
 #include "Direction.h"

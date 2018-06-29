@@ -1,3 +1,3 @@
-#include "DropletInformation.h"
+#include "DropletData.h"
 
-DropletInformation* dropletInformation;
+DropletData* dropletData;
