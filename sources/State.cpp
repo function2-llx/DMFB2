@@ -14,16 +14,6 @@
 
 using namespace std;
 
-State::State(const State& state)
-{
-    for (auto droplet: state.droplets) {
-        this->addDroplet(new Droplet(*droplet));
-    }
-    this->step = state.step;
-    this->decision = state.decision;
-    this->estimation = -1;
-}
-
 State::State(const State* precursor)
 {
     this->estimation = -1;
@@ -36,11 +26,6 @@ State::~State()
     for (auto droplet: this->droplets) {
         delete droplet;
     }
-}
-
-void State::clear()
-{
-    this->droplets.clear();
 }
 
 void State::addDroplet(const Droplet* droplet)
@@ -59,12 +44,6 @@ State::State()
             this->addDroplet(new Droplet(dropletData[i]));
         }
     }
-}
-
-//check if current necessary detection is available
-void State::check() const
-{
-
 }
 
 void State::clean() const

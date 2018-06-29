@@ -16,11 +16,9 @@ private:
     State& operator = (const State& state);
     State(const State&);
     State(const State* precursor);
-    void clear();
 
     void addDroplet(const Droplet* droplet);
 
-    void check() const;
     void dfsMove(unsigned int number) const;
     void pushDroplet(const Droplet& droplet, unsigned int number) const;
 public:
