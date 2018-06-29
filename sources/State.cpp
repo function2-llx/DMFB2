@@ -129,20 +129,30 @@ void State::dfsMove(const vector<Droplet*>::iterator it) const
                 int record[3][3];
                 for (int i = -1; i <= 1; i++) {
                     for (int j = -1; j <= 1; j++) {
-                        Point cur(position.r + i, position.c + j);
-                        if (grid->inside(cur)) {
+                        if (grid->inside(Point(position.r + i, position.c + j))) {
                             record[i + 1][j + 1] = curInfluence[position.r + i][position.c + j];
                         }
                     }
                 }
                 this->dfsMove(it + 1);
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        if (grid->inside(Point(position.r + i, position.c + j))) {
+                            curInfluence[position.r + i][position.c + j] = record[i + 1][j + 1];
+                        }
+                    }
+                }
                 content[position.r][position.c].pop_back();
             }
             undispensed.push_back(droplet);
             dfsMove(it + 1);
             undispensed.pop_back();
-        } else {
+        } else if (droplet->underMixing()) {
 
+        } else if (droplet->underDetection()) {
+
+        } else {
+            
         }
     }
 }
@@ -154,7 +164,7 @@ vector<State*> State::getSuccessors()
     sucState.decision = this;
     sucState.step = this->step + 1; 
     preInfluence = new int*[grid->getRows()];
-    content = new vector<Droplet*>*[grid->getRows()];
+    content = new vector<Droplet>*[grid->getRows()];
     for (int i = 0; i < grid->getRows(); i++) {
         preInfluence[i] = new int[grid->getColumns()];
         curInfluence[i] = new int[grid->getColumns()];
