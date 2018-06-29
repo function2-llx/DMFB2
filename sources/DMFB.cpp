@@ -11,7 +11,7 @@
 #include "Grid.h"
 #include "Dispenser.h"
 #include "Hash.h"
-#include "Tools.h"
+#include "Global.h"
 
 using namespace std;
 
@@ -72,6 +72,7 @@ void dfsLeast(Node* cur)
 
 void DMFB::loadSequencingGraph()
 {
+	using namespace Global;
 	ifstream is("./input/SequencingGraph.txt");
 	assert(is.is_open());
 	is >> this->nDroplets;
@@ -166,6 +167,7 @@ bool range(int a, int n)
 
 void DMFB::loadModuleLibrary()
 {
+	using namespace Global;
 	ifstream is("./input/ModuleLibrary.txt");
 	assert(is.is_open());
 	is >> this->nMixingOperations;

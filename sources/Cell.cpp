@@ -19,6 +19,7 @@ bool Cell::existSink()
 #ifdef DEBUG
 
 #include <iostream>
+
 using namespace std;
 
 #endif

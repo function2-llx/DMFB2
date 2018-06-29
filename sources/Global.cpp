@@ -2,7 +2,7 @@
 
 using namespace Global;
 
-int** mixPair;
-bool* toBeMixed;
-bool* toBeDispensed;
-int nDroplets;
+int **Global::mixPair;
+bool *Global::toBeMixed;
+bool *Global::toBeDispensed;
+int Global::nDroplets;

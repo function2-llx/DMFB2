@@ -49,6 +49,7 @@ Droplet::Droplet(const Droplet* precursor, const Direction& direction)
 
 Droplet::Droplet(const Droplet* droplet1, const Droplet* droplet2)
 {
+    using namespace Global;
     assert(!droplet1->underMixing());
     assert(!droplet1->underDetection());
     assert(!droplet2->underMixing());
@@ -167,5 +168,5 @@ int Droplet::estimatedTime() const
 
 bool Droplet::isEndDroplet() const
 {
-    return !toBeMixed[this->identifier];
+    return !Global::toBeMixed[this->identifier];
 }

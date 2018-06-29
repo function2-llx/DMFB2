@@ -12,7 +12,6 @@
 #include "Hash.h"
 #include "Global.h"
 
-
 using namespace std;
 
 State::State(const State& state)
@@ -50,7 +49,7 @@ void State::addDroplet(Droplet* droplet)
 bool State::canDump(const Droplet* droplet) const
 {
     assert(!droplet->underDetection());
-    return Global::toBeMixed[droplet->getIdentifier()] && droplet->detected();
+    return !Global::toBeMixed[droplet->getIdentifier()] && droplet->detected();
 }
 //check if current necessary detection is available
 void State::check()
@@ -98,29 +97,54 @@ State* State::initialState()
 
 bool State::fluidicConstraints(Droplet* droplet)
 {
-
+    
 }
 
-int** influnce;
-int** occupy;
+int **curInfluence, **preInfluence;
+vector<Droplet> **content;  //record droplets in every grid
+vector<Droplet*> undispensed;   //record undispensed droplets
 
-void State::dfsMove(vector<Droplet*>::iterator it)
+bool check(int identifier, Point position)
+{
+    using namespace Global;
+    int pre = preInfluence[position.r][position.c];
+    if (pre != -1 && !mixPair[pre][identifier]) return false;
+    int cur = curInfluence[position.r][position.c];
+    if (cur != -1  && !mixPair[cur][identifier]) return false;
+    return true;
+}
+
+void State::dfsMove(const vector<Droplet*>::iterator it) const
 {
     if (it == this->droplets.end()){
-
+        
     } else {
         Droplet* droplet = *it;
-        if (!droplet->inGrid()) {
-            
+        int identifier = droplet->getIdentifier();
+        Point position = droplet->getPosition();
+        if (!droplet->inGrid()) {   //deal with undispensed droplet
+            if (::check(identifier, position)) {
+                Droplet newDroplet(droplet, zeroDirection);
+                content[position.r][position.c].push_back(newDroplet);
+                int record[3][3];
+                for (int i = -1; i <= 1; i++) {
+                    for (int j = -1; j <= 1; j++) {
+                        Point cur(position.r + i, position.c + j);
+                        if (grid->inside(cur)) {
+                            record[i + 1][j + 1] = curInfluence[position.r + i][position.c + j];
+                        }
+                    }
+                }
+                this->dfsMove(it + 1);
+                content[position.r][position.c].pop_back();
+            }
+            undispensed.push_back(droplet);
+            dfsMove(it + 1);
+            undispensed.pop_back();
         } else {
 
         }
     }
-}
-
-void insert(Droplet* droplet)
-{
-
 }
 
 vector<State*> State::getSuccessors()
@@ -129,13 +153,13 @@ vector<State*> State::getSuccessors()
     sucState.clear();
     sucState.decision = this;
     sucState.step = this->step + 1; 
-    influnce = new int*[grid->getRows()];
-    occupy = new int*[grid->getRows()];
+    preInfluence = new int*[grid->getRows()];
+    content = new vector<Droplet*>*[grid->getRows()];
     for (int i = 0; i < grid->getRows(); i++) {
-        influnce[i] = new int[grid->getColumns()];
-        occupy[i] = new int[grid->getColumns()];
+        preInfluence[i] = new int[grid->getColumns()];
+        curInfluence[i] = new int[grid->getColumns()];
         for (int j = 0; j < grid->getColumns(); j++) {
-            influnce[i][j] = occupy[i][j] = -1;
+            curInfluence[i][j] = preInfluence[i][j] = -1;
         }
     }
     for (auto droplet: this->droplets) {
@@ -143,13 +167,11 @@ vector<State*> State::getSuccessors()
         int identifier = droplet->getIdentifier();
         for (int i = position.r - 1; i <= position.r + 1; i++) {
             for (int j = position.c - 1; j <= position.c + 1; j++) {
-                Point cur(i, j);
-                if (grid->inside(cur)) {
-                    influnce[i][j] = identifier;
+                if (grid->inside(Point(i, j))) {
+                    preInfluence[i][j] = identifier;
                 }
             }
         }
-        occupy[position.r][position.c] = identifier;
     }
     this->dfsMove(this->droplets.begin());
     return successors;

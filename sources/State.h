@@ -21,7 +21,7 @@ private:
 
     bool canDump(const Droplet* droplet) const;
     void check();
-    void dfsMove(std::vector<Droplet*>::iterator);
+    void dfsMove(const std::vector<Droplet*>::iterator) const;
     bool fluidicConstraints(Droplet*);
 public:
     static State* initialState();
