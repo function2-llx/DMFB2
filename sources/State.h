@@ -19,7 +19,6 @@ private:
 
     void addDroplet(Droplet* droplet);
 
-    bool canDump(const Droplet* droplet) const;
     void check();
     void dfsMove(const std::vector<Droplet*>::iterator) const;
     void pushDroplet(const Droplet& droplet, const std::vector<Droplet*>::iterator) const;

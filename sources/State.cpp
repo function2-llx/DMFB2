@@ -46,11 +46,6 @@ void State::addDroplet(Droplet* droplet)
     this->droplets.push_back(droplet);
 }
 
-bool State::canDump(const Droplet* droplet) const
-{
-    assert(!droplet->underDetection());
-    return !Global::toBeMixed[droplet->getIdentifier()] && droplet->detected();
-}
 //check if current necessary detection is available
 void State::check()
 {
@@ -160,16 +155,35 @@ void State::dfsMove(const vector<Droplet*>::iterator it) const
             undispensed.push_back(droplet);
             this->dfsMove(it + 1);
             undispensed.pop_back();
-        } else if (droplet->underMixing()) {
+        } else if (droplet->underMixing()) {    //droplet under mixing must move(?)
             for (int i = 0; i < 5; i++) {
                 if (direction[i] != zeroDirection) {
                     this->pushDroplet(Droplet(droplet, direction[i]), it);
                 }
             }
-        } else if (droplet->underDetection()) {
+        } else if (droplet->underDetection()) { //droplet under detection must stay still
             this->pushDroplet(Droplet(droplet, zeroDirection), it);
-        } else {
-            
+        } else {    //free droplet
+            if (droplet->detected()) {  //attempt to dump into sink
+				if (!Global::toBeMixed[identifier]) {
+					Cell *cell = grid->getCell(position);
+					if (cell->existSink()) {
+                        this->dfsMove(it + 1);
+					}
+				}
+            } else {    //attempt to start detection
+                Cell *cell = grid->getCell(position);
+                if (cell->existDetector() && cell->getDetector()->getType() == droplet->getType()) {
+                    Droplet newDroplet(droplet, zeroDirection);
+                    newDroplet.startDetection();
+                    this->pushDroplet(newDroplet, it);
+                }                
+            }
+            for (int i = 0; i < 5; i++) {   //trivial move
+                if (grid->inside(position + direction[i])) {
+                    pushDroplet(Droplet(droplet, direction[i]), it);
+                }
+            }
         }
     }
 }
