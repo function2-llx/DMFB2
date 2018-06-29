@@ -27,6 +27,11 @@ bool operator == (const Point& a, const Point& b)
     return a.r == b.r && a.c == b.c;
 }
 
+bool operator != (const Point& a, const Point& b)
+{
+    return a.r != b.r || a.c != b.c;
+}
+
 Point operator - (const Point& a, const Point& b)
 {
     return Point(a.r - b.r, a.c - b.c);

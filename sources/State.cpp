@@ -102,15 +102,19 @@ bool State::fluidicConstraints(Droplet* droplet)
 
 int **curInfluence, **preInfluence;
 vector<Droplet> **content;  //record droplets in every grid
-vector<Droplet*> undispensed;   //record undispensed droplets
+vector<const Droplet*> undispensed;   //record undispensed droplets
 
-bool check(int identifier, Point position)
+bool canPush(const Droplet& droplet)
 {
     using namespace Global;
-    int pre = preInfluence[position.r][position.c];
-    if (pre != -1 && !mixPair[pre][identifier]) return false;
-    int cur = curInfluence[position.r][position.c];
-    if (cur != -1  && !mixPair[cur][identifier]) return false;
+    int identifier = droplet.getIdentifier();
+    Point position = droplet.getPosition();
+    int pre = preInfluence[position.r][position.c], cur = curInfluence[position.r][position.c];
+    if (pre != -1 || cur != -1) {
+        if (droplet.underMixing() || !droplet.detected()) return false;
+        if (pre != -1 && mixingResult[pre][identifier] == -1) return false;
+        if (cur != -1 && mixingResult[cur][identifier] == -1) return false;
+    }
     return true;
 }
 
@@ -118,7 +122,8 @@ void State::pushDroplet(const Droplet& droplet, const vector<Droplet*>::iterator
 {
     int identifier = droplet.getIdentifier();
     Point position = droplet.getPosition();
-    if (::check(identifier, position)) {
+    if (canPush(droplet)) {
+        content[position.r][position.c].push_back(droplet);
         int record[3][3];
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
@@ -138,6 +143,7 @@ void State::pushDroplet(const Droplet& droplet, const vector<Droplet*>::iterator
                 }
             }
         }
+        content[position.r][position.c].pop_back();
     }
 }
 
@@ -146,15 +152,22 @@ void State::dfsMove(const vector<Droplet*>::iterator it) const
     if (it == this->droplets.end()){
         
     } else {
-        Droplet* droplet = *it;
+        const Droplet* droplet = *it;
         int identifier = droplet->getIdentifier();
         Point position = droplet->getPosition();
         if (!droplet->inGrid()) {   //deal with undispensed droplet
-
+            this->pushDroplet(Droplet(droplet, zeroDirection), it);
+            undispensed.push_back(droplet);
+            this->dfsMove(it + 1);
+            undispensed.pop_back();
         } else if (droplet->underMixing()) {
-
+            for (int i = 0; i < 5; i++) {
+                if (direction[i] != zeroDirection) {
+                    this->pushDroplet(Droplet(droplet, direction[i]), it);
+                }
+            }
         } else if (droplet->underDetection()) {
-
+            this->pushDroplet(Droplet(droplet, zeroDirection), it);
         } else {
             
         }
