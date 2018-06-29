@@ -8,7 +8,6 @@
 
 class Cell {
 private:
-    //actual neighbors besides cell itself
     Point position;
     Detector* detector;
     Sink* sink;
