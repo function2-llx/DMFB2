@@ -94,6 +94,11 @@ bool Droplet::inGrid() const
     return this->dispensed;
 }
 
+bool Droplet::underMixing() const
+{
+    return !this->mixing;
+}
+
 void Droplet::startDetection()
 {
     assert(this->detecting == false);

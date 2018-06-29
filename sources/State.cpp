@@ -114,6 +114,33 @@ bool check(int identifier, Point position)
     return true;
 }
 
+void State::pushDroplet(const Droplet& droplet, const vector<Droplet*>::iterator it) const
+{
+    int identifier = droplet.getIdentifier();
+    Point position = droplet.getPosition();
+    if (::check(identifier, position)) {
+        int record[3][3];
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                Point cur(position.r + i, position.c + j);
+                if (grid->inside(cur)) {
+                    record[i + 1][j + 1] = curInfluence[cur.r][cur.c];
+                    curInfluence[cur.r][cur.c] = identifier;
+                }
+            }
+        }
+        this->dfsMove(it + 1);
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                Point cur(position.r + i, position.c + j);
+                if (grid->inside(cur)) {
+                    curInfluence[cur.r][cur.c] = record[i + 1][j + 1];
+                }
+            }
+        }
+    }
+}
+
 void State::dfsMove(const vector<Droplet*>::iterator it) const
 {
     if (it == this->droplets.end()){
@@ -123,30 +150,7 @@ void State::dfsMove(const vector<Droplet*>::iterator it) const
         int identifier = droplet->getIdentifier();
         Point position = droplet->getPosition();
         if (!droplet->inGrid()) {   //deal with undispensed droplet
-            if (::check(identifier, position)) {
-                Droplet newDroplet(droplet, zeroDirection);
-                content[position.r][position.c].push_back(newDroplet);
-                int record[3][3];
-                for (int i = -1; i <= 1; i++) {
-                    for (int j = -1; j <= 1; j++) {
-                        if (grid->inside(Point(position.r + i, position.c + j))) {
-                            record[i + 1][j + 1] = curInfluence[position.r + i][position.c + j];
-                        }
-                    }
-                }
-                this->dfsMove(it + 1);
-                for (int i = -1; i <= 1; i++) {
-                    for (int j = -1; j <= 1; j++) {
-                        if (grid->inside(Point(position.r + i, position.c + j))) {
-                            curInfluence[position.r + i][position.c + j] = record[i + 1][j + 1];
-                        }
-                    }
-                }
-                content[position.r][position.c].pop_back();
-            }
-            undispensed.push_back(droplet);
-            dfsMove(it + 1);
-            undispensed.pop_back();
+
         } else if (droplet->underMixing()) {
 
         } else if (droplet->underDetection()) {
