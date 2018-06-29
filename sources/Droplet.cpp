@@ -56,9 +56,15 @@ Droplet::Droplet(const Droplet* droplet1, const Droplet* droplet2)
     assert(droplet1->position == droplet2->position);
     assert(grid->inside(droplet1->position));
     assert(mixPair[droplet1->identifier][droplet2->identifier] != -1);
-    this->identifier = mixPair[droplet1->identifier][droplet2->identifier];
-    this->setData(dropletData[identifier]);
+    this->setData(dropletData[mixPair[droplet1->identifier][droplet2->identifier]]);
     this->dispensed = true;
+    this->remainingMixingTime--;
+    if (remainingDetectingTime == 0) {
+        this->mixing = false;
+    } else this->mixing = true;
+    this->detecting = false;
+    this->position = droplet1->position;
+    
 }
 
 void Droplet::setData(const DropletData& dropletData)
