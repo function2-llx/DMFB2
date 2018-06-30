@@ -220,7 +220,6 @@ const State* ret;
 int *curBoundary[4];
 int **curDetector;
 int stepLowerBound, stepUpperBound;
-int retStep;
 int target;
 
 bool DMFB::dfs(const State* currentState)
@@ -296,6 +295,7 @@ void DMFB::placeDetector(int detectorCount)
 			hashSet.clear();
 			State* init = new State;
 			hashSet.insert(init->hash());
+//			stepUpperBound = max(init->estimationTime(), stepUpperBound);
 			if (dfs(init)) {
 				assert(ret != nullptr);
 				break;
@@ -372,8 +372,7 @@ void DMFB::placeDispenser(int dispenserCount)
 
 void DMFB::solve()
 {
-	target = 50;
-	stepLowerBound = 0;
+	target = 10000;
 	curDetector = new int*[grid->getRows()];
 	for (int i = 0; i < grid->getRows(); i++) {
 		curDetector[i] = new int[grid->getColumns()];
