@@ -188,6 +188,7 @@ void State::dfsMove(unsigned int number) const
             } else {    //attempt to start detection
                 Cell *cell = grid->getCell(position);
                 if (cell->existDetector() && cell->getDetector()->getType() == droplet->getType()) {
+                    //cerr << "detector type: " << cell->getDetector()->getType() << " droplet type: " << droplet->getType() << endl;
                     Droplet newDroplet(droplet, zeroDirection);
                     newDroplet.startDetection();
                     this->pushDroplet(newDroplet, number);
@@ -264,7 +265,7 @@ void State::visualPrint(ostream& os) const
     for (auto droplet: this->droplets) {
         if (droplet->inGrid()) {
             Point position = droplet->getPosition();
-            type[position.r][position.c] = droplet->getIdentifier();
+            type[position.r][position.c] = droplet->getType();
         }
     }
     for (int i = 0 ; i < grid->getRows(); i++) {
