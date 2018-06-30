@@ -15,10 +15,11 @@ private:
 public:
     Detector(int type, Point position);
     int getType();
-    Point getPositon();
+    Point getPosition();
     ULL hash();
 };
 
 extern Point* detectorPosition;
+extern Detector** pdetector;
 
 #endif  //DETECTOR_H

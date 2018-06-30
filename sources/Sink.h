@@ -10,6 +10,9 @@ private:
     Sink& operator = (const Sink& sink);
 public:
     Sink(Point position);
+    Point getPosition();
 };
+
+extern Sink** sink;
 
 #endif  //SINK_H
