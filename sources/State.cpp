@@ -265,14 +265,14 @@ void State::visualPrint(ostream& os) const
     for (auto droplet: this->droplets) {
         if (droplet->inGrid()) {
             Point position = droplet->getPosition();
-            type[position.r][position.c] = droplet->getType();
+            type[position.r][position.c] = ::type[droplet->getType()];
         }
     }
     for (int i = 0 ; i < grid->getRows(); i++) {
         for (int j = 0; j < grid->getColumns(); j++) {
 			if (type[i][j] == -1) {
 				os << "N  ";
-			} else if (type[i][j] < 10) {
+			} else {
 				os << "D" << type[i][j] << " ";
 			}
         }

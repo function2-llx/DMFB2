@@ -120,6 +120,7 @@ void DMFB::loadSequencingGraph()
 			assert(node[i]->ch[1] == nullptr);
 			if (!this->typeMap.count(node[i]->type)) {
 				this->typeMap[node[i]->type] = this->nDispensers++;
+				type.push_back(node[i]->type);
 			}
 			node[i]->type = this->typeMap[node[i]->type];
 		}
@@ -134,6 +135,7 @@ void DMFB::loadSequencingGraph()
 			assert(node[i]->ch[1] != nullptr);
 			if (!this->typeMap.count(node[i]->type)) {
 				this->typeMap[node[i]->type] = this->nTypes++;
+				type.push_back(node[i]->type);
 			}
 			node[i]->type = this->typeMap[node[i]->type];
 		}
@@ -221,6 +223,7 @@ int *curBoundary[4];
 int **curDetector;
 int stepLowerBound, stepUpperBound;
 int target;
+vector<int> type;
 
 bool DMFB::dfs(const State* currentState)
 {
@@ -346,7 +349,6 @@ void DMFB::placeSink(int sinkCount)
 	}
 }
 
-
 void DMFB::placeDispenser(int dispenserCount)
 {
 	if (dispenserCount == this->nDispensers) {
@@ -374,7 +376,7 @@ void DMFB::placeDispenser(int dispenserCount)
 
 void DMFB::solve()
 {
-	target = 50;
+	target = 100;
 	curDetector = new int*[grid->getRows()];
 	for (int i = 0; i < grid->getRows(); i++) {
 		curDetector[i] = new int[grid->getColumns()];
@@ -408,7 +410,7 @@ void DMFB::print(ostream& os, int x)
 		os << "S ";
 	} else {
 		assert(0 <= x && x < this->nTypes && x <= 9);
-		os << "D" << x;
+		os << "D" << type[x];
 	}
 }
 

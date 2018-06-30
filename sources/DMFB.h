@@ -37,5 +37,6 @@ public:
 
 extern int *leastTime;
 extern DMFB *DMFBsolver;
+extern std::vector<int> type;
 
 #endif	//DFMB_H
