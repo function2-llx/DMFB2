@@ -81,6 +81,7 @@ ULL Droplet::hash() const
     static ULL shift = 7891746412ull;
     ULL ret = this->identifier;
     ret = grid->getPointIdentifier(this->position) + shift + hashBase * ret;
+    ret = this->dispensed + shift + hashBase * ret;
     ret = this->mixing + shift + hashBase * ret;
     ret = this->remainingMixingTime + shift + hashBase * ret;
     ret = this->detecting + shift + hashBase * ret;
@@ -95,7 +96,7 @@ bool Droplet::inGrid() const
 
 bool Droplet::underMixing() const
 {
-    return !this->mixing;
+    return this->mixing;
 }
 
 void Droplet::startDetection()
@@ -116,7 +117,7 @@ bool Droplet::underDetection() const
 
 bool Droplet::detected() const
 {
-return this->detecting == false && this->remainingDetectingTime == 0;
+    return !this->mixing && this->detecting == false && this->remainingDetectingTime == 0;
 }
 
 int Droplet::getIdentifier() const
@@ -165,9 +166,10 @@ int Droplet::estimatedTime() const
     if (!this->detected()) {
         ret += this->remainingDetectingTime;
         if (!this->underDetection()) {
-            ret += manDis(this->position, detectorPosition[this->type]);
+            ret += max(manDis(this->position, detectorPosition[this->type]), this->remainingMixingTime);
         }
     }
+    if (!this->dispensed) ret++;
     return ret;
 }
 

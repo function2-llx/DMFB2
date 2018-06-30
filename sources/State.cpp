@@ -11,12 +11,13 @@
 #include "Cmp.h"
 #include "Hash.h"
 #include "Global.h"
+#include "DMFB.h"
 
 using namespace std;
 
 State::State(const State* precursor)
 {
-    this->estimation = -1;
+    this->estimation = 0;
 	this->step = precursor->step + 1;
 	this->decision = precursor;
 }
@@ -36,11 +37,11 @@ void State::addDroplet(const Droplet* droplet)
 
 State::State()
 {
-    using namespace Global;
-    this->decision == nullptr;
     this->step = 0;
-    for (int i = 0; i < nDroplets; i++) {
-        if (toBeDispensed[i]) {
+    this->estimation = 0;
+    this->decision = nullptr;
+    for (int i = 0; i < DMFBsolver->getDropletNumber(); i++) {
+        if (Global::toBeDispensed[i]) {
             this->addDroplet(new Droplet(dropletData[i]));
         }
     }
@@ -70,7 +71,9 @@ ULL State::hash() const
 bool State::isEndState() const
 {
     for (auto droplet: this->droplets) {
-        if (!droplet->detected() || !droplet->isEndDroplet()) return false;
+        if (!droplet->detected() || !droplet->isEndDroplet()) {
+            return false;
+        }
     }
     return true;
 }
@@ -92,10 +95,14 @@ bool canPush(const Droplet& droplet)
     int identifier = droplet.getIdentifier();
     Point position = droplet.getPosition();
     int pre = preInfluence[position.r][position.c], cur = curInfluence[position.r][position.c];
-    if (pre != -1 || cur != -1) {
+    if (pre != -1 && pre != identifier) {
         if (droplet.underMixing() || !droplet.detected()) return false;
-        if (pre != -1 && mixingResult[pre][identifier] == -1) return false;
-        if (cur != -1 && mixingResult[cur][identifier] == -1) return false;
+        if (mixingResult[pre][identifier] == -1) return false;
+    }
+    if (cur != -1) {
+        assert(cur != identifier);
+        if (droplet.underMixing() || !droplet.detected()) return false;
+        if (mixingResult[cur][identifier] == -1) return false;
     }
     return true;
 }
@@ -150,6 +157,8 @@ void State::dfsMove(unsigned int number) const
         if (!hashSet.count(hash)) {
             hashSet.insert(hash);
             successors.push_back(successor);
+        } else {
+            delete successor;
         }
     } else {
         const Droplet* droplet = droplets[number];
@@ -162,7 +171,7 @@ void State::dfsMove(unsigned int number) const
             undispensed.pop_back();
         } else if (droplet->underMixing()) {    //droplet under mixing must move(?)
             for (int i = 0; i < 5; i++) {
-                if (direction[i] != zeroDirection) {
+                if (direction[i] != zeroDirection && grid->inside(position + direction[i])) {
                     this->pushDroplet(Droplet(droplet, direction[i]), number);
                 }
             }
@@ -197,27 +206,38 @@ vector<const State*> State::getSuccessors() const
 {
     successors.clear();
     preInfluence = new int*[grid->getRows()];
+    curInfluence = new int*[grid->getRows()];
     content = new vector<Droplet>*[grid->getRows()];
     for (int i = 0; i < grid->getRows(); i++) {
         preInfluence[i] = new int[grid->getColumns()];
         curInfluence[i] = new int[grid->getColumns()];
+        content[i] = new vector<Droplet>[grid->getColumns()];
         for (int j = 0; j < grid->getColumns(); j++) {
             curInfluence[i][j] = preInfluence[i][j] = -1;
         }
     }
     for (auto droplet: this->droplets) {
-        Point position(droplet->getPosition());
-        int identifier = droplet->getIdentifier();
-        for (int i = position.r - 1; i <= position.r + 1; i++) {
-            for (int j = position.c - 1; j <= position.c + 1; j++) {
-                if (grid->inside(Point(i, j))) {
-                    preInfluence[i][j] = identifier;
+        if (droplet->inGrid()) {
+            Point position(droplet->getPosition());
+            int identifier = droplet->getIdentifier();
+            for (int i = position.r - 1; i <= position.r + 1; i++) {
+                for (int j = position.c - 1; j <= position.c + 1; j++) {
+                    if (grid->inside(Point(i, j))) {
+                        preInfluence[i][j] = identifier;
+                    }
                 }
             }
         }
     }
-    auto it = this->droplets.begin();
     this->dfsMove(0);
+    for (int i = 0; i < grid->getRows(); i++) {
+        delete[] preInfluence[i];
+        delete[] curInfluence[i];
+        delete[] content[i];
+    }
+    delete[] preInfluence;
+    delete[] curInfluence;
+    delete[] content;
     return successors;
 }
 
@@ -242,9 +262,10 @@ void State::visualPrint(ostream& os) const
         }
     }
     for (auto droplet: this->droplets) {
-        int r, c;
-        droplet->getPosition().getData(r, c);
-        type[r][c] = droplet->getIdentifier();
+        if (droplet->inGrid()) {
+            Point position = droplet->getPosition();
+            type[position.r][position.c] = droplet->getIdentifier();
+        }
     }
     for (int i = 0 ; i < grid->getRows(); i++) {
         for (int j = 0; j < grid->getColumns(); j++) {
@@ -252,8 +273,6 @@ void State::visualPrint(ostream& os) const
 				os << "N  ";
 			} else if (type[i][j] < 10) {
 				os << "D" << type[i][j] << " ";
-			} else {
-				os << "M" << type[i][j] - 10 << " ";
 			}
         }
 		os << endl;
@@ -264,9 +283,10 @@ void State::allPrint(ostream& os) const
 {
     os << "==================State================" << endl;
     this->visualPrint(os);
-
     for (auto droplet: this->droplets) {
-        os << *droplet << endl;
+        if (droplet->inGrid()) {
+            os << *droplet << endl;
+        }
     }
     os << "current step: " << this->step << endl;
     os << "estimated eventually step: " << this->step + this->estimation << endl;
@@ -277,7 +297,9 @@ void State::textPrint(ostream& os) const
 {
     os << "==================State================" << endl;
     for (auto droplet: this->droplets) {
-        os << *droplet << endl;
+        if (droplet->inGrid()) {
+            os << *droplet << endl;
+        }
     }
     os << "current step: " << this->step << endl;
     os << "estimated eventually step: " << this->step + this->estimation << endl;

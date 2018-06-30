@@ -8,12 +8,12 @@ using namespace std;
 
 int main()
 {
-	DMFB* DFMBsolver = new DMFB();
-	DFMBsolver->loadSequencingGraph();
-	DFMBsolver->loadModuleLibrary();
-	DFMBsolver->loadDesignObejective();
-	DFMBsolver->solve();
+	DMFBsolver = new DMFB();
+	DMFBsolver->loadSequencingGraph();
+	DMFBsolver->loadModuleLibrary();
+	DMFBsolver->loadDesignObejective();
+	DMFBsolver->solve();
 	cerr << "end" << endl;
-	delete DFMBsolver;
+	delete DMFBsolver;
 	return 0;
 }
