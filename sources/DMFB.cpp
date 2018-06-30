@@ -291,11 +291,13 @@ bool DMFB::dfs(const State* currentState)
 void DMFB::placeDetector(int detectorCount)
 {
 	if (detectorCount == this->nTypes) {
+		State *test = new State;
+		stepLowerBound = test->estimationTime();
+		delete test;
 		for (stepUpperBound = stepLowerBound; stepUpperBound <= target; stepUpperBound++) {
 			hashSet.clear();
 			State* init = new State;
 			hashSet.insert(init->hash());
-//			stepUpperBound = max(init->estimationTime(), stepUpperBound);
 			if (dfs(init)) {
 				assert(ret != nullptr);
 				break;
@@ -372,7 +374,7 @@ void DMFB::placeDispenser(int dispenserCount)
 
 void DMFB::solve()
 {
-	target = 10000;
+	target = 50;
 	curDetector = new int*[grid->getRows()];
 	for (int i = 0; i < grid->getRows(); i++) {
 		curDetector[i] = new int[grid->getColumns()];
