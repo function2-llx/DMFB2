@@ -29,13 +29,14 @@ public:
     Droplet(const DropletData& dropletData);
     Droplet(const Droplet* precursor, const Direction& direction);
     Droplet(const Droplet& droplet1, const Droplet& droplet2);
-
+    Droplet(const Droplet&);
 
     ULL hash() const;
 
     bool inGrid() const;
 
     bool underMixing() const;
+    bool mixed() const;
 
     void startDetection();
     bool underDetection() const;

@@ -12,6 +12,24 @@
 
 using namespace std;
 
+Droplet::Droplet(const Droplet& droplet)
+{
+    this->identifier = droplet.identifier;
+    this->type = droplet.type;
+    this->position = droplet.position;
+    this->dispensed = droplet.dispensed;
+    this->mixing = droplet.mixing;
+    this->remainingMixingTime = droplet.remainingMixingTime;
+    if (this->remainingMixingTime == 0) {
+        this->mixing = false;
+    }
+    this->detecting = droplet.detecting;
+    this->remainingDetectingTime = droplet.remainingDetectingTime;
+    if (this->remainingDetectingTime == 0) {
+        this->detecting = false;
+    }
+}
+
 Droplet::Droplet(const DropletData& dropletData)
 {
     this->setData(dropletData);
@@ -32,16 +50,12 @@ Droplet::Droplet(const Droplet* precursor, const Direction& direction)
     this->dispensed = true;
     if (precursor->mixing) {
         this->remainingMixingTime = precursor->remainingMixingTime - 1;
-        if (this->remainingMixingTime == 0) {
-            this->mixing = false;
-        }
     } else {
         this->remainingMixingTime = 0;
     }
     if (precursor->detecting) {
         assert(direction == zeroDirection);
         this->remainingDetectingTime = precursor->remainingDetectingTime - 1;
-        if (this->remainingDetectingTime == 0) this->detecting = false;
     } else {
         this->remainingDetectingTime = precursor->remainingDetectingTime;
     }
@@ -60,9 +74,7 @@ Droplet::Droplet(const Droplet& droplet1, const Droplet& droplet2)
     this->setData(dropletData[mixingResult[droplet1.identifier][droplet2.identifier]]);
     this->dispensed = true;
     this->remainingMixingTime--;
-    if (remainingDetectingTime == 0) {
-        this->mixing = false;
-    } else this->mixing = true;
+    this->mixing = true;
     this->detecting = false;
     this->position = droplet1.position;
 }
@@ -115,9 +127,14 @@ bool Droplet::underDetection() const
     return this->detecting;
 }
 
+bool Droplet::mixed() const
+{
+    return !this->mixing;
+}
+
 bool Droplet::detected() const
 {
-    return !this->mixing && this->detecting == false && this->remainingDetectingTime == 0;
+    return this->detecting == false && this->remainingDetectingTime == 0;
 }
 
 int Droplet::getIdentifier() const
@@ -143,6 +160,14 @@ ostream& operator << (ostream& os, const Droplet& droplet)
 	os << "type: " << droplet.type << endl;
 	os << "position: " << droplet.position << endl;
 	os << "detecting state: ";
+    if (droplet.mixing) {
+        os << "mixing, " << droplet.remainingMixingTime;
+        if (droplet.remainingMixingTime == 1) {
+            os << " step left" << endl;
+        } else {
+            os << " steps left" << endl;
+        }
+    }
 	if (droplet.detected()) {
 		os << "has been detected" << endl;
 	} else {

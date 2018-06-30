@@ -58,7 +58,7 @@ void State::clean() const
 ULL State::hash() const
 {
     static ULL hashBase = 75487475995782307ull;
-    static ULL shift = 3751046701ull;
+    static ULL shift = 3751046701531ull;
     ULL ret = 0;
     auto replaceDroplets = this->droplets;
     sort(replaceDroplets.begin(), replaceDroplets.end(), cmpDroplet);
@@ -71,7 +71,7 @@ ULL State::hash() const
 bool State::isEndState() const
 {
     for (auto droplet: this->droplets) {
-        if (!droplet->detected() || !droplet->isEndDroplet()) {
+        if (!droplet->mixed() || !droplet->detected() || !droplet->isEndDroplet()) {
             return false;
         }
     }
@@ -96,12 +96,12 @@ bool canPush(const Droplet& droplet)
     Point position = droplet.getPosition();
     int pre = preInfluence[position.r][position.c], cur = curInfluence[position.r][position.c];
     if (pre != -1 && pre != identifier) {
-        if (droplet.underMixing() || !droplet.detected()) return false;
+        if (!droplet.mixed() || !droplet.detected()) return false;
         if (mixingResult[pre][identifier] == -1) return false;
     }
     if (cur != -1) {
         assert(cur != identifier);
-        if (droplet.underMixing() || !droplet.detected()) return false;
+        if (!droplet.mixed() || !droplet.detected()) return false;
         if (mixingResult[cur][identifier] == -1) return false;
     }
     return true;

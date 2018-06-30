@@ -108,7 +108,6 @@ void DMFB::loadSequencingGraph()
 	}
 	for (int i = 0; i < this->nDroplets; i++) {
 		if (node[i]->fa == nullptr) {
-			cerr << "test" << endl;
 			toBeMixed[i] = false;
 		} else {
 			toBeMixed[i] = true;
@@ -373,7 +372,7 @@ void DMFB::placeDispenser(int dispenserCount)
 
 void DMFB::solve()
 {
-	target = 20;
+	target = 50;
 	stepLowerBound = 0;
 	curDetector = new int*[grid->getRows()];
 	for (int i = 0; i < grid->getRows(); i++) {
