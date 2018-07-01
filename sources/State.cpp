@@ -88,7 +88,7 @@ int State::estimationTime() const
     return this->estimation;
 }
 
-vector<const State*> successors;
+static vector<const State*> successors;
 
 int **curInfluence, **preInfluence;
 vector<Droplet> **content;  //record droplets in every grid
