@@ -9,7 +9,7 @@ private:
     Sink(const Sink& sink);
     Sink& operator = (const Sink& sink);
 public:
-    Sink(Point position);
+    explicit Sink(const Point& position);
     Point getPosition();
 };
 

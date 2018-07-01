@@ -47,6 +47,11 @@ State::State()
     }
 }
 
+vector<const Droplet*> State::getDroplets() const
+{
+    return this->droplets;
+}
+
 void State::clean() const
 {
     if (this->decision != nullptr) {

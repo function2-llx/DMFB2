@@ -28,6 +28,7 @@ public:
 	void loadDesignObejective();
 	void solve();
 	void printPlace(std::ostream&);
+	int getDropletNumber() const;
 };
 
 extern int* leastTime;

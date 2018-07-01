@@ -66,7 +66,8 @@
 		"thread": "cpp",
 		"typeindex": "cpp",
 		"valarray": "cpp",
-		"random": "cpp"
+		"random": "cpp",
+		"map": "cpp"
 	},
 	"C_Cpp.intelliSenseEngineFallback": "Enabled",
 	"C_Cpp.default.browse.path": null

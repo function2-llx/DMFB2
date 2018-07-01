@@ -34,8 +34,13 @@ struct Node {
 	}
 };
 
+
+int DMFB::getDropletNumber() const
+{
+	return this->nDroplets;
+}
+
 Node** node;
-int nDropletsOutsideClass;
 
 DMFB::DMFB()
 {
@@ -55,7 +60,6 @@ DMFB::~DMFB()
 	delete []this->detector;
 }
 
-int nMixers;
 int* leastTime;
 
 void dfsLeast(Node* cur)
@@ -70,6 +74,8 @@ void dfsLeast(Node* cur)
 		dfsLeast(cur->ch[i]);
 	}
 }
+
+vector<int> type;
 
 void DMFB::loadSequencingGraph()
 {
@@ -102,6 +108,8 @@ void DMFB::loadSequencingGraph()
 				this->typeMap[node[i]->type] = this->nDispensers++;
 			}
 			node[i]->type = this->typeMap[node[i]->type];
+		} else {
+			toBeDispensed[i] = false;
 		}
 	}
 	dispenser = new Dispenser*[this->nDispensers];
@@ -315,7 +323,8 @@ void DMFB::placeSink(int sinkCount)
 	if (sinkCount == this->nSinks) {
 		if (placeState->addSink(sinkCount, sink)) {
 			placeState->clearDetector();
-			this->placeDetector(0);
+		this->placeDetector(0);
+
 		}
 	} else {
 		for (int k = 0; k < 4; k++) {
@@ -347,7 +356,8 @@ void DMFB::placeDispenser(int dispenserCount)
 		}
 		if (placeState->addDispenser(dispenserCount, dispenser)) {
 			placeState->clearSink();
-			this->placeSink(0);
+		this->placeSink(0);
+
 		}
 	} else {
 		for (int k = 0; k < 4; k++) {

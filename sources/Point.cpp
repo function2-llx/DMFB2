@@ -54,6 +54,7 @@ bool adjacent(Point a, Point b)
 
 bool operator < (const Point& a, const Point& b)
 {
+    //cerr << "a: " << a << " b: " << b << endl;
     if (a.r == b.r) return a.c < b.c;
     return a.r < b.r;
 }
