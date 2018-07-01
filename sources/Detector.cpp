@@ -12,7 +12,7 @@ int Detector::getType()
     return this->type;
 }
 
-Point Detector::getPositon()
+Point Detector::getPosition()
 {
     return this->position;
 }

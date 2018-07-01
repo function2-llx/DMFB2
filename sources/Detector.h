@@ -15,7 +15,7 @@ private:
 public:
     Detector(int type, Point position);
     int getType();
-    Point getPositon();
+    Point getPosition();
     ULL hash();
 };
 

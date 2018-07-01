@@ -27,6 +27,8 @@ public:
 
     State();
     ~State();
+
+    std::vector<const Droplet*> getDroplets() const;
     
     ULL hash() const;
     void clean() const;
