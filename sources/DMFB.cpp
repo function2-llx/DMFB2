@@ -12,13 +12,14 @@
 #include "Dispenser.h"
 #include "Hash.h"
 #include "Global.h"
+#include "PlaceState.h"
 
 using namespace std;
 
 struct Node {
 	int identifier, type;
-	Node *fa;
-	Node *ch[2];
+	Node* fa;
+	Node* ch[2];
 	Node() {
 		fa = nullptr;
 		ch[0] = ch[1] = nullptr;
@@ -34,7 +35,12 @@ struct Node {
 	}
 };
 
-Node **node;
+int DMFB::getDropletNumber() const
+{
+	return this->nDroplets;
+}
+
+Node** node;
 
 DMFB::DMFB()
 {
@@ -54,7 +60,7 @@ DMFB::~DMFB()
 	delete []this->detector;
 }
 
-int *leastTime;
+int* leastTime;
 
 void dfsLeast(Node* cur)
 {
@@ -69,10 +75,7 @@ void dfsLeast(Node* cur)
 	}
 }
 
-int DMFB::getDropletNumber() const
-{
-	return this->nDroplets;
-}
+vector<int> type;
 
 void DMFB::loadSequencingGraph()
 {
@@ -162,6 +165,11 @@ void DMFB::loadSequencingGraph()
 	map<data, int> mixType;
 	mixType.clear();
 	for (int i = 0; i < this->nDroplets; i++) {
+		if (node[i]->fa == nullptr) {
+			toBeMixed[i] = false;
+		} else {
+			toBeMixed[i] = true;
+		}
 		if (node[i]->ch[0] == nullptr) {
 			assert(node[i]->ch[0] == nullptr);
 		} else {
@@ -186,11 +194,13 @@ bool range(int a, int n)
 
 void DMFB::loadModuleLibrary()
 {
+	using namespace Global;
 	ifstream is("./input/ModuleLibrary.txt");
 	assert(is.is_open());
 	for (int i = 0; i < this->nDroplets; i++) {
 		leastTime[i] = 0;
 	}
+	mixingResult = new int*[this->nDroplets];
 	is >> this->nSinks;
 	for (int i = 0; i < this->nDroplets; i++) {
 		if (node[i]->fa == nullptr) {
@@ -219,11 +229,13 @@ void DMFB::loadDesignObejective()
 }
 
 const State* ret;
-int *curBoundary[4];
-int **curDetector;
+int* curBoundary[4];
+int** curDetector;
 int stepLowerBound, stepUpperBound;
+int retStep;
 int target;
-vector<int> type;
+int curDispenserCount, curSinkCount, curDetectorCount;
+
 
 bool DMFB::dfs(const State* currentState)
 {
@@ -260,7 +272,7 @@ bool DMFB::dfs(const State* currentState)
 	}
 	bool flag = false;
 	if (currentState->step + currentState->estimationTime() <= stepUpperBound) {
-		auto successors = currentState->getSuccessors();
+		vector<const State*> successors = currentState->getSuccessors();
 		sort(successors.begin(), successors.end());
 		for (auto successor: successors) {
 			if (successor->isEndState()) {
@@ -294,9 +306,8 @@ bool DMFB::dfs(const State* currentState)
 void DMFB::placeDetector(int detectorCount)
 {
 	if (detectorCount == this->nTypes) {
-		State *test = new State;
-		stepLowerBound = test->estimationTime();
-		delete test;
+		if (!placeState->addDetector(detectorCount, pdetector))
+			return ;
 		for (stepUpperBound = stepLowerBound; stepUpperBound <= target; stepUpperBound++) {
 			hashSet.clear();
 			State* init = new State;
@@ -311,6 +322,7 @@ void DMFB::placeDetector(int detectorCount)
 			for (int j = 0; j < grid->getColumns(); j++) {
 				Point position = Point(i, j);
 				Detector* detector = new Detector(detectorCount, position);
+				::pdetector[detectorCount] = detector;
 				if (grid->placeDetector(detector, position)) {
 					detectorPosition[detectorCount] = position;
 					curDetector[i][j] = detectorCount;
@@ -328,13 +340,17 @@ void DMFB::placeDetector(int detectorCount)
 void DMFB::placeSink(int sinkCount)
 {
 	if (sinkCount == this->nSinks) {
+		if (placeState->addSink(sinkCount, sink)) {
+			placeState->clearDetector();
 		this->placeDetector(0);
+		}
 	} else {
 		for (int k = 0; k < 4; k++) {
 			for (int i = 0; i < grid->boundarySize[k]; i++) {
 				if (curBoundary[k][i] == -1) {
 					Point position = grid->boundaryPosition(i, k);
 					Sink* sink = new Sink(position);
+					::sink[sinkCount] = sink;
 					if (grid->placeSink(sink, position)) {
 						curBoundary[k][i] = this->nTypes;
 						this->placeSink(sinkCount + 1);
@@ -349,13 +365,17 @@ void DMFB::placeSink(int sinkCount)
 	}
 }
 
+
 void DMFB::placeDispenser(int dispenserCount)
 {
 	if (dispenserCount == this->nDispensers) {
 		for (int i = 0; i < this->nDispensers; i++) {
 			assert(grid->inside(dispenser[i]->getPosition()));
 		}
+		if (placeState->addDispenser(dispenserCount, dispenser)) {
+			placeState->clearSink();
 		this->placeSink(0);
+		}
 	} else {
 		for (int k = 0; k < 4; k++) {
 			for (int i = 0; i < grid->boundarySize[k]; i++) {
@@ -391,6 +411,11 @@ void DMFB::solve()
 		}
 	}
 	system("rm -f output/*");
+	sink = new Sink*[20];
+	pdetector = new Detector*[20];
+	placeState = new PlaceState;
+	placeState->set(grid->getRows(), grid->getColumns());
+	placeState->clearDispenser();
 	ret = nullptr;
 	this->placeDispenser(0);
 	for (int i = 0; i < 4; i++) {
@@ -400,6 +425,10 @@ void DMFB::solve()
 		delete []curDetector[i];
 	}
 	delete []curDetector;
+	delete []sink;
+	delete []pdetector;
+	delete placeState;
+
 }
 
 void DMFB::print(ostream& os, int x)

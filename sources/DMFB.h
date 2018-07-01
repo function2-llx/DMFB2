@@ -23,16 +23,12 @@ private:
 public:
 	DMFB();
 	~DMFB();
-
 	void loadSequencingGraph();
 	void loadModuleLibrary();
 	void loadDesignObejective();
-
-	int getDropletNumber() const;
-
 	void solve();
-
 	void printPlace(std::ostream&);
+	int getDropletNumber() const;
 };
 
 extern int *leastTime;

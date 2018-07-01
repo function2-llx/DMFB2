@@ -10,9 +10,8 @@ private:
 	struct Edge {
 		int u, v, flow, cost;
 		Edge *rev, *next;
-		Edge(int u, int v, int flow, int cost);
+		Edge(int u, int v, int flow, int cost) : u(u), v(v), flow(flow), cost(cost) {}
 	};
-
 	std::vector<const Edge*> edges;
 	Edge** head;
 	int source, sink;

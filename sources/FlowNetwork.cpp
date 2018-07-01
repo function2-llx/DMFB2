@@ -18,8 +18,8 @@ FlowNetwork::FlowNetwork(const State* state, int** bondary)
 	this->edges.clear();
 	this->step = state->step;
 	int n = state->step * grid->area();
-	source = n;
-	sink = n + 1;
+	this->source = n;
+	this->sink = n + 1;
 	n += 2;
 	this->head = new Edge*[n];
 	vector<const State*> vecState;
@@ -71,8 +71,6 @@ void FlowNetwork::addEdge(int u, int v, int flow, int cost)
 	this->edges.push_back(e1);
 	this->edges.push_back(e2);
 }
-
-int source, sink;
 
 std::vector<Path> FlowNetwork::solve()
 {

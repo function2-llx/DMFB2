@@ -20,5 +20,6 @@ public:
 };
 
 extern Point* detectorPosition;
+extern Detector** pdetector;
 
 #endif  //DETECTOR_H

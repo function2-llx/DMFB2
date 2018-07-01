@@ -23,3 +23,4 @@ ULL Detector::hash()
 }
 
 Point* detectorPosition;
+Detector** pdetector;
