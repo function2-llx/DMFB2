@@ -3,5 +3,5 @@
 
 WasherRouter::WasherRouter(const State* state)
 {
-
+	
 }
