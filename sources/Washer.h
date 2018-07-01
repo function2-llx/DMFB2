@@ -9,5 +9,5 @@ private:
 public:
 	Washer(const Washer* precursor, Direction direction);
 	Washer(Point position);
-	
+	Point getPosition() const;
 };

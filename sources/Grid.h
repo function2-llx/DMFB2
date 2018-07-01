@@ -12,7 +12,7 @@ private:
 
     Grid(const Grid& grid);
     Grid& operator = (const Grid& grid);
-    ~Grid();    
+    ~Grid();
 public:
     int boundarySize[4];
 
@@ -33,7 +33,5 @@ public:
 };
 
 extern Grid* grid;
-
-
 
 #endif  //GRID_H

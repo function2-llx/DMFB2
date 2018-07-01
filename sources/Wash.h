@@ -4,5 +4,5 @@
 
 struct Wash {
 	Point position;	//清洗位置
-	int time;	//清洗最晚时间
+	int t1, t2;	//清洗最晚时间
 };
