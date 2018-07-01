@@ -1,8 +1,8 @@
 placement: 
   |N |N |D4|N |
 D1|D1|N |N |N |N 
-D2|N |N |N |N |N 
-S |D2|N |N |D4|N 
+S |N |N |N |N |N 
+D2|D2|N |N |D4|N 
 N |N |D3|D5|N |N 
   |N |N |N |N |
 ==================State================
@@ -12,37 +12,21 @@ N  N  N  N
 N  N  N  N  
 N  N  N  N  
 current step: 0
-estimated eventually step: 22
+estimated eventually step: 21
 ======================================
 
 ==================State================
 step 1
-N  N  D4 N  
-D2 N  N  N  
-N  N  N  N  
-N  N  N  N  
-droplet
-identifier: 3
-type: 2
-position: (0, 2)
-detecting state: has not started yet
-
-droplet
-identifier: 1
-type: 1
-position: (1, 0)
-detecting state: has not started yet
-
-current step: 1
-estimated eventually step: 22
-======================================
-
-==================State================
-step 2
-N  N  D4 N  
+D1 N  D4 N  
 N  N  N  N  
 D2 N  N  N  
 N  N  N  N  
+droplet
+identifier: 0
+type: 0
+position: (0, 0)
+detecting state: has not started yet
+
 droplet
 identifier: 3
 type: 2
@@ -55,12 +39,12 @@ type: 1
 position: (2, 0)
 detecting state: has not started yet
 
-current step: 2
-estimated eventually step: 23
+current step: 1
+estimated eventually step: 21
 ======================================
 
 ==================State================
-step 3
+step 2
 D1 N  N  N  
 N  N  D4 N  
 D2 N  N  N  
@@ -69,7 +53,7 @@ droplet
 identifier: 0
 type: 0
 position: (0, 0)
-detecting state: has not started yet
+detecting state: detecting, 2 steps left
 
 droplet
 identifier: 3
@@ -83,12 +67,12 @@ type: 1
 position: (2, 0)
 detecting state: detecting, 2 steps left
 
-current step: 3
-estimated eventually step: 23
+current step: 2
+estimated eventually step: 21
 ======================================
 
 ==================State================
-step 4
+step 3
 D1 N  N  N  
 N  N  N  D4 
 D2 N  N  N  
@@ -97,7 +81,7 @@ droplet
 identifier: 0
 type: 0
 position: (0, 0)
-detecting state: detecting, 2 steps left
+detecting state: detecting, 1 step lefts
 
 droplet
 identifier: 3
@@ -111,21 +95,27 @@ type: 1
 position: (2, 0)
 detecting state: detecting, 1 step lefts
 
-current step: 4
-estimated eventually step: 23
+current step: 3
+estimated eventually step: 21
 ======================================
 
 ==================State================
-step 5
+step 4
 D1 N  N  N  
-N  N  N  N  
-D2 N  N  D4 
+N  N  N  D4 
+D2 N  N  N  
 N  N  N  N  
 droplet
 identifier: 0
 type: 0
 position: (0, 0)
-detecting state: detecting, 1 step lefts
+detecting state: has been detected
+
+droplet
+identifier: 3
+type: 2
+position: (1, 3)
+detecting state: has not started yet
 
 droplet
 identifier: 1
@@ -133,50 +123,22 @@ type: 1
 position: (2, 0)
 detecting state: has been detected
 
-droplet
-identifier: 3
-type: 2
-position: (2, 3)
-detecting state: has not started yet
-
-current step: 5
-estimated eventually step: 23
+current step: 4
+estimated eventually step: 21
 ======================================
 
 ==================State================
-step 6
-D1 N  N  N  
-D2 N  N  N  
-N  N  N  N  
+step 5
 N  N  N  D4 
-droplet
-identifier: 0
-type: 0
-position: (0, 0)
-detecting state: has been detected
-
-droplet
-identifier: 1
-type: 1
-position: (1, 0)
-detecting state: has been detected
-
-droplet
-identifier: 3
-type: 2
-position: (3, 3)
-detecting state: has not started yet
-
-current step: 6
-estimated eventually step: 23
-======================================
-
-==================State================
-step 7
-N  N  N  N  
 D3 N  N  N  
 N  N  N  N  
-N  N  N  D4 
+N  N  N  N  
+droplet
+identifier: 3
+type: 2
+position: (0, 3)
+detecting state: has not started yet
+
 droplet
 identifier: 2
 type: 3
@@ -184,22 +146,22 @@ position: (1, 0)
 detecting state: mixing, 3 steps left
 has not started yet
 
-droplet
-identifier: 3
-type: 2
-position: (3, 3)
-detecting state: has not started yet
-
-current step: 7
-estimated eventually step: 23
+current step: 5
+estimated eventually step: 21
 ======================================
 
 ==================State================
-step 8
+step 6
 N  N  N  N  
+N  N  N  D4 
+D3 N  N  N  
 N  N  N  N  
-D3 N  N  D4 
-N  N  N  N  
+droplet
+identifier: 3
+type: 2
+position: (1, 3)
+detecting state: has not started yet
+
 droplet
 identifier: 2
 type: 3
@@ -207,22 +169,39 @@ position: (2, 0)
 detecting state: mixing, 2 steps left
 has not started yet
 
+current step: 6
+estimated eventually step: 21
+======================================
+
+==================State================
+step 7
+N  N  N  N  
+N  N  N  N  
+N  N  N  D4 
+D3 N  N  N  
 droplet
 identifier: 3
 type: 2
 position: (2, 3)
 detecting state: has not started yet
 
-current step: 8
-estimated eventually step: 23
+droplet
+identifier: 2
+type: 3
+position: (3, 0)
+detecting state: mixing, 1 step left
+has not started yet
+
+current step: 7
+estimated eventually step: 21
 ======================================
 
 ==================State================
-step 9
+step 8
 N  N  N  N  
 N  N  N  N  
 N  N  N  D4 
-D3 N  N  N  
+N  D3 N  N  
 droplet
 identifier: 3
 type: 2
@@ -232,12 +211,33 @@ detecting state: detecting, 3 steps left
 droplet
 identifier: 2
 type: 3
-position: (3, 0)
-detecting state: mixing, 1 step left
-has not started yet
+position: (3, 1)
+detecting state: has not started yet
+
+current step: 8
+estimated eventually step: 21
+======================================
+
+==================State================
+step 9
+N  N  N  N  
+N  N  N  N  
+N  N  N  D4 
+N  D3 N  N  
+droplet
+identifier: 3
+type: 2
+position: (2, 3)
+detecting state: detecting, 2 steps left
+
+droplet
+identifier: 2
+type: 3
+position: (3, 1)
+detecting state: detecting, 4 steps left
 
 current step: 9
-estimated eventually step: 23
+estimated eventually step: 21
 ======================================
 
 ==================State================
@@ -250,16 +250,16 @@ droplet
 identifier: 3
 type: 2
 position: (2, 3)
-detecting state: detecting, 2 steps left
+detecting state: detecting, 1 step lefts
 
 droplet
 identifier: 2
 type: 3
 position: (3, 1)
-detecting state: has not started yet
+detecting state: detecting, 3 steps left
 
 current step: 10
-estimated eventually step: 23
+estimated eventually step: 21
 ======================================
 
 ==================State================
@@ -272,50 +272,6 @@ droplet
 identifier: 3
 type: 2
 position: (2, 3)
-detecting state: detecting, 1 step lefts
-
-droplet
-identifier: 2
-type: 3
-position: (3, 1)
-detecting state: detecting, 4 steps left
-
-current step: 11
-estimated eventually step: 23
-======================================
-
-==================State================
-step 12
-N  N  N  N  
-N  N  N  N  
-N  N  N  D4 
-N  D3 N  N  
-droplet
-identifier: 3
-type: 2
-position: (2, 3)
-detecting state: has been detected
-
-droplet
-identifier: 2
-type: 3
-position: (3, 1)
-detecting state: detecting, 3 steps left
-
-current step: 12
-estimated eventually step: 23
-======================================
-
-==================State================
-step 13
-N  N  N  N  
-N  N  N  N  
-N  N  N  D4 
-N  D3 N  N  
-droplet
-identifier: 3
-type: 2
-position: (2, 3)
 detecting state: has been detected
 
 droplet
@@ -324,34 +280,12 @@ type: 3
 position: (3, 1)
 detecting state: detecting, 2 steps left
 
-current step: 13
-estimated eventually step: 23
+current step: 11
+estimated eventually step: 21
 ======================================
 
 ==================State================
-step 14
-N  N  N  N  
-N  N  N  N  
-N  N  N  D4 
-N  D3 N  N  
-droplet
-identifier: 3
-type: 2
-position: (2, 3)
-detecting state: has been detected
-
-droplet
-identifier: 2
-type: 3
-position: (3, 1)
-detecting state: detecting, 1 step lefts
-
-current step: 14
-estimated eventually step: 23
-======================================
-
-==================State================
-step 15
+step 12
 N  N  N  N  
 N  N  N  N  
 N  N  N  N  
@@ -360,7 +294,7 @@ droplet
 identifier: 2
 type: 3
 position: (3, 1)
-detecting state: has been detected
+detecting state: detecting, 1 step lefts
 
 droplet
 identifier: 3
@@ -368,8 +302,64 @@ type: 2
 position: (3, 3)
 detecting state: has been detected
 
+current step: 12
+estimated eventually step: 21
+======================================
+
+==================State================
+step 13
+N  N  N  N  
+N  N  N  N  
+N  N  N  N  
+N  D3 D4 N  
+droplet
+identifier: 2
+type: 3
+position: (3, 1)
+detecting state: has been detected
+
+droplet
+identifier: 3
+type: 2
+position: (3, 2)
+detecting state: has been detected
+
+current step: 13
+estimated eventually step: 21
+======================================
+
+==================State================
+step 14
+N  N  N  N  
+N  N  N  N  
+N  N  N  N  
+N  N  D5 N  
+droplet
+identifier: 4
+type: 4
+position: (3, 2)
+detecting state: mixing, 2 steps left
+has not started yet
+
+current step: 14
+estimated eventually step: 21
+======================================
+
+==================State================
+step 15
+N  N  N  N  
+N  N  N  N  
+N  N  D5 N  
+N  N  N  N  
+droplet
+identifier: 4
+type: 4
+position: (2, 2)
+detecting state: mixing, 1 step left
+has not started yet
+
 current step: 15
-estimated eventually step: 23
+estimated eventually step: 21
 ======================================
 
 ==================State================
@@ -382,28 +372,26 @@ droplet
 identifier: 4
 type: 4
 position: (3, 2)
-detecting state: mixing, 2 steps left
-has not started yet
+detecting state: has not started yet
 
 current step: 16
-estimated eventually step: 23
+estimated eventually step: 21
 ======================================
 
 ==================State================
 step 17
 N  N  N  N  
 N  N  N  N  
-N  N  D5 N  
 N  N  N  N  
+N  N  D5 N  
 droplet
 identifier: 4
 type: 4
-position: (2, 2)
-detecting state: mixing, 1 step left
-has not started yet
+position: (3, 2)
+detecting state: detecting, 4 steps left
 
 current step: 17
-estimated eventually step: 23
+estimated eventually step: 21
 ======================================
 
 ==================State================
@@ -416,10 +404,10 @@ droplet
 identifier: 4
 type: 4
 position: (3, 2)
-detecting state: has not started yet
+detecting state: detecting, 3 steps left
 
 current step: 18
-estimated eventually step: 23
+estimated eventually step: 21
 ======================================
 
 ==================State================
@@ -432,10 +420,10 @@ droplet
 identifier: 4
 type: 4
 position: (3, 2)
-detecting state: detecting, 4 steps left
+detecting state: detecting, 2 steps left
 
 current step: 19
-estimated eventually step: 23
+estimated eventually step: 21
 ======================================
 
 ==================State================
@@ -448,10 +436,10 @@ droplet
 identifier: 4
 type: 4
 position: (3, 2)
-detecting state: detecting, 3 steps left
+detecting state: detecting, 1 step lefts
 
 current step: 20
-estimated eventually step: 23
+estimated eventually step: 21
 ======================================
 
 ==================State================
@@ -464,41 +452,9 @@ droplet
 identifier: 4
 type: 4
 position: (3, 2)
-detecting state: detecting, 2 steps left
-
-current step: 21
-estimated eventually step: 23
-======================================
-
-==================State================
-step 22
-N  N  N  N  
-N  N  N  N  
-N  N  N  N  
-N  N  D5 N  
-droplet
-identifier: 4
-type: 4
-position: (3, 2)
-detecting state: detecting, 1 step lefts
-
-current step: 22
-estimated eventually step: 23
-======================================
-
-==================State================
-step 23
-N  N  N  N  
-N  N  N  N  
-N  N  N  N  
-N  N  D5 N  
-droplet
-identifier: 4
-type: 4
-position: (3, 2)
 detecting state: has been detected
 
-current step: 23
-estimated eventually step: 23
+current step: 21
+estimated eventually step: 21
 ======================================
 

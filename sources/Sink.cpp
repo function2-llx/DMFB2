@@ -1,6 +1,11 @@
 #include "Sink.h"
 
-Sink::Sink(Point positon)
+#include <iostream>
+#include <cassert>
+
+using namespace std;
+
+Sink::Sink(const Point& position)
 {
 	this->position = position;
 }

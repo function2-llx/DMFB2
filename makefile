@@ -1,7 +1,7 @@
 SOURCES = $(wildcard sources/*.cpp)
 HEADERS = $(wildcard sources/*.h)
 OBJECTS = $(SOURCES:sources/%.cpp=objects/%.o)
-CXX_FLAGS = -Wall -std=c++11 -D DEBUG -g -g3
+CXX_FLAGS = -Wall -std=c++11 -D NDEBUG -O3
 TARGET = target/main
 
 .PHONY: all
