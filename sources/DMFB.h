@@ -8,7 +8,7 @@
 class DMFB {
 private:
 	std::map<int, int> typeMap;
-	int nDroplets, nSinks, nTypes, nDispensers;
+	int nDroplets, nMixingOperations, nSinks, nTypes, nDispensers;
 	int rows, columns;
 	int* boundary[4];
 	int** detector;
@@ -31,8 +31,6 @@ public:
 	int getDropletNumber() const;
 };
 
-extern int *leastTime;
-extern DMFB *DMFBsolver;
-extern std::vector<int> type;
+extern int* leastTime;
 
 #endif	//DFMB_H
