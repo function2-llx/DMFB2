@@ -184,7 +184,6 @@ void DMFB::loadModuleLibrary()
 	for (int i = 0; i < this->nDroplets; i++) {
 		leastTime[i] = 0;
 	}
-	mixingResult = new int*[this->nDroplets];
 	is >> this->nSinks;
 	for (int i = 0; i < this->nDroplets; i++) {
 		if (node[i]->fa == nullptr) {
