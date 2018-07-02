@@ -45,8 +45,11 @@ using namespace std;
        if (grid->inside(tmp))
          reachable[curStep][tmp.r][tmp.c] = false;
      }
-     if (belongT[pos.r][pos.c] != -1 && belongId[pos.r][pos.c] != i)
-       wash[curStep].push_back(Wash(pos, curStep + 1, belongT[pos.r][pos.c] - 1));
+     if (belongT[pos.r][pos.c] != -1 && belongId[pos.r][pos.c] != i) {
+		 auto cur = Wash(pos, curStep + 1, belongT[pos.r][pos.c] - 1);
+        wash[curStep].push_back(cur);
+		this->washes.push_back(cur);
+	 }
      belongId[pos.r][pos.c] = i;
      belongT[pos.r][pos.c] = curStep;
    }  
@@ -77,7 +80,7 @@ bool WasherRouter::dfs(const WashState* state)
 bool WasherRouter::Route()
 {
 	const WashState *init = new WashState();
-	
+	return dfs(init);
 }
 
 bool WasherRouter::canReach(int time, Point position) const
