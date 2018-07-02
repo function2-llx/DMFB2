@@ -7,6 +7,7 @@
 class WasherRouter {
 private:
 	std::vector<Wash> washes;
+	std::vector<Wash> *wash;
 	bool*** reachable;	//reachable[t][r][c]表示在t时刻，格子(r,c)没有被规划好的路径占据
 	const WashState* result;
 	const State* endState;
