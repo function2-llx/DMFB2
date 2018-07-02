@@ -34,6 +34,9 @@ WashState::WashState(const WashState* precursor)
 WashState::~WashState()
 {
 	delete[] completed;
+	for (auto washer: this->washers) {
+		delete washer;
+	}
 }
 
 void WashState::addWasher(const Washer* washer)
