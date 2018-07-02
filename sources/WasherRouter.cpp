@@ -1,5 +1,6 @@
 #include <vector>
 #include "Grid.h"
+#include "Hash.h"
 #include "WasherRouter.h"
 
 using namespace std;
@@ -79,7 +80,9 @@ bool WasherRouter::dfs(const WashState* state)
 
 bool WasherRouter::Route()
 {
+  washHashSet.clear();
 	const WashState *init = new WashState();
+  washHashSet.insert(init->hash());
 	return dfs(init);
 }
 

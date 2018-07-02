@@ -6,5 +6,6 @@
 typedef unsigned long long ULL;
 
 extern std::set<ULL> hashSet;
+extern std::set<ULL> washHashSet;
 
 #endif

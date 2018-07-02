@@ -3,6 +3,7 @@
 #include "WashState.h"
 #include "WasherRouter.h"
 #include "Direction.h"
+#include "Hash.h"
 
 using namespace std;
 
@@ -88,7 +89,7 @@ void WashState::pushWasher(const Washer& washer, unsigned int number) const
 	for (int i = -1; i <= 1; i++) {
 		for (int j = -1 ;j <= 1; j++) {
 			if (grid->inside(position + Direction(i, j))) {
-				curRecord[position.r][position.c] = record[i + 1][j + 1];
+				curRecord[position.r + i][position.c + j] = record[i + 1][j + 1];
 			}
 		}
 	}
@@ -106,7 +107,11 @@ void WashState::dfs(unsigned int number) const
 			}
 		}
 		if (state->check()) {
-			successors.push_back(state);
+			auto hash = state->hash();
+			if (!washHashSet.count(hash)) {
+				washHashSet.insert(hash);
+				successors.push_back(state);				
+			}
 		} else {
 			delete state;
 		}
@@ -134,9 +139,20 @@ vector<const WashState*> WashState::getSuccessors() const
 		for (int j = 0; j <  grid->getColumns(); j++) {
 			content[i][j].clear();
 			preRecord[i][j] = false;
-			curRecord[i][j] = true;
+			curRecord[i][j] = false;
 		}
 	}
+	for (auto washer: this->washers) {
+		auto position = washer->getPosition();
+		for (int i = -1; i <= 1; i++) {
+			for (int j = -1; j <= 1; j++) {
+				if (grid->inside(position + Direction(i, j))) {
+					preRecord[position.r + i][position.c + j] = true;
+				}
+			}
+		}
+	}
+	this->dfs(0);
 	for (int i = 0; i < grid->getRows(); i++) {
 		delete[] content[i];
 		delete[] preRecord[i];
@@ -157,4 +173,9 @@ bool WashState::isEndState() const
 		}
 	}
 	return true;
+}
+
+ULL WashState::hash() const
+{
+	
 }

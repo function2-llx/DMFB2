@@ -3,3 +3,4 @@
 using namespace std;
 
 set<ULL> hashSet;
+set<ULL> washHashSet;
