@@ -177,5 +177,14 @@ bool WashState::isEndState() const
 
 ULL WashState::hash() const
 {
-	
+	const static ULL hashBase = 849169143145ull, shift = 4378196491ull;
+	ULL ret = 0;
+	int step = washerRouter->getSteps();
+	for (int i = 0; i < step; i++) {
+		ret = ret << 1 | this->completed[i];
+	}
+	for (auto washer: this->washers) {
+		ret = washer->hash() + shift + hashBase * ret;
+	}
+	return ret;
 }

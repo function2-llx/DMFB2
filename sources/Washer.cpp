@@ -17,3 +17,9 @@ Point Washer::getPosition() const
 {
 	return this->position;
 }
+
+ULL Washer::hash() const
+{
+	const static ULL shift = 418591465ull;
+	return grid->getPointIdentifier(this->position) + shift;
+}
