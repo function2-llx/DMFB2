@@ -8,12 +8,12 @@ using namespace std;
  WasherRouter::WasherRouter(const State* state) : endState(state)
  {	
 	reachable = new bool**[state->step + 1];
-	for (int i = 1; i <= state->step; ++i) {
+	for (int i = 0; i < state->step; ++i) {
 		reachable[i] = new bool*[grid->getRows()];
 		for (int j = 0; j < grid->getRows(); ++j) {
 			reachable[i][j] = new bool[grid->getColumns()];
 			for (int k = 0; k < grid->getColumns(); ++k) {
-			reachable[i][j][k] = true;
+				reachable[i][j][k] = true;
 			}
 		}
 	}
@@ -29,13 +29,12 @@ using namespace std;
 			belongT[i][j] = -1;
 		}
 	}
-	wash = new std::vector<Wash>[state->step + 1];
 	const static Point dir[9] = {Point(0, 0),
 	Point(-1, 0), Point(-1, 1), Point(0, 1), Point(1, 1),
 	Point(1, 0), Point(1, -1), Point(0, -1), Point(-1, -1)};
 	while (state->step != 0) {
-		int curStep = state->step;
-		std::vector<const Droplet*> droplets = state->getDroplets();
+		int curStep = state->step - 1;
+		auto droplets = state->getDroplets();
 		for (int i = 0; i < droplets.size(); ++i) {
 			Point pos = droplets[i]->getPosition();
 			for (int k = 0; k < 9; ++k) {
@@ -45,25 +44,25 @@ using namespace std;
 			}
 			if (belongT[pos.r][pos.c] != -1 && belongId[pos.r][pos.c] != i) {
 				auto cur = Wash(pos, curStep + 1, belongT[pos.r][pos.c] - 1);
-				wash[curStep].push_back(cur);
 				this->washes.push_back(cur);
 			}
 			belongId[pos.r][pos.c] = i;
 			belongT[pos.r][pos.c] = curStep;
-		}  
+		}
 		state = state->decision;
 	} 
 	for (int i = 0; i < grid->getRows(); ++i) {
 		delete []belongId[i];
 		delete []belongT[i];
 	}
-		delete []belongId;
-		delete []belongT;
-	}
+	delete []belongId;
+	delete []belongT;
+}
 
 bool WasherRouter::dfs(const WashState* state)
 {
 	if (state->isEndState()) {
+		this->result = state;
 		return true;
 	} else {
 		auto successors = state->getSuccessors();
@@ -73,6 +72,7 @@ bool WasherRouter::dfs(const WashState* state)
 			}
 		}
 	}
+	delete state;
 	return false;
 }
 
