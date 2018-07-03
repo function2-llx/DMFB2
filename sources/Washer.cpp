@@ -2,6 +2,8 @@
 #include "Washer.h"
 #include "Grid.h"
 
+using namespace std;
+
 Washer::Washer(Point position) : position(position)
 {
 	assert(grid->inside(this->position));

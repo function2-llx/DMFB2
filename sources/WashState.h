@@ -6,6 +6,7 @@
 typedef unsigned long long ULL;
 
 class WashState {
+	friend std::ostream& operator << (std::ostream&, const WashState&);
 private:
 	bool *completed;
 	std::vector<const Washer*> washers;
@@ -20,8 +21,10 @@ public:
 	WashState(Point position);
 	WashState(const WashState* washState);
 	~WashState();
+
 	std::vector<const WashState*> getSuccessors() const;
 
+	std::vector<const Washer*> getWashers() const;
 	bool check() const;
 	bool isEndState() const;
 	ULL hash() const;

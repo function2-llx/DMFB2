@@ -7,6 +7,30 @@
 
 using namespace std;
 
+ostream& operator << (ostream& os, const WashState& state)
+{
+	bool **type;
+	type = new bool*[grid->getRows()];
+	for (int i = 0; i < grid->getRows(); i++) {
+		type[i] = new bool[grid->getColumns()];
+		for (int j = 0; j < grid->getColumns(); j++) {
+			type[i][j] = false;
+		}
+	}
+	auto washers = state.getWashers();
+	for (auto washer: washers) {
+		Point position = washer->getPosition();
+		type[position.r][position.c] = true;
+	}
+	for (int i = 0; i < grid->getRows(); i++) {
+		for (int j = 0 ; j < grid->getColumns(); j++) {
+			if (type[i][j]) os << "W ";
+			else os << "N ";
+		}
+		os << endl;
+	}
+}
+
 WashState::WashState(Point position)
 {
 	this->step = -1;
@@ -129,6 +153,11 @@ void WashState::dfs(unsigned int number) const
 			}
 		}
 	}
+}
+
+vector<const Washer*> WashState::getWashers() const
+{
+	return this->washers;
 }
 
 vector<const WashState*> WashState::getSuccessors() const
