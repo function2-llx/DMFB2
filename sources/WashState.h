@@ -17,7 +17,7 @@ private:
 public:
 	const WashState* decision;
 
-	WashState();
+	WashState(Point position);
 	WashState(const WashState* washState);
 	~WashState();
 	std::vector<const WashState*> getSuccessors() const;

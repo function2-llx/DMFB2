@@ -7,7 +7,7 @@
 
 using namespace std;
 
-WashState::WashState()
+WashState::WashState(Point position)
 {
 	this->step = -1;
 	this->decision = nullptr;
@@ -17,6 +17,7 @@ WashState::WashState()
 		this->completed[i] = false;
 	}
 	this->washers.clear();
+	this->addWasher(new Washer(position));
 }
 
 WashState::WashState(const WashState* precursor)
