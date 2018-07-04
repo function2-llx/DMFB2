@@ -3,7 +3,10 @@
 #include "Point.h"
 #include "Direction.h"
 
+typedef unsigned long long ULL;
+
 class Washer {
+	friend std::ostream& operator << (std::ostream&, const Washer&);
 private:
 	Point position;
 public:

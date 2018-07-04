@@ -49,7 +49,7 @@ Point Grid::boundaryPosition(int identifier, int type)
         case 3:
         return Point(this->rows -1, identifier);
         default:
-        assert(false);
+        throw runtime_error("access error");
     }
 }
 

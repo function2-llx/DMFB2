@@ -13,6 +13,7 @@
 #include "Hash.h"
 #include "Global.h"
 #include "PlaceState.h"
+#include "WasherRouter.h"
 
 using namespace std;
 
@@ -241,35 +242,42 @@ int curDispenserCount, curSinkCount, curDetectorCount;
 bool DMFB::dfs(const State* currentState)
 {
 	if (currentState->isEndState()) {
-		for (int k = 0; k < 4; k++) {
-			for (int i = 0; i < grid->boundarySize[k]; i++) {
-				this->boundary[k][i] = curBoundary[k][i];
+		washerRouter = new WasherRouter(currentState, curBoundary);
+		if (washerRouter->Route()) {
+			for (int k = 0; k < 4; k++) {
+				for (int i = 0; i < grid->boundarySize[k]; i++) {
+					this->boundary[k][i] = curBoundary[k][i];
+				}
 			}
-		}
-		for (int i = 0; i < this->rows; i++) {
-			for (int j = 0; j < this->columns; j++) {
-				this->detector[i][j] = curDetector[i][j];
+			for (int i = 0; i < this->rows; i++) {
+				for (int j = 0; j < this->columns; j++) {
+					this->detector[i][j] = curDetector[i][j];
+				}
 			}
-		}
-		if (ret != nullptr) {
-			ret->clean();
-		}
-		system("mkdir -p output");
-		char st[100];
-		sprintf(st, "output/%d.out", currentState->step);
-		ofstream os(st);
-		this->printPlace(os);
-		ret = currentState;
-		ret->printSolution(os);
-		cerr << "solution of " << ret->step;
-		if (ret->step == 1) {
-			cerr << " step";
+			if (ret != nullptr) {
+				ret->clean();
+			}
+			system("mkdir -p output");
+			char st[100];
+			sprintf(st, "output/%d.out", currentState->step);
+			ofstream os(st);
+			this->printPlace(os);
+			ret = currentState;
+			ret->printSolution(os);
+			washerRouter->result->printRecursively(os);
+			cerr << "solution of " << ret->step;
+			if (ret->step == 1) {
+				cerr << " step";
+			} else {
+				cerr << " steps";
+			}
+			cerr << " found" << endl;
+			target = ret->step - 1;
+			return true;
 		} else {
-			cerr << " steps";
+			return false;
 		}
-		cerr << " found" << endl;
-		target = ret->step - 1;
-		return true;
+
 	}
 	bool flag = false;
 	if (currentState->step + currentState->estimationTime() <= stepUpperBound) {
