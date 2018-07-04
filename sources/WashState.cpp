@@ -31,9 +31,9 @@ ostream& operator << (ostream& os, const WashState& state)
 	}
 }
 
-WashState::WashState(Point position)
+WashState::WashState()
 {
-	this->step = -1;
+	this->step = 0;
 	this->decision = nullptr;
 	int size = washerRouter->getWashes().size();
 	this->completed = new bool[size];
@@ -41,7 +41,6 @@ WashState::WashState(Point position)
 		this->completed[i] = false;
 	}
 	this->washers.clear();
-	this->addWasher(new Washer(position));
 }
 
 WashState::WashState(const WashState* precursor)
@@ -97,14 +96,15 @@ static bool **preRecord, **curRecord;
 static bool canPush(int time, Point position)
 {
 	if (!grid->inside(position)) return false;
-	if (preRecord[position.r][position.c] || curRecord[position.r][position.c]) return false;
+	if (preRecord[position.r][position.c] || curRecord[position.r][position.c]) {
+		return false;
+	}
 	return washerRouter->canReach(time, position);
 }
 
-void WashState::pushWasher(const Washer& washer, unsigned int number) const
+void WashState::pushWasher(const Washer& washer, int type, int identifier) const
 {
 	Point position = washer.getPosition();
-	content[position.r][position.c].push_back(washer);
 	int record[3][3];
 	for (int i = -1; i <= 1; i++) {
 		for (int j = -1; j <= 1; j++) {
@@ -113,7 +113,9 @@ void WashState::pushWasher(const Washer& washer, unsigned int number) const
 			}
 		}
 	}
-	this->dfs(number + 1);
+	content[position.r][position.c].push_back(washer);
+	this->dispense(type, identifier + 1);
+	content[position.r][position.c].pop_back();
 	for (int i = -1; i <= 1; i++) {
 		for (int j = -1 ;j <= 1; j++) {
 			if (grid->inside(position + Direction(i, j))) {
@@ -123,9 +125,9 @@ void WashState::pushWasher(const Washer& washer, unsigned int number) const
 	}
 }
 
-void WashState::dfs(unsigned int number) const
+void WashState::dispense(int type, int identifier) const
 {
-	if (number == this->washers.size()) {
+	if (type == 4) {
 		WashState *state = new WashState(this);
 		for (int i = 0 ; i < grid->getRows(); i++) {
 			for (int j = 0; j < grid->getColumns(); i++) {
@@ -143,6 +145,45 @@ void WashState::dfs(unsigned int number) const
 		} else {
 			delete state;
 		}
+	} else {
+		if (identifier == grid->boundarySize[type]) {
+			this->dispense(type + 1, 0);
+		} else {
+			this->dispense(type, identifier + 1);
+			if (::canPush(this->step + 1, grid->boundaryPosition(identifier, type))) {
+				this->pushWasher(Washer(grid->boundaryPosition(identifier, type)), type, identifier);
+			}
+		}
+	}
+}
+
+void WashState::pushWasher(const Washer& washer, unsigned int number) const
+{
+	Point position = washer.getPosition();
+	int record[3][3];
+	for (int i = -1; i <= 1; i++) {
+		for (int j = -1; j <= 1; j++) {
+			if (grid->inside(position + Direction(i, j))) {
+				record[i + 1][j + 1] = curRecord[position.r + i][position.c + j];
+			}
+		}
+	}
+	content[position.r][position.c].push_back(washer);
+	this->dfs(number + 1);
+	content[position.r][position.c].pop_back();
+	for (int i = -1; i <= 1; i++) {
+		for (int j = -1 ;j <= 1; j++) {
+			if (grid->inside(position + Direction(i, j))) {
+				curRecord[position.r + i][position.c + j] = record[i + 1][j + 1];
+			}
+		}
+	}
+}
+
+void WashState::dfs(unsigned int number) const
+{
+	if (number == this->washers.size()) {
+		this->dispense(0, 0);
 	} else {
 		auto washer = this->washers[number];
 		Point position = washer->getPosition();
@@ -220,4 +261,13 @@ ULL WashState::hash() const
 		ret = washer->hash() + shift + hashBase * ret;
 	}
 	return ret;
+}
+
+void WashState::printRecursively(ostream& os) const
+{
+	if (this->decision != nullptr) {
+		this->decision->printRecursively(os);
+	}
+	os << "step " << this->step << endl;
+	os << *this << endl;
 }

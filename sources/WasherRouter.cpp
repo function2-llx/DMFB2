@@ -5,10 +5,10 @@
 
 using namespace std;
 
- WasherRouter::WasherRouter(const State* state) : endState(state)
- {	
+WasherRouter::WasherRouter(const State* state, int** boudary) : endState(state), boudary(boudary)
+{	
 	reachable = new bool**[state->step + 1];
-	for (int i = 0; i < state->step; ++i) {
+	for (int i = 0; i <= state->step; ++i) {
 		reachable[i] = new bool*[grid->getRows()];
 		for (int j = 0; j < grid->getRows(); ++j) {
 			reachable[i][j] = new bool[grid->getColumns()];
@@ -32,8 +32,8 @@ using namespace std;
 	const static Point dir[9] = {Point(0, 0),
 	Point(-1, 0), Point(-1, 1), Point(0, 1), Point(1, 1),
 	Point(1, 0), Point(1, -1), Point(0, -1), Point(-1, -1)};
-	while (state->step != 0) {
-		int curStep = state->step - 1;
+	while (state != nullptr) {
+		int curStep = state->step;
 		auto droplets = state->getDroplets();
 		for (int i = 0; i < droplets.size(); ++i) {
 			Point pos = droplets[i]->getPosition();
@@ -57,6 +57,7 @@ using namespace std;
 	}
 	delete []belongId;
 	delete []belongT;
+	cerr << "the number of washes: " << this->washes.size() << endl;
 }
 
 bool WasherRouter::dfs(const WashState* state)
@@ -76,18 +77,12 @@ bool WasherRouter::dfs(const WashState* state)
 	return false;
 }
 
-bool WasherRouter::Route(int** boudary)
+bool WasherRouter::Route()
 {
 	washHashSet.clear();
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < grid->boundarySize[i]; j++) {
-			if (boudary[i][j] == -1) {
-				WashState *state = new WashState(grid->boundaryPosition(j, i));
-				if (this->dfs(state)) return true;
-			}
-		}
-	}
-	return false;
+	WashState *init = new WashState;
+	washHashSet.insert(init->hash());
+	return dfs(init);
 }
 
 bool WasherRouter::canReach(int time, Point position) const

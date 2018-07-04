@@ -14,11 +14,13 @@ private:
 
 	void dfs(unsigned int number) const;
 	void pushWasher(const Washer& washer, unsigned int number) const;
+	void pushWasher(const Washer& washer, int type, int identifier) const;
+	void dispense(int type, int identifier) const;
 	void addWasher(const Washer* washer);
 public:
 	const WashState* decision;
 
-	WashState(Point position);
+	WashState();
 	WashState(const WashState* washState);
 	~WashState();
 
@@ -28,4 +30,6 @@ public:
 	bool check() const;
 	bool isEndState() const;
 	ULL hash() const;
+
+	void printRecursively(std::ostream&) const;
 };

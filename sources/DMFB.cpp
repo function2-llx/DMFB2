@@ -242,8 +242,8 @@ int curDispenserCount, curSinkCount, curDetectorCount;
 bool DMFB::dfs(const State* currentState)
 {
 	if (currentState->isEndState()) {
-		washerRouter = new WasherRouter(currentState);
-		if (washerRouter->Route(curBoundary)) {
+		washerRouter = new WasherRouter(currentState, curBoundary);
+		if (washerRouter->Route()) {
 			for (int k = 0; k < 4; k++) {
 				for (int i = 0; i < grid->boundarySize[k]; i++) {
 					this->boundary[k][i] = curBoundary[k][i];
@@ -264,6 +264,7 @@ bool DMFB::dfs(const State* currentState)
 			this->printPlace(os);
 			ret = currentState;
 			ret->printSolution(os);
+			washerRouter->result->printRecursively(os);
 			cerr << "solution of " << ret->step;
 			if (ret->step == 1) {
 				cerr << " step";
