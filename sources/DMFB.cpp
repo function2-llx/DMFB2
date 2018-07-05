@@ -263,6 +263,8 @@ bool DMFB::dfs(const State* currentState)
 			this->printPlace(os);
 			ret = currentState;
 			ret->printSolution(os);
+			os << "time: " << (clock() - Global::start)/1e6 << "s" << endl;
+			cerr << "time: " << (clock() - Global::start)/1e6 << "s" << endl;
 			cerr << "solution of " << ret->step;
 			if (ret->step == 1) {
 				cerr << " step";
