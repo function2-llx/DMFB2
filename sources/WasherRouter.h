@@ -13,7 +13,9 @@ private:
 public:
 	const WashState *result;
 
+	~WasherRouter();
 	WasherRouter(const State* endState, int** boudary);	//构造函数传入最后的状态，计算出所有的清洗任务装入wash中，同时计算计算各个时刻每个格子的reachalbe
+
 	bool Route();
 	bool dfs(const WashState*);
 	bool canReach(int time, Point position) const;

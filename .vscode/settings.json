@@ -68,7 +68,8 @@
 		"valarray": "cpp",
 		"random": "cpp",
 		"map": "cpp",
-		"cassert": "cpp"
+		"cassert": "cpp",
+		"algorithm": "cpp"
 	},
 	"C_Cpp.intelliSenseEngineFallback": "Enabled",
 	"C_Cpp.default.browse.path": null

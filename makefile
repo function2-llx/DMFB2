@@ -2,6 +2,7 @@ SOURCES = $(wildcard sources/*.cpp)
 HEADERS = $(wildcard sources/*.h)
 OBJECTS = $(SOURCES:sources/%.cpp=objects/%.o)
 CXX_FLAGS = -Wall -std=c++11 -D NDEBUG -O3
+# CXX_FLAGS = -Wall -std=c++11 -D DEBUG -g -g3
 TARGET = target/main
 
 .PHONY: all
@@ -21,11 +22,9 @@ objects/main.o: sources/main.cxx
 .PHONY: clean
 .PHONY: cleanObjects
 .PHONY: cleanTarget
-clean: cleanTarget cleanObjects
-cleanObjects:
-	rm -f objects/*.o
-cleanTarget:
-	rm -f $(TARGET)
+clean:
+	rm -rf objects/
+	rm -rf target/
 .PHONY: rebuild
 rebuild: clean all
 .PHONY: run

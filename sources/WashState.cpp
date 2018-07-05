@@ -7,6 +7,8 @@
 
 using namespace std;
 
+static int tt;
+
 ostream& operator << (ostream& os, const WashState& state)
 {
 	bool **type;
@@ -29,6 +31,7 @@ ostream& operator << (ostream& os, const WashState& state)
 		}
 		os << endl;
 	}
+	return os;
 }
 
 WashState::WashState()
@@ -61,6 +64,14 @@ WashState::~WashState()
 	for (auto washer: this->washers) {
 		delete washer;
 	}
+}
+
+void WashState::clean() const
+{
+	if (this->decision != nullptr) {
+		this->decision->clean();
+	}
+	delete this;
 }
 
 void WashState::addWasher(const Washer* washer)
@@ -108,8 +119,10 @@ void WashState::pushWasher(const Washer& washer, int type, int identifier) const
 	int record[3][3];
 	for (int i = -1; i <= 1; i++) {
 		for (int j = -1; j <= 1; j++) {
-			if (grid->inside(position + Direction(i, j))) {
-				record[i + 1][j + 1] = curRecord[position.r + i][position.c + j];
+			Point cur = position + Direction(i, j);
+			if (grid->inside(cur)) {
+				record[i + 1][j + 1] = curRecord[cur.r][cur.c];
+				curRecord[cur.r][cur.c] = true;
 			}
 		}
 	}
@@ -129,18 +142,25 @@ void WashState::dispense(int type, int identifier) const
 {
 	if (type == 4) {
 		WashState *state = new WashState(this);
+		assert(state->step == this->step + 1);
 		for (int i = 0 ; i < grid->getRows(); i++) {
-			for (int j = 0; j < grid->getColumns(); i++) {
+			for (int j = 0; j < grid->getColumns(); j++) {
 				if (content[i][j].size() == 1) {
 					state->addWasher(new Washer(content[i][j][0]));
 				}
 			}
 		}
+		assert(state->step == this->step + 1);
 		if (state->check()) {
 			auto hash = state->hash();
+			assert(state->step == this->step + 1);
 			if (!washHashSet.count(hash)) {
 				washHashSet.insert(hash);
-				successors.push_back(state);				
+				assert(state->step == this->step + 1);
+				successors.push_back(state);
+				assert(state->step == this->step + 1);
+			} else {
+				delete state;
 			}
 		} else {
 			delete state;
@@ -163,8 +183,10 @@ void WashState::pushWasher(const Washer& washer, unsigned int number) const
 	int record[3][3];
 	for (int i = -1; i <= 1; i++) {
 		for (int j = -1; j <= 1; j++) {
-			if (grid->inside(position + Direction(i, j))) {
-				record[i + 1][j + 1] = curRecord[position.r + i][position.c + j];
+			Point cur = position + Direction(i, j);
+			if (grid->inside(cur)) {
+				record[i + 1][j + 1] = curRecord[cur.r][cur.c];
+				curRecord[cur.r][cur.c] = true;
 			}
 		}
 	}
@@ -203,6 +225,7 @@ vector<const Washer*> WashState::getWashers() const
 
 vector<const WashState*> WashState::getSuccessors() const
 {
+	tt = clock();
 	content = new vector<Washer>*[grid->getRows()];
 	preRecord = new bool*[grid->getRows()];
 	curRecord = new bool*[grid->getRows()];
@@ -226,6 +249,7 @@ vector<const WashState*> WashState::getSuccessors() const
 			}
 		}
 	}
+	successors.clear();
 	this->dfs(0);
 	for (int i = 0; i < grid->getRows(); i++) {
 		delete[] content[i];
@@ -253,8 +277,8 @@ ULL WashState::hash() const
 {
 	const static ULL hashBase = 849169143145ull, shift = 4378196491ull;
 	ULL ret = 0;
-	int step = washerRouter->getSteps();
-	for (int i = 0; i < step; i++) {
+	int size = washerRouter->getWashes().size();
+	for (int i = 0; i < size; i++) {
 		ret = ret << 1 | this->completed[i];
 	}
 	for (auto washer: this->washers) {

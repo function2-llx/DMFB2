@@ -36,17 +36,18 @@ WasherRouter::WasherRouter(const State* state, int** boudary) : endState(state),
 		int curStep = state->step;
 		auto droplets = state->getDroplets();
 		for (int i = 0; i < droplets.size(); ++i) {
+			int type = droplets[i]->getType();
 			Point pos = droplets[i]->getPosition();
 			for (int k = 0; k < 9; ++k) {
 			Point tmp = pos + dir[k];
 			if (grid->inside(tmp))
 				reachable[curStep][tmp.r][tmp.c] = false;
 			}
-			if (belongT[pos.r][pos.c] != -1 && belongId[pos.r][pos.c] != i) {
+			if (belongT[pos.r][pos.c] != -1 && belongId[pos.r][pos.c] != type) {
 				auto cur = Wash(pos, curStep + 1, belongT[pos.r][pos.c] - 1);
 				this->washes.push_back(cur);
 			}
-			belongId[pos.r][pos.c] = i;
+			belongId[pos.r][pos.c] = type;
 			belongT[pos.r][pos.c] = curStep;
 		}
 		state = state->decision;
@@ -57,32 +58,46 @@ WasherRouter::WasherRouter(const State* state, int** boudary) : endState(state),
 	}
 	delete []belongId;
 	delete []belongT;
-	cerr << "the number of washes: " << this->washes.size() << endl;
+//	cerr << "the number of washes: " << this->washes.size() << endl;
+}
+
+WasherRouter::~WasherRouter()
+{
+	for (int i = 0; i <= this->endState->step; i++) {
+		for (int j = 0; j < grid->getRows(); j++) {
+			delete[] this->reachable[i][j];
+		}
+		delete[] this->reachable[i];
+	}
+	delete[] this->reachable;
 }
 
 bool WasherRouter::dfs(const WashState* state)
 {
+	bool flag = false;
 	if (state->isEndState()) {
 		this->result = state;
-		return true;
+		flag = true;
 	} else {
 		auto successors = state->getSuccessors();
 		for (auto successor: successors) {
-			if (this->dfs(successor)) {
-				return true;
+			if (dfs(successor)) {
+				flag = true;
+				break;
 			}
 		}
 	}
-	delete state;
-	return false;
+	if (!flag) delete state;
+	return flag;
 }
 
 bool WasherRouter::Route()
 {
 	washHashSet.clear();
-	WashState *init = new WashState;
+	WashState *init = new WashState();
 	washHashSet.insert(init->hash());
-	return dfs(init);
+	bool ret = dfs(init);
+	return ret;
 }
 
 bool WasherRouter::canReach(int time, Point position) const

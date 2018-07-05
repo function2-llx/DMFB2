@@ -13,7 +13,6 @@
 #include "Hash.h"
 #include "Global.h"
 #include "PlaceState.h"
-#include "WasherRouter.h"
 
 using namespace std;
 
@@ -241,9 +240,9 @@ int curDispenserCount, curSinkCount, curDetectorCount;
 
 bool DMFB::dfs(const State* currentState)
 {
+	bool flag = false;
 	if (currentState->isEndState()) {
-		washerRouter = new WasherRouter(currentState, curBoundary);
-		if (washerRouter->Route()) {
+			flag = true;
 			for (int k = 0; k < 4; k++) {
 				for (int i = 0; i < grid->boundarySize[k]; i++) {
 					this->boundary[k][i] = curBoundary[k][i];
@@ -264,7 +263,6 @@ bool DMFB::dfs(const State* currentState)
 			this->printPlace(os);
 			ret = currentState;
 			ret->printSolution(os);
-			washerRouter->result->printRecursively(os);
 			cerr << "solution of " << ret->step;
 			if (ret->step == 1) {
 				cerr << " step";
@@ -273,43 +271,57 @@ bool DMFB::dfs(const State* currentState)
 			}
 			cerr << " found" << endl;
 			target = ret->step - 1;
-			return true;
 		} else {
-			return false;
-		}
-
-	}
-	bool flag = false;
-	if (currentState->step + currentState->estimationTime() <= stepUpperBound) {
-		vector<const State*> successors = currentState->getSuccessors();
-		sort(successors.begin(), successors.end());
-		for (auto successor: successors) {
-			if (successor->isEndState()) {
-				dfs(successor);
-				flag = true;
-				break;
-			}
-		}
-		if (flag) {
+		if (currentState->step + currentState->estimationTime() <= stepUpperBound) {
+			vector<const State*> successors = currentState->getSuccessors();
+			sort(successors.begin(), successors.end());
 			for (auto successor: successors) {
-				if (successor != ret) {
-					delete successor;
-				}
-			}
-		} else {
-			for (auto successor: successors) {
-				if (!flag) {
-					if (dfs(successor)) {
-						flag= true;
-					}
-				} else {
-					delete successor;
+				if (dfs(successor)) {
+					flag = true;
+					break;
 				}
 			}
 		}
 	}
 	if (!flag) delete currentState;
 	return flag;
+			//washerRouter = new WasherRouter(currentState, curBoundary);
+		// if (washerRouter->Route()) {
+		// 	flag = true;
+		// 	for (int k = 0; k < 4; k++) {
+		// 		for (int i = 0; i < grid->boundarySize[k]; i++) {
+		// 			this->boundary[k][i] = curBoundary[k][i];
+		// 		}
+		// 	}
+		// 	for (int i = 0; i < this->rows; i++) {
+		// 		for (int j = 0; j < this->columns; j++) {
+		// 			this->detector[i][j] = curDetector[i][j];
+		// 		}
+		// 	}
+		// 	if (ret != nullptr) {
+		// 		ret->clean();
+		// 	}
+		// 	system("mkdir -p output");
+		// 	char st[100];
+		// 	sprintf(st, "output/%d.out", currentState->step);
+		// 	ofstream os(st);
+		// 	this->printPlace(os);
+		// 	ret = currentState;
+		// 	ret->printSolution(os);
+		// 	washerRouter->result->printRecursively(os);
+		// 	washerRouter->result->clean();
+		// 	cerr << "solution of " << ret->step;
+		// 	if (ret->step == 1) {
+		// 		cerr << " step";
+		// 	} else {
+		// 		cerr << " steps";
+		// 	}
+		// 	cerr << " found" << endl;
+		// 	target = ret->step - 1;
+		// } else {
+		// 	flag = false;
+		// }
+		// delete washerRouter;
 }
 
 void DMFB::placeDetector(int detectorCount)

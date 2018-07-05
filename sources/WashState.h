@@ -10,7 +10,6 @@ class WashState {
 private:
 	bool *completed;
 	std::vector<const Washer*> washers;
-	int step;
 
 	void dfs(unsigned int number) const;
 	void pushWasher(const Washer& washer, unsigned int number) const;
@@ -19,11 +18,13 @@ private:
 	void addWasher(const Washer* washer);
 public:
 	const WashState* decision;
+	int step;
 
 	WashState();
 	WashState(const WashState* washState);
 	~WashState();
-
+	
+	void clean() const;
 	std::vector<const WashState*> getSuccessors() const;
 
 	std::vector<const Washer*> getWashers() const;
