@@ -264,7 +264,6 @@ bool DMFB::dfs(const State* currentState)
 			ret = currentState;
 			ret->printSolution(os);
 			os << "time: " << (clock() - Global::start)/1e6 << "s" << endl;
-			cerr << "time: " << (clock() - Global::start)/1e6 << "s" << endl;
 			cerr << "solution of " << ret->step;
 			if (ret->step == 1) {
 				cerr << " step";
@@ -272,6 +271,7 @@ bool DMFB::dfs(const State* currentState)
 				cerr << " steps";
 			}
 			cerr << " found" << endl;
+			cerr << "time: " << (clock() - Global::start)/1e6 << "s" << endl;
 			target = ret->step - 1;
 		} else {
 		if (currentState->step + currentState->estimationTime() <= stepUpperBound) {
