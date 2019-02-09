@@ -7,11 +7,11 @@
 #include "Sink.h"
 
 class Cell {
-private:
+  private:
     Point position;
     Detector* detector;
     Sink* sink;
-public:
+  public:
     Cell();
     
     void setPosition(Point position);
