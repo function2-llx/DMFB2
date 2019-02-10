@@ -1,8 +1,8 @@
 #include <cassert>
 #include <iostream>
 #include <fstream>
-#include "State.h"
-#include "DMFB.h"
+#include "core/State.h"
+#include "core/DMFB.h"
 #include "Global.h"
 
 using namespace std;

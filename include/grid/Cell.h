@@ -1,0 +1,30 @@
+#ifndef CELL_H
+#define CELL_H
+
+#include <vector>
+#include "math_models/Point.h"
+#include "entities/Detector.h"
+#include "entities/Sink.h"
+
+class Cell {
+  private:
+    Point position;
+    Detector* detector;
+    Sink* sink;
+  public:
+    Cell();
+    
+    void setPosition(Point position);
+
+    void setDetector(Detector* detector);
+    bool existDetector();
+    Detector* getDetector();
+    void removeDetector();
+
+    void setSink(Sink* sink);
+    bool existSink();
+    Sink* getSink();
+    void removeSink();
+};
+
+#endif  //CELL_H
