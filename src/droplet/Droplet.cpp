@@ -20,6 +20,7 @@ Droplet::Droplet(const Droplet& droplet)
     this->dispensed = droplet.dispensed;
     this->mixing = droplet.mixing;
     this->remainingMixingTime = droplet.remainingMixingTime;
+    
     if (this->remainingMixingTime == 0) {
         this->mixing = false;
     }
@@ -64,6 +65,7 @@ Droplet::Droplet(const Droplet* precursor, const Direction& direction)
 Droplet::Droplet(const Droplet& droplet1, const Droplet& droplet2)
 {
     using namespace Global;
+
     assert(!droplet1.underMixing());
     assert(!droplet1.underDetection());
     assert(!droplet2.underMixing());
@@ -71,6 +73,7 @@ Droplet::Droplet(const Droplet& droplet1, const Droplet& droplet2)
     assert(droplet1.position == droplet2.position);
     assert(grid->inside(droplet1.position));
     assert(mixingResult[droplet1.identifier][droplet2.identifier] != -1);
+
     this->setData(dropletData[mixingResult[droplet1.identifier][droplet2.identifier]]);
     this->dispensed = true;
     this->remainingMixingTime--;

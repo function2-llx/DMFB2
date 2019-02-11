@@ -6,14 +6,15 @@
 #include "math_models/Point.h"
 
 class Grid {
-private:
+  private:
     int rows, columns;
     Cell** cell;
 
     Grid(const Grid& grid);
     Grid& operator = (const Grid& grid);
     ~Grid();
-public:
+    
+  public:
     int boundarySize[4];
 
     Grid(int rows, int columns);
@@ -25,6 +26,7 @@ public:
     int getPointIdentifier(Point position);
     bool inside(Point position);
     Cell* getCell(Point position);
+
     bool placeSink(Sink* sink, Point position);
     void removeSink(Point position);
     bool placeDetector(Detector* detector, Point position);

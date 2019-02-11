@@ -6,12 +6,12 @@
 #include <iostream>
 #include <cstring>
 #include <algorithm>
-#include "core/DMFB.h"
-#include "core/State.h"
-#include "grid/Grid.h"
-#include "entities/Dispenser.h"
-#include "useless/Hash.h"
 #include "Global.h"
+#include "entities/Dispenser.h"
+#include "grid/Grid.h"
+#include "core/State.h"
+#include "core/DMFB.h"
+#include "useless/Hash.h"
 #include "useless/PlaceState.h"
 
 using namespace std;
@@ -24,7 +24,7 @@ struct Node {
 		fa = nullptr;
 		ch[0] = ch[1] = nullptr;
 	}
-	void insertChild(Node* child)
+	inline void insertChild(Node* child)
 	{
 		if (this->ch[0] == nullptr) {
 			this->ch[0] = child;
@@ -62,7 +62,7 @@ DMFB::~DMFB()
 
 int* leastTime;
 
-void dfsLeast(Node* cur)
+static void dfsLeast(Node* cur)
 {
 	if (cur == nullptr) {
 		return;
@@ -80,8 +80,10 @@ vector<int> type;
 void DMFB::loadSequencingGraph()
 {
 	using namespace Global;
+
 	ifstream is("./input/SequencingGraph.txt");
 	assert(is.is_open());
+
 	is >> this->nDroplets;
 	leastTime = new int[nDroplets];
 	node = new Node*[this->nDroplets];
@@ -89,6 +91,7 @@ void DMFB::loadSequencingGraph()
 	toBeDispensed = new bool[this->nDroplets];
 	mixingResult = new int*[this->nDroplets];
 	dropletData = new DropletData[this->nDroplets];
+
 	for (int i = 0; i < this->nDroplets; i++) {
 		mixingResult[i] = new int[this->nDroplets];
 		node[i] = new Node();
@@ -189,7 +192,7 @@ void DMFB::loadSequencingGraph()
 	cerr << "sequencing graph loaded" << endl;
 }
 
-bool range(int a, int n)
+static bool range(int a, int n)
 {
 	return 0 <= a && a < n;
 }
@@ -256,14 +259,14 @@ bool DMFB::dfs(const State* currentState)
 			if (ret != nullptr) {
 				ret->clean();
 			}
-			system("mkdir -p output");
+			assert(system("mkdir -p output") == 0);
 			char st[100];
 			sprintf(st, "output/%d.out", currentState->step);
 			ofstream os(st);
 			this->printPlace(os);
 			ret = currentState;
 			ret->printSolution(os);
-			os << "time: " << (clock() - Global::start)/1e6 << "s" << endl;
+			os << "time: " << (clock() - Global::start_time/1e6) << "s" << endl;
 			cerr << "solution of " << ret->step;
 			if (ret->step == 1) {
 				cerr << " step";
@@ -271,7 +274,7 @@ bool DMFB::dfs(const State* currentState)
 				cerr << " steps";
 			}
 			cerr << " found" << endl;
-			cerr << "time: " << (clock() - Global::start)/1e6 << "s" << endl;
+			cerr << "time: " << (clock() - Global::start_time)/1e6 << "s" << endl;
 			target = ret->step - 1;
 		} else {
 		if (currentState->step + currentState->estimationTime() <= stepUpperBound) {
@@ -287,43 +290,6 @@ bool DMFB::dfs(const State* currentState)
 	}
 	if (!flag) delete currentState;
 	return flag;
-			//washerRouter = new WasherRouter(currentState, curBoundary);
-		// if (washerRouter->Route()) {
-		// 	flag = true;
-		// 	for (int k = 0; k < 4; k++) {
-		// 		for (int i = 0; i < grid->boundarySize[k]; i++) {
-		// 			this->boundary[k][i] = curBoundary[k][i];
-		// 		}
-		// 	}
-		// 	for (int i = 0; i < this->rows; i++) {
-		// 		for (int j = 0; j < this->columns; j++) {
-		// 			this->detector[i][j] = curDetector[i][j];
-		// 		}
-		// 	}
-		// 	if (ret != nullptr) {
-		// 		ret->clean();
-		// 	}
-		// 	system("mkdir -p output");
-		// 	char st[100];
-		// 	sprintf(st, "output/%d.out", currentState->step);
-		// 	ofstream os(st);
-		// 	this->printPlace(os);
-		// 	ret = currentState;
-		// 	ret->printSolution(os);
-		// 	washerRouter->result->printRecursively(os);
-		// 	washerRouter->result->clean();
-		// 	cerr << "solution of " << ret->step;
-		// 	if (ret->step == 1) {
-		// 		cerr << " step";
-		// 	} else {
-		// 		cerr << " steps";
-		// 	}
-		// 	cerr << " found" << endl;
-		// 	target = ret->step - 1;
-		// } else {
-		// 	flag = false;
-		// }
-		// delete washerRouter;
 }
 
 void DMFB::placeDetector(int detectorCount)
@@ -365,7 +331,7 @@ void DMFB::placeSink(int sinkCount)
 	if (sinkCount == this->nSinks) {
 		if (placeState->addSink(sinkCount, sink)) {
 			placeState->clearDetector();
-		this->placeDetector(0);
+			this->placeDetector(0);
 		}
 	} else {
 		for (int k = 0; k < 4; k++) {
@@ -433,7 +399,7 @@ void DMFB::solve()
 			curBoundary[i][j] = -1;
 		}
 	}
-	system("rm -f output/*");
+	assert(system("rm -f output/*") == 0);
 	sink = new Sink*[20];
 	pdetector = new Detector*[20];
 	placeState = new PlaceState;
@@ -491,6 +457,11 @@ void DMFB::printPlace(ostream& os)
 		os << "|";
 	}
 	os << endl;
+}
+
+vector<State*> DMFB::get_route(const State* state) const
+{
+	
 }
 
 DMFB *DMFBsolver;

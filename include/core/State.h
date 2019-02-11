@@ -8,8 +8,7 @@
 typedef unsigned long long ULL;
 
 class State {
-    friend std::ostream& operator << (std::ostream&, const State&);
-private:
+  private:
     std::vector<const Droplet*> droplets;
     int estimation;
     
@@ -21,7 +20,7 @@ private:
 
     void dfsMove(unsigned int number) const;
     void pushDroplet(const Droplet& droplet, unsigned int number) const;
-public:
+  public:
     int step;
     const State* decision;
 
@@ -42,6 +41,8 @@ public:
     void textPrint(std::ostream&) const;
     void visualPrint(std::ostream&) const;
     void allPrint(std::ostream&) const;
+    
+    friend std::ostream& operator << (std::ostream&, const State&);
 };
 
 #endif  //STATE_H

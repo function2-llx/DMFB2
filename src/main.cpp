@@ -9,7 +9,7 @@ using namespace std;
 
 int main()
 {
-	Global::start = clock();
+	Global::start_time = clock();
 	DMFBsolver = new DMFB();
 	DMFBsolver->loadSequencingGraph();
 	DMFBsolver->loadModuleLibrary();

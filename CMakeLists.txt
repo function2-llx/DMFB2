@@ -14,7 +14,14 @@ AUX_SOURCE_DIRECTORY(src/grid DIR_SRCS)
 AUX_SOURCE_DIRECTORY(src/math_models DIR_SRCS)
 AUX_SOURCE_DIRECTORY(src/useless DIR_SRCS)
 
-add_compile_options(-std=c++11 -O2)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+
+# add_definitions(-D NDEBUG)
+
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${DIR_SRCS})
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../run)
+
+# ADD_EXECUTABLE(hello hello.cpp)

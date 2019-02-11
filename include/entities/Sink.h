@@ -4,11 +4,11 @@
 #include "math_models/Point.h"
 
 class Sink {
-private:
+  private:
     Point position;
     Sink(const Sink& sink);
     Sink& operator = (const Sink& sink);
-public:
+  public:
     explicit Sink(const Point& position);
     Point getPosition();
 };

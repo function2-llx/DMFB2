@@ -3,12 +3,12 @@
 #include <cassert>
 #include <algorithm>
 #include <iostream>
-#include "core/State.h"
+#include <unordered_set>
 #include "math_models/Direction.h"
+#include "core/State.h"
 #include "grid/Grid.h"
 #include "entities/Dispenser.h"
 #include "grid/Cell.h"
-#include "useless/Cmp.h"
 #include "useless/Hash.h"
 #include "Global.h"
 #include "core/DMFB.h"
@@ -62,11 +62,12 @@ void State::clean() const
 
 ULL State::hash() const
 {
-    static ULL hashBase = 75487475995782307ull;
-    static ULL shift = 3751046701531ull;
+    constexpr static ULL hashBase = 75487475995782307ull;
+    constexpr static ULL shift = 3751046701531ull;
     ULL ret = 0;
     auto replaceDroplets = this->droplets;
-    sort(replaceDroplets.begin(), replaceDroplets.end(), cmpDroplet);
+    sort(replaceDroplets.begin(), replaceDroplets.end(), 
+        [](const Droplet* a, const Droplet* b) { return a->getIdentifier() < b->getIdentifier(); });
     for (auto droplet: replaceDroplets) {
         ret = droplet->hash() + shift + hashBase * ret;
     }
@@ -90,11 +91,11 @@ int State::estimationTime() const
 
 static vector<const State*> successors;
 
-int **curInfluence, **preInfluence;
-vector<Droplet> **content;  //record droplets in every grid
-vector<const Droplet*> undispensed;   //record undispensed droplets
+static int **curInfluence, **preInfluence;
+static vector<Droplet> **content;  //record droplets in every grid
+static vector<const Droplet*> undispensed;   //record undispensed droplets
 
-bool canPush(const Droplet& droplet)
+static bool canPush(const Droplet& droplet)
 {
     using namespace Global;
     int identifier = droplet.getIdentifier();
@@ -244,6 +245,7 @@ vector<const State*> State::getSuccessors() const
     delete[] preInfluence;
     delete[] curInfluence;
     delete[] content;
+    // cerr << successors.size() << endl;
     return successors;
 }
 

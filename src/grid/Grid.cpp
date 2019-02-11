@@ -15,7 +15,6 @@ bool Grid::placeDetector(Detector* detector, Point position)
     return true;
 }
 
-
 bool Grid::placeSink(Sink* sink, Point position)
 {
     Cell* cell = this->getCell(position);
@@ -47,7 +46,7 @@ Point Grid::boundaryPosition(int identifier, int type)
         case 2:
         return Point(identifier, this->columns - 1);
         case 3:
-        return Point(this->rows -1, identifier);
+        return Point(this->rows - 1, identifier);
         default:
         throw runtime_error("access error");
     }
@@ -125,4 +124,4 @@ int Grid::getColumns()
     return this->columns;
 }
 
-Grid* grid;
+Grid *grid;
