@@ -482,17 +482,18 @@ static vector<const State*> get_route(const State* start, const State* end)
 	return route;
 }
 
+//free states in queue that not in route
 static void clear(vector<const State*> queue, vector<const State*> route)
 {
-	int cur = 0;
+	auto it = route.begin();
 	for (auto state: queue) {
-		if (state == route[cur])
-			cur++;
+		if (state == *it)
+			it++;
 		else
 			delete state;
 	}
 
-	assert(cur == route.size());
+	assert(it == route.end());
 }
 
 #include <unordered_set>
