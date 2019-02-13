@@ -82,6 +82,15 @@ Droplet::Droplet(const Droplet& droplet1, const Droplet& droplet2)
     this->position = droplet1.position;
 }
 
+bool operator == (const Droplet& a, const Droplet& b)
+{
+    if (a.identifier != b.identifier)
+        return 0;
+
+    if (a.dispensed != b.dispensed)
+        return 0;
+}
+
 void Droplet::setData(const DropletData& dropletData)
 {
     this->identifier = dropletData.identifier;
@@ -104,15 +113,9 @@ ULL Droplet::hash() const
     return ret;
 }
 
-bool Droplet::inGrid() const
-{
-    return this->dispensed;
-}
+bool Droplet::is_dispensed() const { return this->dispensed; }
 
-bool Droplet::underMixing() const
-{
-    return this->mixing;
-}
+bool Droplet::underMixing() const { return this->mixing; }
 
 void Droplet::startDetection()
 {
@@ -201,7 +204,4 @@ int Droplet::estimatedTime() const
     return ret;
 }
 
-bool Droplet::isEndDroplet() const
-{
-    return !Global::toBeMixed[this->identifier];
-}
+bool Droplet::isEndDroplet() const { return !Global::toBeMixed[this->identifier]; }

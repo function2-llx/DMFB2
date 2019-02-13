@@ -37,7 +37,7 @@ class DMFB {
 
 		void set_placement();
 
-		std::vector<State*> get_route(const State* state) const;
+		std::vector<const State*> get_route(const State* state) const;
 };
 
 extern int *leastTime;

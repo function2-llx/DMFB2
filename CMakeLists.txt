@@ -19,6 +19,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 
 # add_definitions(-D NDEBUG)
+add_definitions(-D UNIQUE)
 
 
 ADD_EXECUTABLE(${PROJECT_NAME} ${DIR_SRCS})

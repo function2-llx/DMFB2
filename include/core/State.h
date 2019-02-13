@@ -3,6 +3,7 @@
 
 #include <set>
 #include <vector>
+#include "core/Map.h"
 #include "droplet/Droplet.h"
 
 typedef unsigned long long ULL;
@@ -13,7 +14,6 @@ class State {
     int estimation;
     
     State& operator = (const State& state);
-    State(const State&);
     State(const State* precursor);
 
     void addDroplet(const Droplet* droplet);
@@ -25,6 +25,7 @@ class State {
     const State* decision;
 
     State();
+    State(const State&);
     ~State();
 
     std::vector<const Droplet*> getDroplets() const;
@@ -35,7 +36,7 @@ class State {
     bool isEndState() const;
     std::vector<const State*> getSuccessors() const;
     int estimationTime() const;
-    bool operator < (const State&) const;
+    // bool operator < (const State&) const;
 
     void printSolution(std::ostream&) const;
     void textPrint(std::ostream&) const;
@@ -43,6 +44,16 @@ class State {
     void allPrint(std::ostream&) const;
     
     friend std::ostream& operator << (std::ostream&, const State&);
+    friend bool operator == (const State&, const State&);
 };
+
+namespace std {
+    template<>
+        struct hash<const State> {
+            size_t operator () (const State) const;
+        };
+};
+
+// extern Map<State, int> state_step;
 
 #endif  //STATE_H

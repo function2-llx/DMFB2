@@ -19,7 +19,7 @@ class Grid {
 
     Grid(int rows, int columns);
     void build();
-
+    
     int area();
     int getRows();
     int getColumns();

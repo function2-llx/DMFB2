@@ -9,7 +9,6 @@
 #include "grid/Grid.h"
 #include "entities/Dispenser.h"
 #include "grid/Cell.h"
-#include "useless/Hash.h"
 #include "Global.h"
 #include "core/DMFB.h"
 
@@ -22,11 +21,34 @@ State::State(const State* precursor)
 	this->decision = precursor;
 }
 
+State::State(const State& state)
+{
+    for (auto droplet: state.droplets)
+        this->droplets.push_back(new Droplet(*droplet));
+    
+    this->estimation = state.estimation;
+    this->step = state.step;
+    this->decision = state.decision;
+}
+
 State::~State()
 {
     for (auto droplet: this->droplets) {
         delete droplet;
     }
+}
+
+bool operator == (const State& a, const State& b)
+{
+    if (a.droplets.size() != b.droplets.size())
+        return 0;
+
+    for (int i = a.droplets.size() - 1; i >= 0; i--) {
+        if (*a.droplets[i] != *b.droplets[i])
+            return 0;
+    }
+
+    return 1;
 }
 
 void State::addDroplet(const Droplet* droplet)
@@ -142,6 +164,7 @@ void State::pushDroplet(const Droplet& droplet, unsigned int number) const
     }
 }
 
+
 void State::dfsMove(unsigned int number) const
 {
     if (number == this->droplets.size()){
@@ -159,20 +182,27 @@ void State::dfsMove(unsigned int number) const
                 }
 			}
 		}
+#ifdef UNIQUE
         ULL hash = successor->hash();
         if (!hashSet.count(hash)) {
             hashSet.insert(hash);
+            // cerr << hashSet.size() << endl;
             successors.push_back(successor);
         } else {
             delete successor;
         }
+#else
+        successors.push_back(successor);
+#endif
     } else {
-        const Droplet* droplet = droplets[number];
+        const Droplet *droplet = droplets[number];
         int identifier = droplet->getIdentifier();
         Point position = droplet->getPosition();
-        if (!droplet->inGrid()) {   //deal with undispensed droplet
-            this->pushDroplet(Droplet(droplet, zeroDirection), number);
-            undispensed.push_back(droplet);
+
+        if (!droplet->is_dispensed()) {   //deal with undispensed droplet
+            this->pushDroplet(Droplet(droplet, zeroDirection), number); //dispense
+
+            undispensed.push_back(droplet); //not dispense
             this->dfsMove(number + 1);
             undispensed.pop_back();
         } else if (droplet->underMixing()) {    //droplet under mixing must move(?)
@@ -194,7 +224,6 @@ void State::dfsMove(unsigned int number) const
             } else {    //attempt to start detection
                 Cell *cell = grid->getCell(position);
                 if (cell->existDetector() && cell->getDetector()->getType() == droplet->getType()) {
-                    //cerr << "detector type: " << cell->getDetector()->getType() << " droplet type: " << droplet->getType() << endl;
                     Droplet newDroplet(droplet, zeroDirection);
                     newDroplet.startDetection();
                     this->pushDroplet(newDroplet, number);
@@ -224,7 +253,7 @@ vector<const State*> State::getSuccessors() const
         }
     }
     for (auto droplet: this->droplets) {
-        if (droplet->inGrid()) {
+        if (droplet->is_dispensed()) {
             Point position(droplet->getPosition());
             int identifier = droplet->getIdentifier();
             for (int i = position.r - 1; i <= position.r + 1; i++) {
@@ -255,10 +284,7 @@ ostream& operator << (ostream& os, const State& state)
 	return os;
 }
 
-bool State::operator < (const State& state) const
-{
-    return this->estimation < state.estimation;
-}
+// bool State::operator < (const State& state) const { return this->estimation < state.estimation; }
 
 void State::visualPrint(ostream& os) const
 {
@@ -270,7 +296,7 @@ void State::visualPrint(ostream& os) const
         }
     }
     for (auto droplet: this->droplets) {
-        if (droplet->inGrid()) {
+        if (droplet->is_dispensed()) {
             Point position = droplet->getPosition();
             type[position.r][position.c] = ::type[droplet->getType()];
         }
@@ -289,10 +315,10 @@ void State::visualPrint(ostream& os) const
 
 void State::allPrint(ostream& os) const
 {
-    os << "==================State================" << endl;
+    os << "=================State=================" << endl;
     this->visualPrint(os);
     for (auto droplet: this->droplets) {
-        if (droplet->inGrid()) {
+        if (droplet->is_dispensed()) {
             os << *droplet << endl;
         }
     }
@@ -303,9 +329,9 @@ void State::allPrint(ostream& os) const
 
 void State::textPrint(ostream& os) const
 {
-    os << "==================State================" << endl;
+    os << "=================State=================" << endl;
     for (auto droplet: this->droplets) {
-        if (droplet->inGrid()) {
+        if (droplet->is_dispensed()) {
             os << *droplet << endl;
         }
     }

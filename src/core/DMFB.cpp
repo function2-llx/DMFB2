@@ -11,7 +11,7 @@
 #include "grid/Grid.h"
 #include "core/State.h"
 #include "core/DMFB.h"
-#include "useless/Hash.h"
+#include "core/Map.h"
 #include "useless/PlaceState.h"
 
 using namespace std;
@@ -294,7 +294,9 @@ bool DMFB::dfs(const State* currentState)
 
 void DMFB::placeDetector(int detectorCount)
 {
+	static int cnt = 0;
 	if (detectorCount == this->nTypes) {
+		// cerr << cnt++ << endl;
 		if (!placeState->addDetector(detectorCount, pdetector))
 			return ;
 		for (stepUpperBound = stepLowerBound; stepUpperBound <= target; stepUpperBound++) {
@@ -459,9 +461,66 @@ void DMFB::printPlace(ostream& os)
 	os << endl;
 }
 
-vector<State*> DMFB::get_route(const State* state) const
+#include <stack>
+
+static vector<const State*> get_route(const State* start, const State* end)
 {
-	
+	stack<const State*> stk;
+	for (auto state = end; ; state = state->decision) {
+		stk.push(state);
+		if (state == start)
+			break;
+	}
+
+	vector<const State*> route;
+	route.reserve(stk.size());
+	for (int i = stk.size() - 1; i >= 0; i--) {
+		route.push_back(stk.top());
+		stk.pop();
+	}
+
+	return route;
+}
+
+static void clear(vector<const State*> queue, vector<const State*> route)
+{
+	int cur = 0;
+	for (auto state: queue) {
+		if (state == route[cur])
+			cur++;
+		else
+			delete state;
+	}
+
+	assert(cur == route.size());
+}
+
+#include <unordered_set>
+
+vector<const State*> DMFB::get_route(const State* state) const
+{
+	unordered_set<State, HashFunctionObject<State> > state_set;
+	if (state->isEndState())
+		return vector<const State*>(1, state);	//already end state
+
+	vector<const State*> queue;
+ 	queue.push_back(state);
+	int head = 0, tail = 1;
+	while (head < tail) {
+		auto cur = queue[head++];
+		for (auto suc: cur->getSuccessors()) {
+			if (suc->isEndState()) {
+				auto route = ::get_route(state, suc);
+				::clear(queue, route);
+				return route;
+			} else if (!state_set.count(*suc)) {
+				state_set.insert(*suc);
+				queue.push_back(suc);
+			}
+		}
+	}
+
+	return vector<const State*>();	//	no solution
 }
 
 DMFB *DMFBsolver;

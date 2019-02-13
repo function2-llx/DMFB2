@@ -9,7 +9,7 @@
 typedef unsigned long long ULL;
 
 class Droplet {
-private:
+  private:
     int identifier;
     int type;
     Point position;
@@ -25,7 +25,7 @@ private:
     void setData(const DropletData& dropletData);
 
     Droplet& operator = (const Droplet& droplet);
-public:
+  public:
     Droplet(const DropletData& dropletData);
     Droplet(const Droplet* precursor, const Direction& direction);
     Droplet(const Droplet& droplet1, const Droplet& droplet2);
@@ -33,7 +33,7 @@ public:
 
     ULL hash() const;
 
-    bool inGrid() const;
+    bool is_dispensed() const;
 
     bool underMixing() const;
     bool mixed() const;
@@ -50,6 +50,8 @@ public:
     bool isEndDroplet() const;
     
     friend std::ostream& operator << (std::ostream&, const Droplet&);
+    friend bool operator == (const Droplet&, const Droplet&);
+    inline friend bool operator != (const Droplet& a, const Droplet& b) { return !(a == b); }
 };
 
 #endif  //DROPLET_H
