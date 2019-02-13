@@ -6,15 +6,9 @@
 
 Cell::Cell() : position(0, 0), detector(nullptr), sink(nullptr) {}
 
-bool Cell::existDetector()
-{
-    return this->detector != nullptr;
-}
+bool Cell::existDetector() { return this->detector != nullptr; }
 
-bool Cell::existSink()
-{
-    return this->sink != nullptr;
-}
+bool Cell::existSink() { return this->sink != nullptr; }
 
 void Cell::setPosition(Point position)
 {
@@ -46,10 +40,7 @@ void Cell::setSink(Sink* sink)
     this->sink = sink;
 }
 
-Sink* Cell::getSink()
-{
-    return this->sink;
-}
+Sink* Cell::getSink() { return this->sink; }
 
 void Cell::removeSink()
 {

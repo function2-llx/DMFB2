@@ -192,10 +192,7 @@ void DMFB::loadSequencingGraph()
 	cerr << "sequencing graph loaded" << endl;
 }
 
-static bool range(int a, int n)
-{
-	return 0 <= a && a < n;
-}
+static bool range(int a, int n) { return 0 <= a && a < n; }
 
 void DMFB::loadModuleLibrary()
 {

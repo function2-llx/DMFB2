@@ -4,6 +4,7 @@
 #include "grid/Cell.h"
 #include "math_models/Point.h"
 #include "math_models/Direction.h"
+#include "placement/placement.h"
 
 using namespace std;
 
@@ -18,7 +19,8 @@ bool Grid::placeDetector(Detector* detector, Point position)
 bool Grid::placeSink(Sink* sink, Point position)
 {
     Cell* cell = this->getCell(position);
-    if (cell->existSink()) return false;
+    if (cell->existSink())
+        return false;
     cell->setSink(sink);
     return true;
 }
@@ -122,6 +124,11 @@ int Grid::getColumns()
 {
     assert(this != nullptr);
     return this->columns;
+}
+
+void Grid::set_placement(const Placement& placement)
+{
+    
 }
 
 Grid *grid;

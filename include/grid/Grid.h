@@ -5,6 +5,8 @@
 #include "grid/Cell.h"
 #include "math_models/Point.h"
 
+struct Placement;
+
 class Grid {
   private:
     int rows, columns;
@@ -32,6 +34,8 @@ class Grid {
     bool placeDetector(Detector* detector, Point position);
     void removeDetector(Point position);
     Point boundaryPosition(int identifier, int type);
+
+    void set_placement(const Placement& );
 };
 
 extern Grid* grid;
