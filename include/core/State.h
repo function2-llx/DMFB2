@@ -49,8 +49,8 @@ class State {
 
 namespace std {
     template<>
-        struct hash<const State> {
-            size_t operator () (const State) const;
+        struct hash<State> {
+            size_t operator () (const State& state) const { return state.hash(); } 
         };
 };
 

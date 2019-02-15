@@ -489,7 +489,7 @@ static void clear(vector<const State*> queue, vector<const State*> route)
 
 vector<const State*> DMFB::get_route(const State* state) const
 {
-	unordered_set<State, HashFunctionObject<State> > state_set;
+	unordered_set<State> state_set;
 	if (state->isEndState())
 		return vector<const State*>(1, state);	//already end state
 
