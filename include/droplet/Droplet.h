@@ -31,6 +31,8 @@ class Droplet {
     Droplet(const Droplet& droplet1, const Droplet& droplet2);
     Droplet(const Droplet&);
 
+    Droplet* get_moved_droplet(const Direction&) const;
+
     ULL hash() const;
 
     bool is_dispensed() const;
@@ -42,12 +44,17 @@ class Droplet {
     bool underDetection() const;
     bool detected() const;
 
-    int getIdentifier() const;
+    void time_past(int);
+
+    // int getIdentifier() const;
+    int get_id() const { return this->identifier; }
     int getType() const;
     Point getPosition() const;
 
     int estimatedTime() const;
     bool isEndDroplet() const;
+
+    static Droplet* merge(const Droplet*, const Droplet*);
     
     friend std::ostream& operator << (std::ostream&, const Droplet&);
     friend bool operator == (const Droplet&, const Droplet&);

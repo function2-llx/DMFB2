@@ -72,14 +72,44 @@ Droplet::Droplet(const Droplet& droplet1, const Droplet& droplet2)
     assert(!droplet2.underDetection());
     assert(droplet1.position == droplet2.position);
     assert(grid->inside(droplet1.position));
-    assert(mixingResult[droplet1.identifier][droplet2.identifier] != -1);
 
-    this->setData(dropletData[mixingResult[droplet1.identifier][droplet2.identifier]]);
+    int result_id = DMFBsolver->get_mixing_result_id(&droplet1, &droplet2);
+    assert(result_id != -1);
+
+    this->setData(DMFBsolver->get_droplet_data(result_id));
     this->dispensed = true;
     this->remainingMixingTime--;
     this->mixing = true;
     this->detecting = false;
     this->position = droplet1.position;
+}
+
+//  deal with remaining detection and mixing time
+void Droplet::time_past(int t)
+{
+    if (this->detecting) {
+        if (remainingDetectingTime <= t) {
+            detecting = 0;
+            remainingDetectingTime = 0;
+        } else
+            remainingDetectingTime -= t;
+    }
+
+    if (this->mixing) {
+        if (remainingMixingTime <= t) {
+            mixing = 0;
+            remainingMixingTime = 0;
+        } else 
+            remainingMixingTime -= t;
+    }
+}
+
+Droplet* Droplet::get_moved_droplet(const Direction& direction) const
+{
+    Droplet* ret = new Droplet(*this);
+    ret->position = ret->position + direction;
+    ret->time_past(1);
+    return ret;
 }
 
 bool operator == (const Droplet& a, const Droplet& b)
@@ -143,21 +173,9 @@ bool Droplet::detected() const
     return this->detecting == false && this->remainingDetectingTime == 0;
 }
 
-int Droplet::getIdentifier() const
-{
-    return this->identifier;
-}
+int Droplet::getType() const { return this->type; }
 
-int Droplet::getType() const
-{
-    return this->type;
-}
-
-Point Droplet::getPosition() const
-{
-    return this->position;
-}
-
+Point Droplet::getPosition() const { return this->position; }
 
 ostream& operator << (ostream& os, const Droplet& droplet)
 {
@@ -193,7 +211,7 @@ ostream& operator << (ostream& os, const Droplet& droplet)
 
 int Droplet::estimatedTime() const
 {
-    int ret = leastTime[this->identifier];
+    int ret = DMFBsolver->get_least_time(this);
     if (!this->detected()) {
         ret += this->remainingDetectingTime;
         if (!this->underDetection()) {
@@ -204,4 +222,19 @@ int Droplet::estimatedTime() const
     return ret;
 }
 
-bool Droplet::isEndDroplet() const { return !Global::toBeMixed[this->identifier]; }
+bool Droplet::isEndDroplet() const { return !DMFBsolver->is_to_mix(this); }
+
+Droplet* Droplet::merge(const Droplet* a, const Droplet* b)
+{
+    using namespace Global;
+
+    assert(!a->underDetection());
+    assert(!a->underMixing());
+    assert(!b->underDetection());
+    assert(!b->underMixing());
+    assert(a->position == b->position);
+    assert(grid->inside(a->position));
+
+    int result_id = DMFBsolver->get_mixing_result_id(a, b);
+    assert(result_id != -1);
+}

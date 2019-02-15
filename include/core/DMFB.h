@@ -7,40 +7,59 @@
 
 class DMFB {
   private:
-		std::map<int, int> typeMap;
-		int nDroplets, nSinks, nTypes, nDispensers;
-		int rows, columns;
-		int* boundary[4];
-		int** detector;
+    std::map<int, int> typeMap;
+    int nDroplets, nSinks, nTypes, nDispensers;
+    int rows, columns;
+    int* boundary[4];
+    int** detector;
 
-		DMFB(const DMFB&);
-		DMFB& operator = (const DMFB&);
-		
-		void print(std::ostream&, int);
-		void placeSink(int sinkCount);
-		void placeDispenser(int dispenserCount);
-		void placeDetector(int detectorCount);
-		bool dfs(const State*);
+    std::vector<std::vector<int> > mixing_result;
+    std::vector<bool> to_mix;
+    std::vector<DropletData> droplet_data;
+    std::vector<int> least_time;
+    std::vector<int> dispense_id;
 
-	public:
-		DMFB();
-		~DMFB();
+    DMFB(const DMFB&);
+    DMFB& operator = (const DMFB&);
+    
+    void print(std::ostream&, int);
+    void placeSink(int sinkCount);
+    void placeDispenser(int dispenserCount);
+    void placeDetector(int detectorCount);
+    bool dfs(const State*);
 
-		void loadSequencingGraph();
-		void loadModuleLibrary();
-		void loadDesignObejective();
+  public:
+    DMFB();
+    ~DMFB();
 
-		int getDropletNumber() const;
+    void loadSequencingGraph();
+    void loadModuleLibrary();
+    void loadDesignObejective();
+    // DropletData get_mix_data(const Droplet*, const Droplet*);
+    DropletData get_droplet_data(int id) const
+    {
+        assert(0 <= id && id < nDroplets);
+        return droplet_data[id];
+    }
+    int get_mixing_result_id(int id_a, int id_b)
+    {
+        assert(0 <= id_a < nDroplets);
+        assert(0 <= id_b < nDroplets);
+        return mixing_result[id_a][id_b];
+    }
+    int get_mixing_result_id(const Droplet* a, const Droplet* b) const { return mixing_result[a->get_id()][b->get_id()]; }
+    int get_least_time(const Droplet* droplet) const { return least_time[droplet->get_id()]; }
+    bool is_to_mix(const Droplet* droplet) const { return to_mix[droplet->get_id()]; }
+    std::vector<int> get_dispense_id() const { return dispense_id; }
 
-		void solve();
-		void printPlace(std::ostream&);
+    int getDropletNumber() const;
 
-		void set_placement();
+    void solve();
+    void printPlace(std::ostream&);
 
-		std::vector<const State*> get_route(const State* state) const;
+    std::vector<const State*> get_route(const State* state) const;
 };
 
-extern int *leastTime;
 extern DMFB *DMFBsolver;
 extern std::vector<int> type;
 

@@ -6,5 +6,3 @@ struct DropletData {
 	int mixingTime;
 	int detectingTime;
 };
-
-extern DropletData* dropletData;
