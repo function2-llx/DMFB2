@@ -14,7 +14,7 @@ void PlaceState::vertical(Point &point) {
   point.c = c - point.c - 1;
 }
 
-bool PlaceState::addDispenser(int dispenserCount, Dispenser** dispenser) {
+bool PlaceState::addDispenser(int dispenserCount, const std::vector<Dispenser*>& dispenser) {
   std::vector<Point> vec;
   for (int i = 0; i < dispenserCount; ++i)
     vec.push_back(dispenser[i]->getPosition());
@@ -44,7 +44,7 @@ bool PlaceState::addDispenser(int dispenserCount, Dispenser** dispenser) {
   return true;
 }
 
-bool PlaceState::addSink(int sinkCount, Sink** sink) {
+bool PlaceState::addSink(int sinkCount, const std::vector<Sink*>& sink) {
   std::vector<Point> vec;
   for (int i = 0; i < sinkCount; ++i)
     vec.push_back(sink[i]->getPosition());
@@ -74,7 +74,7 @@ bool PlaceState::addSink(int sinkCount, Sink** sink) {
   return true;
 }
 
-bool PlaceState::addDetector(int detectorCount, Detector** detector) {
+bool PlaceState::addDetector(int detectorCount, const std::vector<Detector*>& detector) {
   std::vector<Point> vec;
   for (int i = 0; i < detectorCount; ++i)
     vec.push_back(detector[i]->getPosition());

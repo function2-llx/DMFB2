@@ -5,19 +5,26 @@
 #include <map>
 #include "core/State.h"
 
+class Sink;
+class Detector;
+
 class DMFB {
   private:
     std::map<int, int> typeMap;
     int nDroplets, nSinks, nTypes, nDispensers;
     int rows, columns;
-    int* boundary[4];
-    int** detector;
+    int* boundary_record[4];
+    int** detector_record;
 
     std::vector<std::vector<int> > mixing_result;
     std::vector<bool> to_mix;
     std::vector<DropletData> droplet_data;
     std::vector<int> least_time;
     std::vector<int> dispense_id;
+
+    std::vector<Dispenser*> dispensers;
+    std::vector<Sink*> sinks;
+    std::vector<Detector*> detectors;
 
     DMFB(const DMFB&);
     DMFB& operator = (const DMFB&);
@@ -27,6 +34,8 @@ class DMFB {
     void placeDispenser(int dispenserCount);
     void placeDetector(int detectorCount);
     bool dfs(const State*);
+    
+    bool gen_placement() const; //  return true if success
 
   public:
     DMFB();
@@ -53,6 +62,17 @@ class DMFB {
     std::vector<int> get_dispense_id() const { return dispense_id; }
 
     int getDropletNumber() const;
+    Dispenser* get_dispenser(int type) const
+    {
+        assert(0 <= type && type < nTypes);
+        return dispensers[type];
+    }
+
+    Detector* get_detector(int type) const
+    {
+        assert(0 <= type && type < nTypes);
+        return detectors[type];
+    }
 
     void solve();
     void printPlace(std::ostream&);

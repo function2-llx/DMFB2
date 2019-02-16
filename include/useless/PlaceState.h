@@ -19,9 +19,9 @@ class PlaceState {
     PlaceState operator = (const PlaceState& placeState);
   public:
     PlaceState() {}
-    bool addDispenser(int dispenserCount, Dispenser** dispenser);
-    bool addSink(int sinkCount, Sink** sink);
-    bool addDetector(int detectorCount, Detector** detector);
+    bool addDispenser(int dispenserCount, const std::vector<Dispenser*>&);
+    bool addSink(int sinkCount, const std::vector<Sink*>&);
+    bool addDetector(int detectorCount, const std::vector<Detector*>&);
     void clearDispenser();
     void clearSink();
     void clearDetector();

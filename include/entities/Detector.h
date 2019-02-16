@@ -19,7 +19,7 @@ public:
     ULL hash();
 };
 
-extern Point* detectorPosition;
-extern Detector** pdetector;
+// extern Point* detectorPosition;
+// extern Detector** pdetector;
 
 #endif  //DETECTOR_H

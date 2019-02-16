@@ -13,6 +13,6 @@ class Sink {
     Point getPosition();
 };
 
-extern Sink** sink;
+// extern Sink** sink;
 
 #endif  //SINK_H

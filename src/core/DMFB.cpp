@@ -48,13 +48,13 @@ DMFB::DMFB()
 
 DMFB::~DMFB()
 {
-	for (int i = 0; i < 4; i++) {
-		delete []this->boundary[i];
-	}
-	for (int i = 0; i < this->rows; i++) {
-		delete []this->detector[i];
-	}
-	delete []this->detector;
+	for (int i = 0; i < 4; i++)
+		delete []this->boundary_record[i];
+
+	for (int i = 0; i < this->rows; i++)
+		delete []this->detector_record[i];
+
+	delete []this->detector_record;
 }
 
 
@@ -123,9 +123,14 @@ void DMFB::loadSequencingGraph()
 		// 	to_dispense[i] = false;
 		// }
 	}
-	dispenser = new Dispenser*[this->nDispensers];
-	for (int i = 0; i < this->nDispensers; i++) 
-		dispenser[i] = new Dispenser(i);
+    
+	// dispenser = new Dispenser*[this->nDispensers];
+	// for (int i = 0; i < this->nDispensers; i++) 
+	// 	dispenser[i] = new Dispenser(i);
+    dispensers.reserve(nDispensers);
+    for (int i = 0; i < nDispensers; i++)
+        dispensers.push_back(new Dispenser(i));
+
 	this->nTypes = this->nDispensers;
 	for (int i = 0; i < this->nDroplets; i++) {
 		if (node[i]->ch[0] != nullptr) {
@@ -138,7 +143,8 @@ void DMFB::loadSequencingGraph()
 		}
 		droplet_data[i].type = node[i]->type;
 	}
-	detectorPosition = new Point[this->nTypes];
+	// detectorPosition = new Point[this->nTypes];
+
 	//ensure same input types output same type
 	struct data {
 		int a, b;
@@ -205,15 +211,15 @@ void DMFB::loadDesignObejective()
 	ifstream is("./input/DesignObjective.txt");
 	assert(is.is_open());
 	is >> this->rows >> this->columns;
-	this->detector = new int*[this->rows];
+	this->detector_record = new int*[this->rows];
 	for (int i = 0; i < this->rows; i++) {
-		this->detector[i] = new int[this->columns];
+		this->detector_record[i] = new int[this->columns];
 	}
 	grid = new Grid(this->rows, this->columns);
 	grid->build();	
 	assert(this->nTypes <= grid->area());
 	for (int i = 0; i < 4; i++) {
-		this->boundary[i] = new int[grid->boundarySize[i]];
+		this->boundary_record[i] = new int[grid->boundarySize[i]];
 	}
 	cerr << "design objective loaded" << endl;
 }
@@ -234,14 +240,16 @@ bool DMFB::dfs(const State* currentState)
         flag = true;
         for (int k = 0; k < 4; k++) {
             for (int i = 0; i < grid->boundarySize[k]; i++) {
-                this->boundary[k][i] = curBoundary[k][i];
+                this->boundary_record[k][i] = curBoundary[k][i];
             }
         }
         for (int i = 0; i < this->rows; i++) {
             for (int j = 0; j < this->columns; j++) {
-                this->detector[i][j] = curDetector[i][j];
+                this->detector_record[i][j] = 
+                    curDetector[i][j];
             }
         }
+
         if (ret != nullptr) {
             ret->clean();
         }
@@ -283,7 +291,7 @@ void DMFB::placeDetector(int detectorCount)
 	static int cnt = 0;
 	if (detectorCount == this->nTypes) {
 		// cerr << cnt++ << endl;
-		if (!placeState->addDetector(detectorCount, pdetector))
+		if (!placeState->addDetector(detectorCount, this->detectors))
 			return ;
 		for (stepUpperBound = stepLowerBound; stepUpperBound <= target; stepUpperBound++) {
 			hashSet.clear();
@@ -300,9 +308,9 @@ void DMFB::placeDetector(int detectorCount)
 			for (int j = 0; j < grid->getColumns(); j++) {
 				Point position = Point(i, j);
 				Detector* detector = new Detector(detectorCount, position);
-				::pdetector[detectorCount] = detector;
+				this->detectors[detectorCount] = detector;
 				if (grid->placeDetector(detector, position)) {
-					detectorPosition[detectorCount] = position;
+					// detectorPosition[detectorCount] = position;
 					curDetector[i][j] = detectorCount;
 					this->placeDetector(detectorCount + 1);
 					curDetector[i][j] = -1;
@@ -318,7 +326,7 @@ void DMFB::placeDetector(int detectorCount)
 void DMFB::placeSink(int sinkCount)
 {
 	if (sinkCount == this->nSinks) {
-		if (placeState->addSink(sinkCount, sink)) {
+		if (placeState->addSink(sinkCount, sinks)) {
 			placeState->clearDetector();
 			this->placeDetector(0);
 		}
@@ -328,7 +336,7 @@ void DMFB::placeSink(int sinkCount)
 				if (curBoundary[k][i] == -1) {
 					Point position = grid->boundaryPosition(i, k);
 					Sink* sink = new Sink(position);
-					::sink[sinkCount] = sink;
+					sinks[sinkCount] = sink;
 					if (grid->placeSink(sink, position)) {
 						curBoundary[k][i] = this->nTypes;
 						this->placeSink(sinkCount + 1);
@@ -349,11 +357,11 @@ void DMFB::placeDispenser(int dispenserCount)
 	if (dispenserCount == this->nDispensers) {
         // cerr << "test" << endl;
 		for (int i = 0; i < this->nDispensers; i++) {
-			assert(grid->inside(dispenser[i]->getPosition()));
+			assert(grid->inside(dispensers[i]->getPosition()));
 		}
-		if (placeState->addDispenser(dispenserCount, dispenser)) {
+		if (placeState->addDispenser(dispenserCount, dispensers)) {
 			placeState->clearSink();
-		this->placeSink(0);
+	    	this->placeSink(0);
 		}
 	} else {
 		for (int k = 0; k < 4; k++) {
@@ -361,7 +369,7 @@ void DMFB::placeDispenser(int dispenserCount)
 				if (curBoundary[k][i] == -1) {
 					Point position = grid->boundaryPosition(i, k);
 					assert(grid->inside(position));
-					dispenser[dispenserCount]->setPosition(position);
+					dispensers[dispenserCount]->setPosition(position);
 					curBoundary[k][i] = dispenserCount;
 					bool flag = true;
 					if (flag) this->placeDispenser(dispenserCount + 1);
@@ -390,8 +398,10 @@ void DMFB::solve()
 		}
 	}
 	assert(system("rm -f output/*") == 0);
-	sink = new Sink*[20];
-	pdetector = new Detector*[20];
+	// sink = new Sink*[20];
+    sinks.resize(20);
+	// pdetector = new Detector*[20];
+    detectors.resize(20);
 	placeState = new PlaceState;
 	placeState->set(grid->getRows(), grid->getColumns());
 	placeState->clearDispenser();
@@ -405,8 +415,9 @@ void DMFB::solve()
 		delete []curDetector[i];
 	}
 	delete []curDetector;
-	delete []sink;
-	delete []pdetector;
+	// delete []sink;
+	// delete []pdetector;
+    
 	delete placeState;
 
 }
@@ -428,23 +439,23 @@ void DMFB::printPlace(ostream& os)
 	os << "placement: " << endl;
 	os << "  |";
 	for (int j = 0; j < this->columns; j++) {
-		this->print(os, this->boundary[1][j]);
+		this->print(os, this->boundary_record[(int)Grid::OuterPos::UP][j]);
 		os << "|";
 	}
 	os << endl;
 	for (int i = 0; i < this->rows; i++) {
-		this->print(os, this->boundary[0][i]);
+		this->print(os, this->boundary_record[(int)Grid::OuterPos::LEFT][i]);
 		os << "|";
 		for (int j = 0; j < this->columns; j++) {
-			this->print(os, this->detector[i][j]);
+			this->print(os, this->detector_record[i][j]);
 			os<<"|";
 		}
-		this->print(os, this->boundary[2][i]);
+		this->print(os, this->boundary_record[(int)Grid::OuterPos::RIGHT][i]);
 		os << endl;
 	}
 	os << "  |";
 	for (int j = 0; j < this->columns; j++) {
-		this->print(os, this->boundary[3][j]);
+		this->print(os, this->boundary_record[(int)Grid::OuterPos::DOWN][j]);
 		os << "|";
 	}
 	os << endl;

@@ -37,7 +37,7 @@ Droplet::Droplet(const DropletData& dropletData)
     this->dispensed = false;
     this->mixing = false;
     this->detecting = false;
-    this->position = dispenser[this->type]->getPosition();
+    this->position = DMFBsolver->get_dispenser(type)->getPosition();
 }
 
 Droplet::Droplet(const Droplet* precursor, const Direction& direction)
@@ -215,7 +215,8 @@ int Droplet::estimatedTime() const
     if (!this->detected()) {
         ret += this->remainingDetectingTime;
         if (!this->underDetection()) {
-            ret += max(manDis(this->position, detectorPosition[this->type]), this->remainingMixingTime);
+            // ret += max(manDis(this->position, detectorPosition[this->type]), this->remainingMixingTime);
+            ret += max(manDis(this->position, DMFBsolver->get_detector(type)->getPosition()), this->remainingMixingTime);
         }
     }
     if (!this->dispensed) ret++;

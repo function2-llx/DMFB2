@@ -10,13 +10,20 @@ struct Placement;
 class Grid {
   private:
     int rows, columns;
-    Cell** cell;
+    // Cell** cell;
+    std::vector<std::vector<Cell*> > inner_cells;
 
-    Grid(const Grid& grid);
+    explicit Grid(const Grid& grid);
     Grid& operator = (const Grid& grid);
     ~Grid();
     
   public:
+    enum struct OuterPos: int {
+        LEFT  = 0,
+        UP    = 1,
+        RIGHT = 2,
+        DOWN  = 3
+    };
     int boundarySize[4];
 
     Grid(int rows, int columns);
@@ -27,7 +34,7 @@ class Grid {
     int getColumns();
     int getPointIdentifier(Point position);
     bool inside(Point position);
-    Cell* getCell(Point position);
+    Cell* get_cell(Point position);
 
     bool placeSink(Sink* sink, Point position);
     void removeSink(Point position);
@@ -35,7 +42,7 @@ class Grid {
     void removeDetector(Point position);
     Point boundaryPosition(int identifier, int type);
 
-    void set_placement(const Placement& );
+    void set_placement(const Placement&);
 };
 
 extern Grid* grid;

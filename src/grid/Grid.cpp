@@ -10,7 +10,7 @@ using namespace std;
 
 bool Grid::placeDetector(Detector* detector, Point position)
 {
-    Cell* cell = this->getCell(position);
+    Cell* cell = this->get_cell(position);
     if (cell->existDetector()) return false;
     cell->setDetector(detector);
     return true;
@@ -18,7 +18,7 @@ bool Grid::placeDetector(Detector* detector, Point position)
 
 bool Grid::placeSink(Sink* sink, Point position)
 {
-    Cell* cell = this->getCell(position);
+    Cell* cell = this->get_cell(position);
     if (cell->existSink())
         return false;
     cell->setSink(sink);
@@ -27,13 +27,13 @@ bool Grid::placeSink(Sink* sink, Point position)
 
 void Grid::removeSink(Point position)
 {
-    Cell* cell = this->getCell(position);
+    Cell* cell = this->get_cell(position);
     cell->removeSink();
 }
 
 void Grid::removeDetector(Point position)
 {
-    Cell *cell = this->getCell(position);
+    Cell *cell = this->get_cell(position);
     cell->removeDetector();
 }
 
@@ -62,29 +62,34 @@ Point Grid::boundaryPosition(int identifier, int type)
 
 Grid::Grid(int rows, int columns) : rows(rows), columns(columns)
 {
-    this->boundarySize[0] = this->boundarySize[2] = this->rows;
-    this->boundarySize[1] = this->boundarySize[3] = this->columns;
+
+    this->boundarySize[(int)OuterPos::LEFT] = this->boundarySize[(int)OuterPos::RIGHT] = this->rows;
+    this->boundarySize[(int)OuterPos::DOWN] = this->boundarySize[(int)(OuterPos::UP)] = this->columns;
 }
 
 void Grid::build()
 {
-    this->cell = new Cell*[this->area()];
-    int cur = 0;
-    for (int i = 0; i < this->rows; i++) {
-        for (int j = 0; j < this->columns; j++) {
-            Point position(i, j);
-            assert(0 <= cur && cur < this->area());
-            this->cell[cur] = new Cell();
-            this->cell[cur]->setPosition(position);
-            cur++;
+    // this->cell = new Cell*[this->area()];
+    // int cur = 0;
+    // for (int i = 0; i < this->rows; i++) {
+    //     for (int j = 0; j < this->columns; j++) {
+    //         Point position(i, j);
+    //         assert(0 <= cur && cur < this->area());
+    //         this->cell[cur] = new Cell();
+    //         this->cell[cur]->setPosition(position);
+    //         cur++;
+    //     }
+    // }
+    this->inner_cells.resize(rows, vector<Cell*>(columns));
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+            inner_cells[i][j] = new Cell();
+            inner_cells[i][j]->setPosition(Point(i, j));
         }
     }
 }
 
-int Grid::area()
-{
-    return this->rows * this->columns;
-}
+int Grid::area() { return this->rows * this->columns; }
 
 bool Grid::inside(Point position)
 {
@@ -99,24 +104,26 @@ int Grid::getPointIdentifier(Point position)
     return position.r * this->columns + position.c;
 }
 
-Cell* Grid::getCell(Point position)
+Cell* Grid::get_cell(Point position)
 {
-    assert(grid->inside(position));
-    return cell[this->getPointIdentifier(position)];
+    if (inside(position))
+        return inner_cells[position.r][position.c];
+
+    return nullptr;
 }
 
 Grid::~Grid()
 {
-    for (int i = 0; i < this->area(); i++) {
-        delete cell[i];
-    }
-    delete []cell;
+    // for (int i = 0; i < this->area(); i++) {
+    //     delete cell[i];
+    // }
+    // delete []cell;
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < columns; j++)
+            delete inner_cells[i][j];
 }
 
-int Grid::getRows()
-{
-    return this->rows;
-}
+int Grid::getRows() { return this->rows; }
 
 #include <cassert>
 
@@ -128,7 +135,12 @@ int Grid::getColumns()
 
 void Grid::set_placement(const Placement& placement)
 {
-    
+    for (auto detector_pos: placement.detector_positions)
+        this->placeDetector(detector_pos.first, detector_pos.second);
+
+    for (auto sink_pos: placement.sink_positions)
+        this->placeSink(sink_pos.first, sink_pos.second);
+
 }
 
 Grid *grid;
