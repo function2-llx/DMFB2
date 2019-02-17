@@ -119,6 +119,17 @@ bool operator == (const Droplet& a, const Droplet& b)
 
     if (a.dispensed != b.dispensed)
         return 0;
+
+    if (a.position != b.position)
+        return 0;
+
+    if (a.mixing != b.mixing || a.remainingMixingTime != b.remainingMixingTime)
+        return 0;
+
+    if (a.detecting != b.detecting || a.remainingDetectingTime != b.remainingDetectingTime)
+        return 0;
+    
+    return 1;
 }
 
 void Droplet::setData(const DropletData& dropletData)
@@ -216,7 +227,7 @@ int Droplet::estimatedTime() const
         ret += this->remainingDetectingTime;
         if (!this->underDetection()) {
             // ret += max(manDis(this->position, detectorPosition[this->type]), this->remainingMixingTime);
-            ret += max(manDis(this->position, DMFBsolver->get_detector(type)->getPosition()), this->remainingMixingTime);
+            ret += max(manDis(this->position, DMFBsolver->get_detector(type)->get_pos()), this->remainingMixingTime);
         }
     }
     if (!this->dispensed) ret++;

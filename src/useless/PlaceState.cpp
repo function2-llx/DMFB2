@@ -47,7 +47,7 @@ bool PlaceState::addDispenser(int dispenserCount, const std::vector<Dispenser*>&
 bool PlaceState::addSink(int sinkCount, const std::vector<Sink*>& sink) {
   std::vector<Point> vec;
   for (int i = 0; i < sinkCount; ++i)
-    vec.push_back(sink[i]->getPosition());
+    vec.push_back(sink[i]->get_pos());
   std::sort(vec.begin(), vec.end());
   if (sinkState.insert(std::make_pair(sinkCount, vec)).second == false)
     return false;
@@ -77,7 +77,7 @@ bool PlaceState::addSink(int sinkCount, const std::vector<Sink*>& sink) {
 bool PlaceState::addDetector(int detectorCount, const std::vector<Detector*>& detector) {
   std::vector<Point> vec;
   for (int i = 0; i < detectorCount; ++i)
-    vec.push_back(detector[i]->getPosition());
+    vec.push_back(detector[i]->get_pos());
   std::sort(vec.begin(), vec.end());
   if (detectorState.insert(std::make_pair(detectorCount, vec)).second == false)
     return false;

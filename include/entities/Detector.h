@@ -6,16 +6,20 @@
 typedef unsigned long long ULL;
 
 class Detector {
-private:
+  private:
     int type;
     Point position;
 
     Detector(const Detector& detector);
     Detector& operator = (const Detector& detector);
-public:
-    Detector(int type, Point position);
-    int getType();
-    Point getPosition();
+  public:
+    // Detector(int type, Point position);
+    explicit Detector(int type) : type(type) {}
+
+    int get_type() const { return type; }
+    Point get_pos() const { return position; }
+    void set_pos(const Point& pos) { position = pos; }
+    
     ULL hash();
 };
 

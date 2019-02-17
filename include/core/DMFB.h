@@ -30,12 +30,13 @@ class DMFB {
     DMFB& operator = (const DMFB&);
     
     void print(std::ostream&, int);
+
     void placeSink(int sinkCount);
     void placeDispenser(int dispenserCount);
     void placeDetector(int detectorCount);
     bool dfs(const State*);
     
-    bool gen_placement() const; //  return true if success
+    bool place_entities() const; //  return true if success
 
   public:
     DMFB();

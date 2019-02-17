@@ -9,10 +9,10 @@ class Sink {
     Sink(const Sink& sink);
     Sink& operator = (const Sink& sink);
   public:
-    explicit Sink(const Point& position);
-    Point getPosition();
+    // explicit Sink(const Point& position);
+    explicit Sink() {}
+    Point get_pos() const{ return this->position; }
+    void set_pos(const Point& pos) { position = pos; }
 };
-
-// extern Sink** sink;
 
 #endif  //SINK_H

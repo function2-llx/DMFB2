@@ -186,20 +186,17 @@ void State::dfsMove(unsigned int number) const {
             undispensed.push_back(droplet);  // not dispense
             this->dfsMove(number + 1);
             undispensed.pop_back();
-        } else if (droplet
-                       ->underMixing()) {  // droplet under mixing must move(?)
+        } else if (droplet->underMixing()) {  // droplet under mixing must move(?)
             for (int i = 0; i < 5; i++) {
                 if (direction[i] != zeroDirection &&
                     grid->inside(position + direction[i])) {
                     this->pushDroplet(Droplet(droplet, direction[i]), number);
                 }
             }
-        } else if (droplet->underDetection()) {  // droplet under detection must
-                                                 // stay still
+        } else if (droplet->underDetection()) {  // droplet under detection must stay still
             this->pushDroplet(Droplet(droplet, zeroDirection), number);
         } else {                        // free droplet
             if (droplet->detected()) {  // attempt to dump into sink
-                // if (!Global::toBeMixed[identifier]) {
                 if (DMFBsolver->is_to_mix(droplet)) {
                     Cell *cell = grid->get_cell(position);
                     if (cell->existSink()) {
@@ -209,7 +206,7 @@ void State::dfsMove(unsigned int number) const {
             } else {  // attempt to start detection
                 Cell *cell = grid->get_cell(position);
                 if (cell->existDetector() &&
-                    cell->getDetector()->getType() == droplet->getType()) {
+                    cell->getDetector()->get_type() == droplet->getType()) {
                     Droplet newDroplet(droplet, zeroDirection);
                     newDroplet.startDetection();
                     this->pushDroplet(newDroplet, number);

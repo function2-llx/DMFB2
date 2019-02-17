@@ -13,6 +13,7 @@
 #include "core/DMFB.h"
 #include "core/Map.h"
 #include "useless/PlaceState.h"
+#include "placement/random_placing_strategy.h"
 
 using namespace std;
 
@@ -127,9 +128,6 @@ void DMFB::loadSequencingGraph()
 	// dispenser = new Dispenser*[this->nDispensers];
 	// for (int i = 0; i < this->nDispensers; i++) 
 	// 	dispenser[i] = new Dispenser(i);
-    dispensers.reserve(nDispensers);
-    for (int i = 0; i < nDispensers; i++)
-        dispensers.push_back(new Dispenser(i));
 
 	this->nTypes = this->nDispensers;
 	for (int i = 0; i < this->nDroplets; i++) {
@@ -307,8 +305,10 @@ void DMFB::placeDetector(int detectorCount)
 		for (int i = 0; i < grid->getRows(); i++) {
 			for (int j = 0; j < grid->getColumns(); j++) {
 				Point position = Point(i, j);
-				Detector* detector = new Detector(detectorCount, position);
-				this->detectors[detectorCount] = detector;
+				// Detector* detector = new Detector(detectorCount, position);
+                Detector *detector = detectors[detectorCount];
+                detector->set_pos(position);
+				// this->detectors[detectorCount] = detector;
 				if (grid->placeDetector(detector, position)) {
 					// detectorPosition[detectorCount] = position;
 					curDetector[i][j] = detectorCount;
@@ -316,7 +316,7 @@ void DMFB::placeDetector(int detectorCount)
 					curDetector[i][j] = -1;
 					grid->removeDetector(position);
 				}
-				delete detector;
+				// delete detector;
 				if (target < stepLowerBound) return;
 			}
 		}
@@ -335,15 +335,15 @@ void DMFB::placeSink(int sinkCount)
 			for (int i = 0; i < grid->boundarySize[k]; i++) {
 				if (curBoundary[k][i] == -1) {
 					Point position = grid->boundaryPosition(i, k);
-					Sink* sink = new Sink(position);
-					sinks[sinkCount] = sink;
+					Sink* sink = sinks[sinkCount];
+					sink->set_pos(position);
 					if (grid->placeSink(sink, position)) {
 						curBoundary[k][i] = this->nTypes;
 						this->placeSink(sinkCount + 1);
 						grid->removeSink(position);
 						curBoundary[k][i] = -1;
 					}
-					delete sink;
+					// delete sink;
 					if (target < stepLowerBound) return;
 				}
 			}
@@ -398,10 +398,19 @@ void DMFB::solve()
 		}
 	}
 	assert(system("rm -f output/*") == 0);
-	// sink = new Sink*[20];
-    sinks.resize(20);
-	// pdetector = new Detector*[20];
-    detectors.resize(20);
+    
+    sinks.resize(nSinks);
+    for (int i = 0; i < nSinks; i++)
+        sinks[i] = new Sink();
+
+    dispensers.reserve(nDispensers);
+    for (int i = 0; i < nDispensers; i++)
+        dispensers.push_back(new Dispenser(i));
+
+    detectors.resize(nTypes);
+    for (int i = 0; i < nTypes; i++)
+        detectors[i] = new Detector(i);
+
 	placeState = new PlaceState;
 	placeState->set(grid->getRows(), grid->getColumns());
 	placeState->clearDispenser();
@@ -522,6 +531,23 @@ vector<const State*> DMFB::get_route(const State* state) const
 	}
 
 	return vector<const State*>();	//	no solution
+}
+
+bool DMFB::place_entities() const
+{
+    PlacingStrategy *strategy = new RandomPlacingStrategy(233333);
+    Placement placement = strategy->get_placement(dispensers, sinks, detectors, rows, columns);
+    
+    for (auto dispenser_pos: placement.dispenser_positions)
+        dispenser_pos.first->setPosition(dispenser_pos.second);
+    
+    for (auto detector_pos: placement.detector_positions)   
+        detector_pos.first->set_pos(detector_pos.second);
+
+
+    
+    grid->set_placement(placement);
+    delete strategy;
 }
 
 DMFB *DMFBsolver;
