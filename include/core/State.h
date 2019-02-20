@@ -20,6 +20,7 @@ class State {
 
     void dfsMove(unsigned int number) const;
     void pushDroplet(const Droplet& droplet, unsigned int number) const;
+    void sort_droplets();
   public:
     int step;
     const State* decision;

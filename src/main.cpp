@@ -11,10 +11,11 @@ int main()
 {
 	Global::start_time = clock();
 	DMFBsolver = new DMFB();
-	DMFBsolver->loadSequencingGraph();
-	DMFBsolver->loadModuleLibrary();
-	DMFBsolver->loadDesignObejective();
-	DMFBsolver->solve();
+	
+    DMFBsolver->init();
+	// DMFBsolver->solve_placement_undetermined();
+    DMFBsolver->solve_placement_determined();
+
 	cerr << "end" << endl;
 	delete DMFBsolver;
 	return 0;

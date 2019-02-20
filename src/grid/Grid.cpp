@@ -19,6 +19,7 @@ bool Grid::placeDetector(Detector* detector, Point position)
 bool Grid::placeSink(Sink* sink, Point position)
 {
     Cell* cell = this->get_cell(position);
+    // assert(cell != nullptr);
     if (cell->existSink())
         return false;
     cell->setSink(sink);
@@ -139,8 +140,64 @@ void Grid::set_placement(const Placement& placement)
         this->placeDetector(detector_pos.first, detector_pos.second);
 
     for (auto sink_pos: placement.sink_positions)
-        this->placeSink(sink_pos.first, sink_pos.second);
+        this->placeSink(sink_pos.first, get_target_pos(sink_pos.second));
 
+}
+
+using OuterId = Grid::OuterId;
+
+OuterId Grid::get_outer_id(const Point& pos) const
+{
+    if (pos.r == -1)
+        return std::make_pair(OuterPos::UP, pos.c);
+
+    if (pos.r == rows)
+        return std::make_pair(OuterPos::DOWN, pos.c);
+
+    if (pos.c == -1)
+        return std::make_pair(OuterPos::LEFT, pos.r);
+
+    if (pos.c == columns)
+        return std::make_pair(OuterPos::RIGHT, pos.r);
+
+    throw "wrong position";
+}
+
+Point Grid::get_pos(const OuterId& outer_id) const
+{
+    OuterPos pos = outer_id.first;
+    int id = outer_id.second;
+    switch (pos) {
+        case OuterPos::LEFT:
+            return Point(id, -1);
+        break;
+
+        case OuterPos::UP:
+            return Point(-1, id);
+        break;
+
+        case OuterPos::RIGHT:
+            return Point(id, columns);
+        break;
+
+        case OuterPos::DOWN:
+            return Point(rows, id);
+        break;
+    }
+}
+Point Grid::get_target_pos(const Point& pos) const
+{
+    if (pos.r == -1)
+        return Point(0, pos.c);
+
+    if (pos.c == -1)
+        return Point(pos.r, 0);
+    
+    if (pos.r == rows)
+        return Point(rows - 1, pos.c);
+
+    if (pos.c == columns)
+        return Point(pos.r, columns - 1);
 }
 
 Grid *grid;

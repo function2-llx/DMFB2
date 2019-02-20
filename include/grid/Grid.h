@@ -24,6 +24,12 @@ class Grid {
         RIGHT = 2,
         DOWN  = 3
     };
+
+    using OuterId = std::pair<OuterPos, int>;
+    OuterId get_outer_id(const Point&) const;
+    Point get_pos(const OuterId& outer_Id) const;
+    Point get_target_pos(const Point& pos) const;   //  return the position a sink/dispenser connect to
+
     int boundarySize[4];
 
     Grid(int rows, int columns);

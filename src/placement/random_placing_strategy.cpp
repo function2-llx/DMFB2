@@ -22,7 +22,8 @@ Placement RandomPlacingStrategy::get_placement(
     assert(dispensers.size() + sinks.size() <= (rows + columns) * 2);
     assert(detectors.size() <= rows * columns);
 
-    bool *outer_vis[4], size[4];
+    bool *outer_vis[4];
+    int size[4];
     for (int i = 0; i < 4; i++) {
         OuterPos pos = static_cast<OuterPos>(i);
         size[i] = get_size(pos);
@@ -41,39 +42,41 @@ Placement RandomPlacingStrategy::get_placement(
         return std::make_pair(outer, pos);
     };
 
-    auto get_pos = [rows, columns] (OuterPos pos, int id) {
-        switch (pos) {
-            case OuterPos::LEFT:
-                return Point(id, 0);
-            break;
+    // auto get_pos = [rows, columns] (OuterPos pos, int id) {
+    //     switch (pos) {
+    //         case OuterPos::LEFT:
+    //             return Point(id, -1);
+    //         break;
 
-            case OuterPos::UP:
-                return Point(0, id);
-            break;
+    //         case OuterPos::UP:
+    //             return Point(-1, id);
+    //         break;
 
-            case OuterPos::RIGHT:
-                return Point(id, columns - 1);
-            break;
+    //         case OuterPos::RIGHT:
+    //             return Point(id, columns);
+    //         break;
 
-            case OuterPos::DOWN:
-                return Point(rows - 1, id);
-            break;
-        }
-    };
+    //         case OuterPos::DOWN:
+    //             return Point(rows, id);
+    //         break;
+    //     }
+    // };
 
     for (auto dispenser: dispensers) {
         auto outer_pos = get_random_outer_pos();
         int outer = outer_pos.first, pos = outer_pos.second;
         outer_vis[outer][pos] = 1;
-        placement.dispenser_positions.push_back(std::make_pair(dispenser, get_pos(static_cast<OuterPos>(outer), pos)));
+        placement.dispenser_positions.push_back(std::make_pair(dispenser, grid->get_pos(std::make_pair(static_cast<OuterPos>(outer), pos))));
     }
 
     for (auto sink: sinks) {
         auto outer_pos = get_random_outer_pos();
         int outer = outer_pos.first, pos = outer_pos.second;
         outer_vis[outer][pos] = 1;
-        placement.sink_positions.push_back(std::make_pair(sink, get_pos(static_cast<OuterPos>(outer), pos)));
+        placement.sink_positions.push_back(std::make_pair(sink, grid->get_pos(std::make_pair(static_cast<OuterPos>(outer), pos))));
     }
+    for (int i = 0; i < 4; i++)
+        delete[] outer_vis[i];
 
     bool inner_vis[rows][columns]{};
     for (auto detector: detectors) {
@@ -85,6 +88,5 @@ Placement RandomPlacingStrategy::get_placement(
         placement.detector_positions.push_back(std::make_pair(detector, Point(r, c)));
     }
 
-    for (int i = 0; i < 4; i++)
-        delete outer_vis[i];
+    return placement;
 }

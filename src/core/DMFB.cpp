@@ -1,6 +1,5 @@
 #include <set>
 #include <map>
-#include <queue>
 #include <cassert>
 #include <fstream>
 #include <iostream>
@@ -15,7 +14,7 @@
 #include "useless/PlaceState.h"
 #include "placement/random_placing_strategy.h"
 
-using namespace std;
+// using namespace std;
 
 struct Node {
 	int identifier, type;
@@ -56,6 +55,15 @@ DMFB::~DMFB()
 		delete []this->detector_record[i];
 
 	delete []this->detector_record;
+
+    for (auto sink: sinks)
+        delete sink;
+
+    for (auto dispenser: dispensers)
+        delete dispenser;
+
+    for (auto detector: detectors)
+        delete detector;
 }
 
 
@@ -71,20 +79,20 @@ static void dfs_least(Node* cur, std::vector<int>& least_time, const std::vector
 		dfs_least(cur->ch[i], least_time, droplet_data);
 }
 
-vector<int> type;
+// std::vector<int> type;
 
 void DMFB::loadSequencingGraph()
 {
 	using namespace Global;
 
-	ifstream is("./input/SequencingGraph.txt");
+	std::ifstream is("./input/SequencingGraph.txt");
 	assert(is.is_open());
 
 	is >> this->nDroplets;
 	node = new Node*[this->nDroplets];
 	to_mix.resize(nDroplets, 0);
 	// toBeDispensed = new bool[this->nDroplets];
-	mixing_result.resize(nDroplets, vector<int>(nDroplets, -1));
+	mixing_result.resize(nDroplets, std::vector<int>(nDroplets, -1));
     droplet_data.resize(nDroplets);
 	for (int i = 0; i < this->nDroplets; i++)
 		node[i] = new Node();
@@ -116,7 +124,7 @@ void DMFB::loadSequencingGraph()
 			assert(node[i]->ch[1] == nullptr);
 			if (!this->typeMap.count(node[i]->type)) {
 				this->typeMap[node[i]->type] = this->nDispensers++;
-				type.push_back(node[i]->type);
+				real_type.push_back(node[i]->type);
 			}
 			node[i]->type = this->typeMap[node[i]->type];
 		} 
@@ -135,7 +143,7 @@ void DMFB::loadSequencingGraph()
 			assert(node[i]->ch[1] != nullptr);
 			if (!this->typeMap.count(node[i]->type)) {
 				this->typeMap[node[i]->type] = this->nTypes++;
-				type.push_back(node[i]->type);
+				real_type.push_back(node[i]->type);
 			}
 			node[i]->type = this->typeMap[node[i]->type];
 		}
@@ -148,7 +156,7 @@ void DMFB::loadSequencingGraph()
 		int a, b;
 		data(int a, int b)
 		{
-			if (a > b) swap(a, b);
+			if (a > b) std::swap(a, b);
 			this->a = a;
 			this->b = b;
 		}
@@ -160,13 +168,12 @@ void DMFB::loadSequencingGraph()
 			return this->a < other.a;
 		}
 	};	
-	map<data, int> mixType;
+	std::map<data, int> mixType;
 	mixType.clear();
 	for (int i = 0; i < this->nDroplets; i++) {
 		if (node[i]->fa == nullptr)
 			to_mix[i] = false;
 		else 
-			// toBeMixed[i] = true;
             to_mix[i] = 1;
 		if (node[i]->ch[0] == nullptr) {
 			assert(node[i]->ch[0] == nullptr);
@@ -182,14 +189,15 @@ void DMFB::loadSequencingGraph()
 			}
 		}
 	}
-	cerr << "sequencing graph loaded" << endl;
+	std::cerr << "sequencing graph loaded" << std::endl;
 }
 
 static bool range(int a, int n) { return 0 <= a && a < n; }
 
 void DMFB::loadModuleLibrary()
 {
-	using namespace Global;
+	// using namespace Global;
+    using namespace std;
 	ifstream is("./input/ModuleLibrary.txt");
 	assert(is.is_open());
     least_time.resize(nDroplets, 0);
@@ -206,6 +214,7 @@ void DMFB::loadModuleLibrary()
 
 void DMFB::loadDesignObejective()
 {
+    using namespace std;
 	ifstream is("./input/DesignObjective.txt");
 	assert(is.is_open());
 	is >> this->rows >> this->columns;
@@ -233,6 +242,8 @@ static int curDispenserCount, curSinkCount, curDetectorCount;
 
 bool DMFB::dfs(const State* currentState)
 {
+    using namespace std;
+
 	bool flag = false;
 	if (currentState->isEndState()) {
         flag = true;
@@ -255,7 +266,7 @@ bool DMFB::dfs(const State* currentState)
         char st[100];
         sprintf(st, "output/%d.out", currentState->step);
         ofstream os(st);
-        this->printPlace(os);
+        this->print_placement(os);
         ret = currentState;
         ret->printSolution(os);
         os << "time: " << (clock() - Global::start_time) / 1e6 << "s" << endl;
@@ -381,7 +392,7 @@ void DMFB::placeDispenser(int dispenserCount)
 	}
 }
 
-void DMFB::solve()
+void DMFB::solve_placement_undetermined()
 {
 	target = 100;
 	curDetector = new int*[grid->getRows()];
@@ -398,53 +409,42 @@ void DMFB::solve()
 		}
 	}
 	assert(system("rm -f output/*") == 0);
-    
-    sinks.resize(nSinks);
-    for (int i = 0; i < nSinks; i++)
-        sinks[i] = new Sink();
 
-    dispensers.reserve(nDispensers);
-    for (int i = 0; i < nDispensers; i++)
-        dispensers.push_back(new Dispenser(i));
-
-    detectors.resize(nTypes);
-    for (int i = 0; i < nTypes; i++)
-        detectors[i] = new Detector(i);
 
 	placeState = new PlaceState;
 	placeState->set(grid->getRows(), grid->getColumns());
 	placeState->clearDispenser();
 	ret = nullptr;
-    // cerr << "test" << endl;
+
 	this->placeDispenser(0);
+
 	for (int i = 0; i < 4; i++) {
 		delete []curBoundary[i];
 	}
 	for (int i = 0; i < this->rows; i++) {
 		delete []curDetector[i];
 	}
-	delete []curDetector;
-	// delete []sink;
-	// delete []pdetector;
-    
-	delete placeState;
 
+	delete []curDetector;    
+	delete placeState;
 }
 
-void DMFB::print(ostream& os, int x)
+void DMFB::print(std::ostream& os, int x)
 {
 	if (x == -1) {
 		os << "N ";
 	} else if (x == this->nTypes) {
 		os << "S ";
 	} else {
-		assert(0 <= x && x < this->nTypes && x <= 9);
-		os << "D" << type[x];
+		assert(0 <= x && x < this->nTypes && x <= 9);   // why <= 9?
+		os << "D" << real_type[x];
 	}
 }
 
-void DMFB::printPlace(ostream& os)
+void DMFB::print_placement(std::ostream& os)
 {
+    using namespace std;
+
 	os << "placement: " << endl;
 	os << "  |";
 	for (int j = 0; j < this->columns; j++) {
@@ -472,8 +472,10 @@ void DMFB::printPlace(ostream& os)
 
 #include <stack>
 
-static vector<const State*> get_route(const State* start, const State* end)
+static std::vector<const State*> get_whole_route(const State* start, const State* end)
 {
+    using namespace std;
+
 	stack<const State*> stk;
 	for (auto state = end; ; state = state->decision) {
 		stk.push(state);
@@ -492,9 +494,10 @@ static vector<const State*> get_route(const State* start, const State* end)
 }
 
 //free states in queue that not in route
-static void clear(vector<const State*> queue, vector<const State*> route)
+static void clear(std::vector<const State*> queue, std::vector<const State*> route)
 {
 	auto it = route.begin();
+    int cnt = 0;
 	for (auto state: queue) {
 		if (state == *it)
 			it++;
@@ -502,52 +505,202 @@ static void clear(vector<const State*> queue, vector<const State*> route)
 			delete state;
 	}
 
-	assert(it == route.end());
+    assert(it + 1 == route.end());
 }
 
 #include <unordered_set>
 
-vector<const State*> DMFB::get_route(const State* state) const
+std::vector<const State*> DMFB::get_route_bfs(const State* state) const
 {
-	unordered_set<State> state_set;
-	if (state->isEndState())
-		return vector<const State*>(1, state);	//already end state
+    using namespace std;
 
-	vector<const State*> queue;
- 	queue.push_back(state);
+	std::unordered_set<State> state_set;
+	if (state->isEndState())
+		return std::vector<const State*>(1, state);	//already end state
+
+	std::vector<const State*> que;
+ 	que.push_back(state);
 	int head = 0, tail = 1;
 	while (head < tail) {
-		auto cur = queue[head++];
+		auto cur = que[head++];
+        // cerr << *cur << endl;
 		for (auto suc: cur->getSuccessors()) {
+            // cerr << *suc << endl;
 			if (suc->isEndState()) {
-				auto route = ::get_route(state, suc);
-				::clear(queue, route);
+                // cerr << "queue size: " << que.size() << endl;
+				auto route = ::get_whole_route(state, suc);
+				::clear(que, route);
 				return route;
 			} else if (!state_set.count(*suc)) {
+                // cerr << "hhh" << endl;
 				state_set.insert(*suc);
-				queue.push_back(suc);
-			}
+				que.push_back(suc);
+                tail++;
+			} else
+                delete suc;
 		}
 	}
 
 	return vector<const State*>();	//	no solution
 }
 
-bool DMFB::place_entities() const
+const State* DMFB::dfs(const State* state, int upper_bound, std::unordered_set<State>& set) const
 {
-    PlacingStrategy *strategy = new RandomPlacingStrategy(233333);
+    using namespace std;
+    const State *ret = nullptr;
+
+    // cerr << "state: " << endl;
+    // cerr << *state << endl;
+
+	if (state->isEndState())
+        ret = state;
+    else {
+		if (state->step + state->estimationTime() <= upper_bound) {
+			std::vector<const State*> successors = state->getSuccessors();
+			sort(successors.begin(), successors.end(), [] (const State* a, const State* b) {
+                return a->estimationTime() < b->estimationTime();
+            });
+            // cerr << "successors: " << endl;
+            // for (auto successor: successors) {
+            //     cerr << *successor << endl;
+            // }
+            // exit(0);
+			for (auto successor: successors) {
+                // cerr << *successor << endl;
+                if (ret != nullptr) // already found a solution
+                    delete successor;
+                else if (set.count(*successor))
+                    delete successor;
+                else {
+                    set.insert(*successor);
+                    auto cur = dfs(successor, upper_bound, set);
+                    if (cur != nullptr)
+                        ret = cur;
+                    else
+                        delete successor;
+                }
+			}
+            // exit(0);
+		}
+	}
+
+    // if (ret == nullptr)
+    //     delete state;
+
+    return ret;
+}
+
+std::vector<const State*> DMFB::get_route_dfs(const State* state, int lim) const
+{
+    if (state->isEndState())
+        return {state};
+
+    int lower_bound = state->estimationTime();
+    for (int upper_bound = lower_bound; upper_bound <= lim; upper_bound++) {
+        std::unordered_set<State> set;
+        auto cur = dfs(state, upper_bound, set);
+        if (cur != nullptr)
+            return ::get_whole_route(state, cur);
+    }
+
+    return {};
+}
+
+void DMFB::set_placement(const Placement& placement)
+{
+    this->placement = placement;
+    using OuterPos = Grid::OuterPos;
+
+    for (int i = 0; i < 4; i++) {
+        Grid::OuterPos pos = static_cast<OuterPos>(i);
+        int size;
+        if (pos == OuterPos::LEFT || pos == OuterPos::RIGHT)
+            size = rows;
+        else size = columns;
+
+        for (int j = 0; j < size; j++)
+            boundary_record[i][j] = -1;
+    }
+
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < columns; j++)
+            detector_record[i][j] = -1;
+
+    
+    for (auto detector_pos: placement.detector_positions) {
+        auto pos = detector_pos.second;
+        auto detector = detector_pos.first;
+        detector_record[pos.r][pos.c] = detector->get_type();
+    }
+
+    for (auto dispenser_pos: placement.dispenser_positions) {
+        auto dispenser = dispenser_pos.first;
+        auto outer_id = grid->get_outer_id(dispenser_pos.second);
+        boundary_record[(int)outer_id.first][outer_id.second] = dispenser->getType();
+    }
+
+    for (auto sink_pos: placement.sink_positions) {
+        auto sink = sink_pos.first;
+        auto outer_id = grid->get_outer_id(sink_pos.second);
+        boundary_record[(int)outer_id.first][outer_id.second] = nTypes;
+    }
+}
+
+bool DMFB::place_entities()
+{
+    PlacingStrategy *strategy = new RandomPlacingStrategy(2333);
     Placement placement = strategy->get_placement(dispensers, sinks, detectors, rows, columns);
+    set_placement(placement);
+    print_placement(std::cout);
+
+    std::cerr << "placement setted" << std::endl;
     
     for (auto dispenser_pos: placement.dispenser_positions)
-        dispenser_pos.first->setPosition(dispenser_pos.second);
+        dispenser_pos.first->setPosition(grid->get_target_pos(dispenser_pos.second));
     
     for (auto detector_pos: placement.detector_positions)   
         detector_pos.first->set_pos(detector_pos.second);
 
+    for (auto sink_pos: placement.sink_positions)
+        sink_pos.first->set_pos(grid->get_target_pos(sink_pos.second));
 
-    
     grid->set_placement(placement);
     delete strategy;
+}
+
+void DMFB::init()
+{
+    DMFBsolver->loadSequencingGraph();
+	DMFBsolver->loadModuleLibrary();
+	DMFBsolver->loadDesignObejective();
+
+    sinks.reserve(nSinks);
+    for (int i = 0; i < nSinks; i++)
+        sinks.push_back(new Sink());
+
+    dispensers.reserve(nDispensers);
+    for (int i = 0; i < nDispensers; i++)
+        dispensers.push_back(new Dispenser(i));
+
+    detectors.reserve(nTypes);
+    for (int i = 0; i < nTypes; i++)
+        detectors.push_back(new Detector(i));
+}
+
+std::vector<const State*> DMFB::get_route(const State* state) const { return this->get_route_dfs(state); }
+
+void DMFB::solve_placement_determined()
+{
+    this->place_entities();
+    const State* init_state = new State();
+    auto route = this->get_route(init_state);
+
+    std::cerr << "route size: " << route.size() << std::endl;
+
+    for (auto state: route) {
+        state->allPrint(std::cout);
+        delete state;
+    }
 }
 
 DMFB *DMFBsolver;

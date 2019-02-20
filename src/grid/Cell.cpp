@@ -23,10 +23,7 @@ void Cell::setDetector(Detector* detector)
     this->detector = detector;
 }
 
-Detector* Cell::getDetector()
-{
-    return this->detector;
-}
+Detector* Cell::getDetector() { return this->detector; }
 
 void Cell::removeDetector()
 {

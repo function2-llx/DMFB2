@@ -15,4 +15,9 @@ struct Placement {
     std::vector<DetectorPos> detector_positions;
     std::vector<SinkPos> sink_positions;
     std::vector<DispenserPos> dispenser_positions;
+
+    Placement(const Placement&) = default;
+    Placement() = default;
+
+    friend std::ostream& operator << (std::ostream&, const Placement&);
 };

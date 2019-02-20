@@ -26,12 +26,11 @@ class Droplet {
 
     Droplet& operator = (const Droplet& droplet);
   public:
-    Droplet(const DropletData& dropletData);
+    Droplet(const DropletData&);    //  construct a droplet before dispensed
     Droplet(const Droplet* precursor, const Direction& direction);
     Droplet(const Droplet& droplet1, const Droplet& droplet2);
     Droplet(const Droplet&);
 
-    Droplet* get_moved_droplet(const Direction&) const;
 
     ULL hash() const;
 
@@ -54,7 +53,8 @@ class Droplet {
     int estimatedTime() const;
     bool isEndDroplet() const;
 
-    static Droplet* merge(const Droplet*, const Droplet*);
+    // Droplet* get_moved_droplet(const Direction&) const;
+    // static Droplet* merge(const Droplet*, const Droplet*);
     
     friend std::ostream& operator << (std::ostream&, const Droplet&);
     friend bool operator == (const Droplet&, const Droplet&);

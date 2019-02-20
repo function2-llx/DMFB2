@@ -20,15 +20,17 @@ Droplet::Droplet(const Droplet& droplet)
     this->dispensed = droplet.dispensed;
     this->mixing = droplet.mixing;
     this->remainingMixingTime = droplet.remainingMixingTime;
-    
-    if (this->remainingMixingTime == 0) {
-        this->mixing = false;
-    }
     this->detecting = droplet.detecting;
     this->remainingDetectingTime = droplet.remainingDetectingTime;
-    if (this->remainingDetectingTime == 0) {
-        this->detecting = false;
-    }
+    
+    // if (this->remainingMixingTime == 0) {
+    //     this->mixing = false;
+    // }
+
+
+    // if (this->remainingDetectingTime == 0) {
+    //     this->detecting = false;
+    // }
 }
 
 Droplet::Droplet(const DropletData& dropletData)
@@ -40,26 +42,30 @@ Droplet::Droplet(const DropletData& dropletData)
     this->position = DMFBsolver->get_dispenser(type)->getPosition();
 }
 
-Droplet::Droplet(const Droplet* precursor, const Direction& direction)
+Droplet::Droplet(const Droplet* precursor, const Direction& direction) : Droplet(*precursor)
 {
-    this->identifier = precursor->identifier;
-    this->type = precursor->type;
-    this->position = precursor->position + direction;
-    assert(grid->inside(this->position));
-    this->detecting = precursor->detecting;
-    this->mixing = precursor->mixing;
+    // *this = *precursor;
     this->dispensed = true;
-    if (precursor->mixing) {
-        this->remainingMixingTime = precursor->remainingMixingTime - 1;
-    } else {
-        this->remainingMixingTime = 0;
-    }
-    if (precursor->detecting) {
-        assert(direction == zeroDirection);
-        this->remainingDetectingTime = precursor->remainingDetectingTime - 1;
-    } else {
-        this->remainingDetectingTime = precursor->remainingDetectingTime;
-    }
+    position = position + direction;
+    this->time_past(1);
+    // this->identifier = precursor->identifier;
+    // this->type = precursor->type;
+    // this->position = precursor->position + direction;
+    // assert(grid->inside(this->position));
+    // this->detecting = precursor->detecting;
+    // this->mixing = precursor->mixing;
+
+    // if (precursor->mixing) {
+    //     this->remainingMixingTime = precursor->remainingMixingTime - 1;
+    // } else {
+    //     this->remainingMixingTime = 0;
+    // }
+    // if (precursor->detecting) {
+    //     assert(direction == zeroDirection);
+    //     this->remainingDetectingTime = precursor->remainingDetectingTime - 1;
+    // } else {
+    //     this->remainingDetectingTime = precursor->remainingDetectingTime;
+    // }
 }
 
 Droplet::Droplet(const Droplet& droplet1, const Droplet& droplet2)
@@ -78,10 +84,12 @@ Droplet::Droplet(const Droplet& droplet1, const Droplet& droplet2)
 
     this->setData(DMFBsolver->get_droplet_data(result_id));
     this->dispensed = true;
-    this->remainingMixingTime--;
+    // this->remainingMixingTime--;
     this->mixing = true;
     this->detecting = false;
     this->position = droplet1.position;
+
+    // time_past(1);
 }
 
 //  deal with remaining detection and mixing time
@@ -104,13 +112,13 @@ void Droplet::time_past(int t)
     }
 }
 
-Droplet* Droplet::get_moved_droplet(const Direction& direction) const
-{
-    Droplet* ret = new Droplet(*this);
-    ret->position = ret->position + direction;
-    ret->time_past(1);
-    return ret;
-}
+// Droplet* Droplet::get_moved_droplet(const Direction& direction) const
+// {
+//     Droplet* ret = new Droplet(*this);
+//     ret->position = ret->position + direction;
+//     ret->time_past(1);
+//     return ret;
+// }
 
 bool operator == (const Droplet& a, const Droplet& b)
 {
@@ -161,27 +169,24 @@ bool Droplet::underMixing() const { return this->mixing; }
 void Droplet::startDetection()
 {
     assert(this->detecting == false);
-    this->remainingDetectingTime--;
-    if (this->remainingDetectingTime == 0) {
-        this->detecting = false;
-    } else {
-        this->detecting = true;
-    }
+    this->detecting = 1;
+    // this->time_past(1);
+    // this->remainingDetectingTime--;
+    // if (this->remainingDetectingTime == 0) {
+    //     this->detecting = false;
+    // } else {
+    //     this->detecting = true;
+    // }
 }
 
-bool Droplet::underDetection() const
-{
-    return this->detecting;
-}
+bool Droplet::underDetection() const { return this->detecting; }
 
-bool Droplet::mixed() const
-{
-    return !this->mixing;
-}
+bool Droplet::mixed() const { return !this->mixing; }
 
 bool Droplet::detected() const
 {
-    return this->detecting == false && this->remainingDetectingTime == 0;
+    // return this->detecting == false && this->remainingDetectingTime == 0;
+    return remainingDetectingTime == 0;
 }
 
 int Droplet::getType() const { return this->type; }
@@ -192,9 +197,9 @@ ostream& operator << (ostream& os, const Droplet& droplet)
 {
     os << "droplet" << endl;
 	os << "identifier: " << droplet.identifier << endl;
-	os << "type: " << droplet.type << endl;
+	os << "type: " << DMFBsolver->get_real_type(droplet.type) << endl;
 	os << "position: " << droplet.position << endl;
-	os << "detecting state: ";
+	// os << "mixing state: ";
     if (droplet.mixing) {
         os << "mixing, " << droplet.remainingMixingTime;
         if (droplet.remainingMixingTime == 1) {
@@ -203,6 +208,10 @@ ostream& operator << (ostream& os, const Droplet& droplet)
             os << " steps left" << endl;
         }
     }
+    // else
+    //     cerr << "has not started yet" << endl;
+
+   	os << "detecting state: ";
 	if (droplet.detected()) {
 		os << "has been detected" << endl;
 	} else {
@@ -236,17 +245,9 @@ int Droplet::estimatedTime() const
 
 bool Droplet::isEndDroplet() const { return !DMFBsolver->is_to_mix(this); }
 
-Droplet* Droplet::merge(const Droplet* a, const Droplet* b)
-{
-    using namespace Global;
-
-    assert(!a->underDetection());
-    assert(!a->underMixing());
-    assert(!b->underDetection());
-    assert(!b->underMixing());
-    assert(a->position == b->position);
-    assert(grid->inside(a->position));
-
-    int result_id = DMFBsolver->get_mixing_result_id(a, b);
-    assert(result_id != -1);
-}
+// Droplet* Droplet::merge(const Droplet* a, const Droplet* b) 
+// {
+//     auto ret = new Droplet(*a, *b); 
+//     ret->time_past(1);
+//     return ret;
+// }
