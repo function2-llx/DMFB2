@@ -3,6 +3,7 @@
 
 #include <set>
 #include <map>
+#include <cassert>
 #include <unordered_set>
 #include "core/State.h"
 #include "placement/placement.h"
@@ -93,7 +94,7 @@ class DMFB {
     void print_placement(std::ostream&);
     void set_placement(const Placement& placement);
 
-    std::vector<const State*> get_route(const State*) const;
+    virtual std::vector<const State*> get_route(const State*) const;
     std::vector<const State*> get_route_bfs(const State* state) const;
     std::vector<const State*> get_route_dfs(const State* state, int lim = 100) const;   //  at most lim steps
 };

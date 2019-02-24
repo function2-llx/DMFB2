@@ -242,7 +242,7 @@ void State::dfsMove(unsigned int number) const {
     }
 }
 
-vector<const State *> State::getSuccessors() const {
+vector<const State *> State::get_successors() const {
     successors.clear();
     preInfluence = new int *[grid->getRows()];
     curInfluence = new int *[grid->getRows()];
@@ -350,4 +350,27 @@ void State::printSolution(ostream &os) const {
         this->decision->printSolution(os);
     }
     os << *this << endl;
+}
+
+#include <stack>
+
+std::vector<const State*> State::get_whole_route(const State* start, const State* end)
+{
+    using namespace std;
+
+	stack<const State*> stk;
+	for (auto state = end; ; state = state->decision) {
+		stk.push(state);
+		if (state == start)
+			break;
+	}
+
+	vector<const State*> route;
+	route.reserve(stk.size());
+	for (int i = stk.size() - 1; i >= 0; i--) {
+		route.push_back(stk.top());
+		stk.pop();
+	}
+
+	return route;
 }

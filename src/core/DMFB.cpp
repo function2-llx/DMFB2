@@ -281,7 +281,7 @@ bool DMFB::dfs(const State* currentState)
         target = ret->step - 1;
     } else {
 		if (currentState->step + currentState->estimationTime() <= stepUpperBound) {
-			vector<const State*> successors = currentState->getSuccessors();
+			vector<const State*> successors = currentState->get_successors();
 			sort(successors.begin(), successors.end());
 			for (auto successor: successors) {
 				if (dfs(successor)) {
@@ -470,28 +470,28 @@ void DMFB::print_placement(std::ostream& os)
 	os << endl;
 }
 
-#include <stack>
+// #include <stack>
 
-static std::vector<const State*> get_whole_route(const State* start, const State* end)
-{
-    using namespace std;
+// static std::vector<const State*> get_whole_route(const State* start, const State* end)
+// {
+//     using namespace std;
 
-	stack<const State*> stk;
-	for (auto state = end; ; state = state->decision) {
-		stk.push(state);
-		if (state == start)
-			break;
-	}
+// 	stack<const State*> stk;
+// 	for (auto state = end; ; state = state->decision) {
+// 		stk.push(state);
+// 		if (state == start)
+// 			break;
+// 	}
 
-	vector<const State*> route;
-	route.reserve(stk.size());
-	for (int i = stk.size() - 1; i >= 0; i--) {
-		route.push_back(stk.top());
-		stk.pop();
-	}
+// 	vector<const State*> route;
+// 	route.reserve(stk.size());
+// 	for (int i = stk.size() - 1; i >= 0; i--) {
+// 		route.push_back(stk.top());
+// 		stk.pop();
+// 	}
 
-	return route;
-}
+// 	return route;
+// }
 
 //free states in queue that not in route
 static void clear(std::vector<const State*> queue, std::vector<const State*> route)
@@ -524,11 +524,11 @@ std::vector<const State*> DMFB::get_route_bfs(const State* state) const
 	while (head < tail) {
 		auto cur = que[head++];
         // cerr << *cur << endl;
-		for (auto suc: cur->getSuccessors()) {
+		for (auto suc: cur->get_successors()) {
             // cerr << *suc << endl;
 			if (suc->isEndState()) {
                 // cerr << "queue size: " << que.size() << endl;
-				auto route = ::get_whole_route(state, suc);
+				auto route = State::get_whole_route(state, suc);
 				::clear(que, route);
 				return route;
 			} else if (!state_set.count(*suc)) {
@@ -555,8 +555,10 @@ const State* DMFB::dfs(const State* state, int upper_bound, std::unordered_set<S
 	if (state->isEndState())
         ret = state;
     else {
+        assert(state != nullptr);
 		if (state->step + state->estimationTime() <= upper_bound) {
-			std::vector<const State*> successors = state->getSuccessors();
+			std::vector<const State*> successors = state->get_successors();
+            // cerr << "successors size: " << successors.size() << endl;
 			sort(successors.begin(), successors.end(), [] (const State* a, const State* b) {
                 return a->estimationTime() < b->estimationTime();
             });
@@ -592,6 +594,8 @@ const State* DMFB::dfs(const State* state, int upper_bound, std::unordered_set<S
 
 std::vector<const State*> DMFB::get_route_dfs(const State* state, int lim) const
 {
+    using namespace std;
+    // cerr << typeid(State).name() << endl;
     if (state->isEndState())
         return {state};
 
@@ -600,8 +604,10 @@ std::vector<const State*> DMFB::get_route_dfs(const State* state, int lim) const
         std::unordered_set<State> set;
         auto cur = dfs(state, upper_bound, set);
         if (cur != nullptr)
-            return ::get_whole_route(state, cur);
+            return State::get_whole_route(state, cur);
     }
+
+    
 
     return {};
 }

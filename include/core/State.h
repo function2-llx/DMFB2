@@ -27,7 +27,7 @@ class State {
 
     State();
     State(const State&);
-    ~State();
+    virtual ~State();
 
     std::vector<const Droplet*> getDroplets() const;
     
@@ -35,7 +35,7 @@ class State {
     void clean() const;
 
     bool isEndState() const;
-    std::vector<const State*> getSuccessors() const;
+    virtual std::vector<const State*> get_successors() const;
     int estimationTime() const;
     // bool operator < (const State&) const;
 
@@ -43,6 +43,8 @@ class State {
     void textPrint(std::ostream&) const;
     void visualPrint(std::ostream&) const;
     void allPrint(std::ostream&) const;
+
+    static std::vector<const State*> get_whole_route(const State* start, const State* end);
     
     friend std::ostream& operator << (std::ostream&, const State&);
     friend bool operator == (const State&, const State&);

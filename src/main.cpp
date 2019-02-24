@@ -4,13 +4,15 @@
 #include "core/State.h"
 #include "core/DMFB.h"
 #include "Global.h"
+#include "core/greedy_solver.h"
 
 using namespace std;
 
 int main()
 {
 	Global::start_time = clock();
-	DMFBsolver = new DMFB();
+	// DMFBsolver = new DMFB();
+    DMFBsolver = new GreedySolver;
 	
     DMFBsolver->init();
 	// DMFBsolver->solve_placement_undetermined();
