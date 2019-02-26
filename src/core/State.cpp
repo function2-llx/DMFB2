@@ -68,14 +68,10 @@ void State::clean() const {
 }
 
 ULL State::hash() const {
-    constexpr static ULL hashBase = 75487475995782307ull;
-    constexpr static ULL shift = 3751046701531ull;
-    ULL ret = 0;
-    // auto replaceDroplets = this->droplets;
-    // sort(replaceDroplets.begin(), replaceDroplets.end(),
-    //      [](const Droplet *a, const Droplet *b) {
-    //          return a->get_id() < b->get_id();
-    //      });
+    constexpr static ULL hashBase = 1231612771ull;
+    constexpr static ULL shift = 99426053ull;
+    ULL ret = 79451089ull;
+
     for (auto droplet : droplets)
         ret = droplet->hash() + shift + hashBase * ret;
 
@@ -170,7 +166,6 @@ void State::dfsMove(unsigned int number) const {
                     successor->addDroplet(new Droplet(content[i][j][0]));
                 }
                 if (content[i][j].size() == 2) {
-                    // cerr << "hhh" << endl;
                     successor->addDroplet(
                         new Droplet(content[i][j][0], content[i][j][1]));
                         // Droplet::merge(&content[i][j][0], &content[i][j][1]));
@@ -201,7 +196,6 @@ void State::dfsMove(unsigned int number) const {
         Point position = droplet->getPosition();
 
         if (!droplet->is_dispensed()) {  // deal with undispensed droplet
-            // cerr << droplet->get_id() << ' ' << droplet->getPosition() << endl;
             this->pushDroplet(Droplet(droplet, zeroDirection),
                               number);  // dispense and continue dfs implicitly
 
@@ -268,7 +262,9 @@ vector<const State *> State::get_successors() const {
             }
         }
     }
+
     this->dfsMove(0);
+
     for (int i = 0; i < grid->getRows(); i++) {
         delete[] preInfluence[i];
         delete[] curInfluence[i];

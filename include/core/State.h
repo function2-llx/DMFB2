@@ -37,6 +37,15 @@ class State {
     bool isEndState() const;
     virtual std::vector<const State*> get_successors() const;
     int estimationTime() const;
+    int get_droplets_on_board_size() const
+    {
+        int cnt = 0;
+        for (auto droplet: droplets)
+            if (droplet->is_dispensed())
+                cnt++;
+
+        return cnt;
+    }
     // bool operator < (const State&) const;
 
     void printSolution(std::ostream&) const;

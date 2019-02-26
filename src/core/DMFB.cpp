@@ -470,29 +470,6 @@ void DMFB::print_placement(std::ostream& os)
 	os << endl;
 }
 
-// #include <stack>
-
-// static std::vector<const State*> get_whole_route(const State* start, const State* end)
-// {
-//     using namespace std;
-
-// 	stack<const State*> stk;
-// 	for (auto state = end; ; state = state->decision) {
-// 		stk.push(state);
-// 		if (state == start)
-// 			break;
-// 	}
-
-// 	vector<const State*> route;
-// 	route.reserve(stk.size());
-// 	for (int i = stk.size() - 1; i >= 0; i--) {
-// 		route.push_back(stk.top());
-// 		stk.pop();
-// 	}
-
-// 	return route;
-// }
-
 //free states in queue that not in route
 static void clear(std::vector<const State*> queue, std::vector<const State*> route)
 {
@@ -523,16 +500,12 @@ std::vector<const State*> DMFB::get_route_bfs(const State* state) const
 	int head = 0, tail = 1;
 	while (head < tail) {
 		auto cur = que[head++];
-        // cerr << *cur << endl;
 		for (auto suc: cur->get_successors()) {
-            // cerr << *suc << endl;
 			if (suc->isEndState()) {
-                // cerr << "queue size: " << que.size() << endl;
 				auto route = State::get_whole_route(state, suc);
 				::clear(que, route);
 				return route;
 			} else if (!state_set.count(*suc)) {
-                // cerr << "hhh" << endl;
 				state_set.insert(*suc);
 				que.push_back(suc);
                 tail++;
@@ -549,45 +522,36 @@ const State* DMFB::dfs(const State* state, int upper_bound, std::unordered_set<S
     using namespace std;
     const State *ret = nullptr;
 
-    // cerr << "state: " << endl;
-    // cerr << *state << endl;
-
 	if (state->isEndState())
         ret = state;
     else {
         assert(state != nullptr);
 		if (state->step + state->estimationTime() <= upper_bound) {
 			std::vector<const State*> successors = state->get_successors();
-            // cerr << "successors size: " << successors.size() << endl;
 			sort(successors.begin(), successors.end(), [] (const State* a, const State* b) {
                 return a->estimationTime() < b->estimationTime();
             });
-            // cerr << "successors: " << endl;
-            // for (auto successor: successors) {
-            //     cerr << *successor << endl;
-            // }
-            // exit(0);
+
 			for (auto successor: successors) {
-                // cerr << *successor << endl;
                 if (ret != nullptr) // already found a solution
                     delete successor;
-                else if (set.count(*successor))
-                    delete successor;
                 else {
-                    set.insert(*successor);
-                    auto cur = dfs(successor, upper_bound, set);
-                    if (cur != nullptr)
-                        ret = cur;
-                    else
+                    auto it = set.find(*successor);
+                    if (it == set.end() || it->step > successor->step) {
+                        if (it != set.end())
+                            set.erase(it);
+                        set.insert(*successor);
+                        auto cur = dfs(successor, upper_bound, set);
+                        if (cur != nullptr)
+                            ret = cur;
+                        else
+                            delete successor;
+                    } else
                         delete successor;
                 }
 			}
-            // exit(0);
 		}
 	}
-
-    // if (ret == nullptr)
-    //     delete state;
 
     return ret;
 }
@@ -595,21 +559,20 @@ const State* DMFB::dfs(const State* state, int upper_bound, std::unordered_set<S
 std::vector<const State*> DMFB::get_route_dfs(const State* state, int lim) const
 {
     using namespace std;
-    // cerr << typeid(State).name() << endl;
+
     if (state->isEndState())
         return {state};
 
     int lower_bound = state->estimationTime();
     for (int upper_bound = lower_bound; upper_bound <= lim; upper_bound++) {
         std::unordered_set<State> set;
+        
         auto cur = dfs(state, upper_bound, set);
         if (cur != nullptr)
             return State::get_whole_route(state, cur);
     }
 
-    
-
-    return {};
+    return {};  // no solution
 }
 
 void DMFB::set_placement(const Placement& placement)
