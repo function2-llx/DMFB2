@@ -660,6 +660,7 @@ std::vector<const State*> DMFB::get_route(const State* state) const { return thi
 
 void DMFB::solve_placement_determined()
 {
+    this->declare();
     this->place_entities();
     const State* init_state = new State();
     auto route = this->get_route(init_state);

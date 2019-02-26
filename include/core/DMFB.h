@@ -1,5 +1,4 @@
-#ifndef DFMB_H
-#define DFMB_H
+#pragma once
 
 #include <set>
 #include <map>
@@ -45,6 +44,12 @@ class DMFB {
     const State* dfs(const State*, int upper_bound, std::unordered_set<State>&) const;
     
     bool place_entities(); //  return true if success
+
+  protected:
+    virtual void declare() const
+    {
+        std::cerr << "solve by typical dfs" << std::endl;
+    }
   public:
     DMFB();
     ~DMFB();
@@ -101,5 +106,3 @@ class DMFB {
 
 extern DMFB *DMFBsolver;
 // extern std::vector<int> type;
-
-#endif	//DFMB_H
