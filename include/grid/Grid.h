@@ -38,9 +38,10 @@ class Grid {
     int area();
     int getRows();
     int getColumns();
-    int getPointIdentifier(Point position);
-    bool inside(Point position);
-    Cell* get_cell(Point position);
+    int getPointIdentifier(const Point&);
+    bool inside(const Point&) const;
+    Cell* get_cell(const Point&);
+    const Cell* get_cell(const Point&) const;
 
     bool placeSink(Sink* sink, Point position);
     void removeSink(Point position);
@@ -49,6 +50,9 @@ class Grid {
     Point boundaryPosition(int identifier, int type);
 
     void set_placement(const Placement&);
+
+    void disable(const std::vector<Point>& disable_pos);
+    bool pos_available(const Point&) const;
 };
 
 extern Grid* grid;

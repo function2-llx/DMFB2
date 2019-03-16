@@ -11,6 +11,8 @@ class Cell {
     Point position;
     Detector* detector;
     Sink* sink;
+
+    bool available;
   public:
     Cell();
     
@@ -25,6 +27,9 @@ class Cell {
     bool existSink();
     Sink* getSink();
     void removeSink();
+
+    bool is_available() const { return this->available; }
+    bool set_available(bool available) { this->available = available; }
 };
 
 #endif  //CELL_H

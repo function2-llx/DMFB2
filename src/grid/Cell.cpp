@@ -4,7 +4,10 @@
 #include "math_models/Point.h"
 #include "grid/Grid.h"
 
-Cell::Cell() : position(0, 0), detector(nullptr), sink(nullptr) {}
+Cell::Cell() : position(0, 0), detector(nullptr), sink(nullptr)
+{
+    this->available = true;
+}
 
 bool Cell::existDetector() { return this->detector != nullptr; }
 
@@ -15,7 +18,6 @@ void Cell::setPosition(Point position)
     assert(grid->inside(position)); 
     this->position = position;
 }
-
 
 void Cell::setDetector(Detector* detector)
 {

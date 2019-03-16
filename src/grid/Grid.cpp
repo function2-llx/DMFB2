@@ -92,33 +92,35 @@ void Grid::build()
 
 int Grid::area() { return this->rows * this->columns; }
 
-bool Grid::inside(Point position)
+bool Grid::inside(const Point& pos) const
 {
-    static int r, c;   
-    position.getData(r, c);
-    return 0 <= r && r < this->rows && 0 <= c && c < this->columns;
+    return 0 <= pos.r && pos.r < this->rows && 0 <= pos.c && pos.c < this->columns;
 }
 
-int Grid::getPointIdentifier(Point position)
+int Grid::getPointIdentifier(const Point& pos)
 {
-    assert(this->inside(position));
-    return position.r * this->columns + position.c;
+    assert(this->inside(pos));
+    return pos.r * this->columns + pos.c;
 }
 
-Cell* Grid::get_cell(Point position)
+Cell* Grid::get_cell(const Point& pos)
 {
-    if (inside(position))
-        return inner_cells[position.r][position.c];
+    if (inside(pos))
+        return inner_cells[pos.r][pos.c];
+
+    return nullptr;
+}
+
+const Cell* Grid::get_cell(const Point& pos) const
+{
+    if (inside(pos))
+        return inner_cells[pos.r][pos.c];
 
     return nullptr;
 }
 
 Grid::~Grid()
 {
-    // for (int i = 0; i < this->area(); i++) {
-    //     delete cell[i];
-    // }
-    // delete []cell;
     for (int i = 0; i < rows; i++)
         for (int j = 0; j < columns; j++)
             delete inner_cells[i][j];
@@ -141,7 +143,6 @@ void Grid::set_placement(const Placement& placement)
 
     for (auto sink_pos: placement.sink_positions)
         this->placeSink(sink_pos.first, get_target_pos(sink_pos.second));
-
 }
 
 using OuterId = Grid::OuterId;
@@ -198,6 +199,12 @@ Point Grid::get_target_pos(const Point& pos) const
 
     if (pos.c == columns)
         return Point(pos.r, columns - 1);
+}
+
+bool Grid::pos_available(const Point& pos) const
+{
+    auto cell = get_cell(pos);
+    return cell != nullptr && cell->is_available();
 }
 
 Grid *grid;

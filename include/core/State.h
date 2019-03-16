@@ -37,6 +37,7 @@ class State {
     bool isEndState() const;
     virtual std::vector<const State*> get_successors() const;
     int estimationTime() const;
+    void cal_step_upper_bound();
     int get_droplets_on_board_size() const
     {
         int cnt = 0;
