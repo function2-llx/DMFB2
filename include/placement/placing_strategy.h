@@ -6,6 +6,7 @@
 class Dispenser;
 class Sink;
 class Detector;
+class DMFB;
 
 class PlacingStrategy {
   public:

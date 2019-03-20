@@ -70,23 +70,21 @@ Grid::Grid(int rows, int columns) : rows(rows), columns(columns)
 
 void Grid::build()
 {
-    // this->cell = new Cell*[this->area()];
-    // int cur = 0;
-    // for (int i = 0; i < this->rows; i++) {
-    //     for (int j = 0; j < this->columns; j++) {
-    //         Point position(i, j);
-    //         assert(0 <= cur && cur < this->area());
-    //         this->cell[cur] = new Cell();
-    //         this->cell[cur]->setPosition(position);
-    //         cur++;
-    //     }
-    // }
     this->inner_cells.resize(rows, vector<Cell*>(columns));
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < columns; j++) {
             inner_cells[i][j] = new Cell();
             inner_cells[i][j]->setPosition(Point(i, j));
         }
+    }
+}
+
+void Grid::disable(const vector<Point>& disable_pos)
+{
+    for (auto pos: disable_pos) {
+        auto cell = get_cell(pos);
+        if (cell != nullptr)
+            cell->set_available(0);
     }
 }
 

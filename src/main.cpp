@@ -14,9 +14,9 @@ void solve_all()
 {
 	Global::start_time = clock();
 	// DMFBsolver = new DMFB();
-    // DMFBsolver = new GreedySolver;
+    DMFBsolver = new GreedySolver;
     // DMFBsolver = new BfsSolver();
-    DMFBsolver = new GreedyBfsSolver;
+    // DMFBsolver = new GreedyBfsSolver;
 	
     DMFBsolver->init();
 	// DMFBsolver->solve_placement_undetermined();

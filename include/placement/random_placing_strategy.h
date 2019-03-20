@@ -11,4 +11,5 @@ class RandomPlacingStrategy : public PlacingStrategy {
         const std::vector<Sink*>&,
         const std::vector<Detector*>&,
         int rows, int columns) const;
+
 };

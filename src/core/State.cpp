@@ -166,9 +166,7 @@ void State::dfsMove(unsigned int number) const {
                     successor->addDroplet(new Droplet(content[i][j][0]));
                 }
                 if (content[i][j].size() == 2) {
-                    successor->addDroplet(
-                        new Droplet(content[i][j][0], content[i][j][1]));
-                        // Droplet::merge(&content[i][j][0], &content[i][j][1]));
+                    successor->addDroplet(new Droplet(content[i][j][0], content[i][j][1]));
                 }
             }
         }
@@ -204,7 +202,7 @@ void State::dfsMove(unsigned int number) const {
             undispensed.pop_back();
         } else if (droplet->underMixing()) {  // droplet under mixing must move(?)
             for (int i = 0; i < 5; i++) {
-                if (direction[i] != zeroDirection && grid->inside(position + direction[i])) {
+                if (direction[i] != zeroDirection && grid->pos_available(position + direction[i])) {
                     this->pushDroplet(Droplet(droplet, direction[i]), number);
                 }
             }
@@ -228,7 +226,7 @@ void State::dfsMove(unsigned int number) const {
                 }
             }
             for (int i = 0; i < 5; i++) {  // trivial move
-                if (grid->inside(position + direction[i])) {
+                if (grid->pos_available(position + direction[i])) {
                     pushDroplet(Droplet(droplet, direction[i]), number);
                 }
             }
@@ -300,7 +298,10 @@ void State::visualPrint(ostream &os) const {
     for (int i = 0; i < grid->getRows(); i++) {
         for (int j = 0; j < grid->getColumns(); j++) {
             if (type[i][j] == -1) {
-                os << "N  ";
+                if (grid->pos_available(Point(i, j)))
+                    os << "N  ";
+                else
+                    os << "X  ";
             } else {
                 os << "D" << type[i][j] << " ";
             }

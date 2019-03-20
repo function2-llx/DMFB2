@@ -10,6 +10,7 @@
 
 class Sink;
 class Detector;
+class PlacingStrategy;
 
 class DMFB {
   private:
@@ -102,6 +103,7 @@ class DMFB {
     virtual std::vector<const State*> get_route(const State*) const;
     std::vector<const State*> get_route_bfs(const State* state) const;
     std::vector<const State*> get_route_dfs(const State* state, int lim = 100) const;   //  at most lim steps
+    friend class PlacingStrategy;
 };
 
 extern DMFB *DMFBsolver;

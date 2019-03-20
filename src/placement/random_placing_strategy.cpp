@@ -4,6 +4,7 @@
 
 #include "placement/placement.h"
 #include "placement/random_placing_strategy.h"
+#include "grid/Grid.h"
 
 Placement RandomPlacingStrategy::get_placement(
     const std::vector<Dispenser*>& dispensers,
@@ -42,26 +43,6 @@ Placement RandomPlacingStrategy::get_placement(
         return std::make_pair(outer, pos);
     };
 
-    // auto get_pos = [rows, columns] (OuterPos pos, int id) {
-    //     switch (pos) {
-    //         case OuterPos::LEFT:
-    //             return Point(id, -1);
-    //         break;
-
-    //         case OuterPos::UP:
-    //             return Point(-1, id);
-    //         break;
-
-    //         case OuterPos::RIGHT:
-    //             return Point(id, columns);
-    //         break;
-
-    //         case OuterPos::DOWN:
-    //             return Point(rows, id);
-    //         break;
-    //     }
-    // };
-
     for (auto dispenser: dispensers) {
         auto outer_pos = get_random_outer_pos();
         int outer = outer_pos.first, pos = outer_pos.second;
@@ -81,7 +62,7 @@ Placement RandomPlacingStrategy::get_placement(
     bool inner_vis[rows][columns]{};
     for (auto detector: detectors) {
         int r = rand() % rows, c = rand() % columns;
-        while (inner_vis[r][c])
+        while (grid->pos_available(Point(r, c)) && inner_vis[r][c])
             r = rand() % rows, c = rand() % columns;
 
         inner_vis[r][c] = 1;

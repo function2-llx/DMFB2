@@ -218,6 +218,8 @@ void DMFB::loadDesignObejective()
 	ifstream is("./input/DesignObjective.txt");
 	assert(is.is_open());
 	is >> this->rows >> this->columns;
+
+    
 	this->detector_record = new int*[this->rows];
 	for (int i = 0; i < this->rows; i++) {
 		this->detector_record[i] = new int[this->columns];
@@ -228,6 +230,16 @@ void DMFB::loadDesignObejective()
 	for (int i = 0; i < 4; i++) {
 		this->boundary_record[i] = new int[grid->boundarySize[i]];
 	}
+    auto set_disable = [this, &is] () {
+        int r, c;
+        vector<Point> disable_pos;
+        while (is >> r >> c)
+            disable_pos.push_back(Point(r - 1, c - 1));
+        
+        grid->disable(disable_pos);
+    };
+
+    set_disable();
 	cerr << "design objective loaded" << endl;
 }
 
@@ -431,7 +443,9 @@ void DMFB::solve_placement_undetermined()
 
 void DMFB::print(std::ostream& os, int x)
 {
-	if (x == -1) {
+    if (x == -2)
+        os << "X ";
+    else if (x == -1) {
 		os << "N ";
 	} else if (x == this->nTypes) {
 		os << "S ";
@@ -456,7 +470,10 @@ void DMFB::print_placement(std::ostream& os)
 		this->print(os, this->boundary_record[(int)Grid::OuterPos::LEFT][i]);
 		os << "|";
 		for (int j = 0; j < this->columns; j++) {
-			this->print(os, this->detector_record[i][j]);
+            if (grid->pos_available(Point(i, j)))
+                this->print(os, this->detector_record[i][j]);
+            else 
+                this->print(os, -2);
 			os<<"|";
 		}
 		this->print(os, this->boundary_record[(int)Grid::OuterPos::RIGHT][i]);
