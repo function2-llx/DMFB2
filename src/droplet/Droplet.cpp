@@ -103,7 +103,7 @@ bool operator == (const Droplet& a, const Droplet& b)
 
 void Droplet::setData(const DropletData& dropletData)
 {
-    this->identifier = dropletData.identifier;
+    this->identifier = dropletData.id;
     this->type = dropletData.type;
     this->remainingMixingTime = dropletData.mixingTime;
     this->remainingDetectingTime = dropletData.detectingTime;

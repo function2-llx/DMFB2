@@ -53,9 +53,9 @@ class DMFB {
     }
   public:
     DMFB();
-    ~DMFB();
+    virtual ~DMFB();
 
-    void loadSequencingGraph();
+    void load_sequencing_graph();
     void loadModuleLibrary();
     void loadDesignObejective();
 

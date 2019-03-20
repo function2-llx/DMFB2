@@ -1,6 +1,7 @@
 #include <cassert>
 #include <iostream>
 #include <fstream>
+#include <cstring>
 #include "core/State.h"
 #include "core/DMFB.h"
 #include "Global.h"
@@ -28,6 +29,27 @@ void solve_all()
 
 int main()
 {
-    solve_all();
+    char * const p = "23333";
+
+
+    // solve_all();
+    // const char *s[] = {
+    //     "233",
+    //     "2444"
+    // };
+    // cout << s[1] << endl;
+
+    char buf[1000];
+    // fscanf(stdin, "DagName (%[^)])", buf);
+    // cerr << fscanf(stdin, "Node") << endl;
+    // fscanf(stdin, "%*[2]%[^\n]", buf);
+    puts(buf);
+
+    // // scanf("233 test (%[^)]", buf);
+    // fgets(buf, 4, stdin);
+    // puts(buf);
+    // printf("%lu\n", strlen(buf));
+    // scanf("%[^23]s", buf);
+    // puts(buf);
 	return 0;
 }

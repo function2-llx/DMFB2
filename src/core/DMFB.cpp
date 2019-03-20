@@ -13,6 +13,7 @@
 #include "core/Map.h"
 #include "useless/PlaceState.h"
 #include "placement/random_placing_strategy.h"
+#include "math_models/sequencing_graph.h"
 
 // using namespace std;
 
@@ -81,7 +82,7 @@ static void dfs_least(Node* cur, std::vector<int>& least_time, const std::vector
 
 // std::vector<int> type;
 
-void DMFB::loadSequencingGraph()
+void DMFB::load_sequencing_graph()
 {
 	using namespace Global;
 
@@ -99,7 +100,7 @@ void DMFB::loadSequencingGraph()
 	for (int i = 0; i < this->nDroplets; i++) {
 		node[i]->identifier = i;
 		// dropletData[i].identifier = i;
-        droplet_data[i].identifier = i;
+        droplet_data[i].id = i;
 		is >> node[i]->type;
 		int fatherIndentifier;
 		is >> fatherIndentifier;
@@ -192,7 +193,7 @@ void DMFB::loadSequencingGraph()
 	std::cerr << "sequencing graph loaded" << std::endl;
 }
 
-static bool range(int a, int n) { return 0 <= a && a < n; }
+// static bool range(int a, int n) { return 0 <= a && a < n; }
 
 void DMFB::loadModuleLibrary()
 {
@@ -230,7 +231,7 @@ void DMFB::loadDesignObejective()
 	for (int i = 0; i < 4; i++) {
 		this->boundary_record[i] = new int[grid->boundarySize[i]];
 	}
-    auto set_disable = [this, &is] () {
+    auto set_disable = [&is] () {
         int r, c;
         vector<Point> disable_pos;
         while (is >> r >> c)
@@ -247,9 +248,9 @@ static const State* ret;
 static int* curBoundary[4];
 static int** curDetector;
 static int stepLowerBound, stepUpperBound;
-static int retStep;
+// static int retStep;
 static int target;
-static int curDispenserCount, curSinkCount, curDetectorCount;
+// static int curDispenserCount, curSinkCount, curDetectorCount;
 
 
 bool DMFB::dfs(const State* currentState)
@@ -656,7 +657,7 @@ bool DMFB::place_entities()
 
 void DMFB::init()
 {
-    DMFBsolver->loadSequencingGraph();
+    DMFBsolver->load_sequencing_graph();
 	DMFBsolver->loadModuleLibrary();
 	DMFBsolver->loadDesignObejective();
 
