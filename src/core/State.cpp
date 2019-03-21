@@ -212,7 +212,7 @@ void State::dfsMove(unsigned int number) const {
             if (droplet->detected()) {  // attempt to dump into sink
                 if (!DMFBsolver->is_to_mix(droplet)) {
                     Cell *cell = grid->get_cell(position);
-                    if (cell->existSink())
+                    if (cell->existSink() && cell->getSink()->get_id() == DMFBsolver->get_droplet_data(identifier).output_sink)
                         this->dfsMove(number + 1);
                 }
             } else {  // attempt to start detection

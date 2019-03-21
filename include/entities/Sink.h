@@ -13,6 +13,7 @@ class Sink {
     explicit Sink(int id) : id(id) {}
     Point get_pos() const{ return this->pos; }
     void set_pos(const Point& pos) { this->pos = pos; }
+    int get_id() const { return this->id; }
 };
 
 #endif  //SINK_H
