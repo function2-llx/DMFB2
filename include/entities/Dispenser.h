@@ -15,7 +15,7 @@ private:
     Dispenser operator = (const Dispenser& dispenser);
 public:
     Dispenser(int type);
-    int getType();
+    int get_type() const { return this->type; }
     void setPosition(Point position);
     Point getPosition();
 };

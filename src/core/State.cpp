@@ -217,8 +217,7 @@ void State::dfsMove(unsigned int number) const {
                 }
             } else {  // attempt to start detection
                 Cell *cell = grid->get_cell(position);
-                if (cell->existDetector() &&
-                    cell->getDetector()->get_type() == droplet->getType()) {
+                if (cell->existDetector()) {
                     Droplet newDroplet(droplet, zeroDirection);
                     newDroplet.startDetection();
                     newDroplet.time_past(1);
@@ -342,7 +341,7 @@ void State::textPrint(ostream &os) const {
 }
 
 void State::printSolution(ostream &os) const {
-    assert(this != nullptr);
+    // assert(this != nullptr);
     if (this->decision != nullptr) {
         this->decision->printSolution(os);
     }

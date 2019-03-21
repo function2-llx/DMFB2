@@ -15,7 +15,8 @@ class PlacingStrategy {
     virtual Placement get_placement(
         const std::vector<Dispenser*>&, 
         const std::vector<Sink*>&,
-        const std::vector<Detector*>&,
+        // const std::vector<Detector*>&,
+        Detector* detector,
         int rows, int columns) const = 0;
 
 };

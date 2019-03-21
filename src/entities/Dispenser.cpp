@@ -7,10 +7,9 @@ using namespace std;
 
 Dispenser::Dispenser(int type) : type(type) {}
 
-int Dispenser::getType()
-{
-    return this->type;
-}
+// int Dispenser::getType() const {
+//     return this->type;
+// }
 
 void Dispenser::setPosition(Point position)
 {

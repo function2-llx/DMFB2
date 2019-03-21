@@ -136,8 +136,9 @@ int Grid::getColumns()
 
 void Grid::set_placement(const Placement& placement)
 {
-    for (auto detector_pos: placement.detector_positions)
-        this->placeDetector(detector_pos.first, detector_pos.second);
+    this->placeDetector(placement.detector_pos.first, placement.detector_pos.second);
+    // for (auto detector_pos: placement.detector_positions)
+    //     this->placeDetector(detector_pos.first, detector_pos.second);
 
     for (auto sink_pos: placement.sink_positions)
         this->placeSink(sink_pos.first, get_target_pos(sink_pos.second));

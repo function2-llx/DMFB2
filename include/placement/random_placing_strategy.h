@@ -9,7 +9,8 @@ class RandomPlacingStrategy : public PlacingStrategy {
     Placement get_placement(
         const std::vector<Dispenser*>&, 
         const std::vector<Sink*>&,
-        const std::vector<Detector*>&,
+        // const std::vector<Detector*>&,
+        Detector*,
         int rows, int columns) const;
 
 };

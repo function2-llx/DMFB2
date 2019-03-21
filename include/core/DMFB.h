@@ -32,16 +32,18 @@ class DMFB {
 
     std::vector<Dispenser*> dispensers;
     std::vector<Sink*> sinks;
-    std::vector<Detector*> detectors;
+    // std::vector<Detector*> detectors;
+    Detector *detector;
 
     DMFB(const DMFB&);
     DMFB& operator = (const DMFB&) = delete;
     
     void print(std::ostream&, int);
 
-    void placeSink(int sinkCount);
-    void placeDispenser(int dispenserCount);
-    void placeDetector(int detectorCount);
+    // void placeSink(int sinkCount);
+    // void placeDispenser(int dispenserCount);
+    // void placeDetector(int detectorCount);
+    // void place_detector();
     bool dfs(const State*);
     const State* dfs(const State*, int upper_bound, std::unordered_set<State>&) const;
     
@@ -89,14 +91,20 @@ class DMFB {
         return dispensers[type];
     }
 
-    Detector* get_detector(int type) const
+    Detector* get_detector(int type) const { return detector; }
+    // {
+    //     assert(0 <= type && type < nTypes);
+    //     return detectors[type];
+    // }
+
+    Sink* get_sink(int sink_id) const
     {
-        assert(0 <= type && type < nTypes);
-        return detectors[type];
+        assert(0 <= sink_id && sink_id < sinks.size());
+        return sinks[sink_id];
     }
 
     void init(const std::string& path);
-    void solve_placement_undetermined();
+    // void solve_placement_undetermined();
     void solve_placement_determined();
     void print_placement(std::ostream&);
     void set_placement(const Placement& placement);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <ostream>
 
 class Detector;
 class Sink;
@@ -12,7 +13,8 @@ struct Placement {
     using SinkPos = std::pair<Sink*, Point>;
     using DispenserPos = std::pair<Dispenser*, Point>;
 
-    std::vector<DetectorPos> detector_positions;
+    // std::vector<DetectorPos> detector_positions;
+    DetectorPos detector_pos;
     std::vector<SinkPos> sink_positions;
     std::vector<DispenserPos> dispenser_positions;
 

@@ -3,7 +3,7 @@
 #include "grid/Grid.h"
 
 
-ULL Detector::hash() { return this->type * grid->area() + grid->getPointIdentifier(this->position); }
+ULL Detector::hash() { return grid->getPointIdentifier(this->position); }
 
 // Point* detectorPosition;
 // Detector** pdetector;

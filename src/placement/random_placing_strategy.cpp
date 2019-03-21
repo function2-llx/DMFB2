@@ -9,19 +9,20 @@
 Placement RandomPlacingStrategy::get_placement(
     const std::vector<Dispenser*>& dispensers,
     const std::vector<Sink*>& sinks,
-    const std::vector<Detector*>& detectors,
+    // const std::vector<Detector*>& detectors,
+    Detector* detector,
     int rows, int columns) const
 {
     Placement placement;
     placement.dispenser_positions.reserve(dispensers.size());
-    placement.detector_positions.reserve(detectors.size());
+    // placement.detector_positions.reserve(detectors.size());
     placement.sink_positions.reserve(sinks.size());
 
     using OuterPos = Grid::OuterPos;
     auto get_size = [rows, columns] (OuterPos pos) { return (pos == OuterPos::LEFT || pos == OuterPos::RIGHT) ? rows : columns; };
 
     assert(dispensers.size() + sinks.size() <= (rows + columns) * 2);
-    assert(detectors.size() <= rows * columns);
+    // assert(detectors.size() <= rows * columns);
 
     bool *outer_vis[4];
     int size[4];
@@ -59,15 +60,36 @@ Placement RandomPlacingStrategy::get_placement(
     for (int i = 0; i < 4; i++)
         delete[] outer_vis[i];
 
-    bool inner_vis[rows][columns]{};
-    for (auto detector: detectors) {
-        int r = rand() % rows, c = rand() % columns;
-        while (grid->pos_available(Point(r, c)) && inner_vis[r][c])
-            r = rand() % rows, c = rand() % columns;
+    bool inner_vis[rows][columns];
+    for (int i = 0; i < rows; i++)
+        for (int j = 0; j < columns; j++)
+            inner_vis[i][j] = 0;
 
-        inner_vis[r][c] = 1;
-        placement.detector_positions.push_back(std::make_pair(detector, Point(r, c)));
+    for (int r = rand() % rows, c = rand() % columns; ; r = rand() % rows, c = rand() % columns) {
+        if (!inner_vis[r][c]) {
+            inner_vis[r][c] = 1;
+            placement.detector_pos = std::make_pair(detector, Point(r, c));
+            break;
+        }
     }
+
+    // [&] {
+    //     int r = rand() % rows, c = rand() % columns;
+    //     while (grid->pos_available(Point(r, c)) && inner_vis[r][c])
+    //         r = rand() % rows, c = rand() % columns;
+
+    //     inner_vis[r][c] = 1;
+    //     placement.detector_pos = std::make_pair(detector, Point(r, c));
+    // }();
+
+    // for (auto detector: detectors) {
+    //     int r = rand() % rows, c = rand() % columns;
+    //     while (grid->pos_available(Point(r, c)) && inner_vis[r][c])
+    //         r = rand() % rows, c = rand() % columns;
+
+    //     inner_vis[r][c] = 1;
+    //     placement.detector_positions.push_back(std::make_pair(detector, Point(r, c)));
+    // }
 
     return placement;
 }
