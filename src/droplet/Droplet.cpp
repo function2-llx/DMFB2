@@ -150,7 +150,7 @@ ostream& operator << (ostream& os, const Droplet& droplet)
 {
     os << "droplet" << endl;
 	os << "identifier: " << droplet.identifier << endl;
-	os << "type: " << DMFBsolver->get_real_type(droplet.type) << endl;
+	os << "type: " << droplet.type << endl;
 	os << "position: " << droplet.position << endl;
     if (droplet.mixing) {
         os << "mixing, " << droplet.remainingMixingTime;

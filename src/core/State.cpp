@@ -79,13 +79,13 @@ ULL State::hash() const {
 }
 
 bool State::isEndState() const {
-    for (auto droplet : this->droplets) {
-        if (!droplet->mixed() || !droplet->detected() ||
-            !droplet->isEndDroplet()) {
-            return false;
-        }
-    }
-    return true;
+    // for (auto droplet : this->droplets) {
+    //     if (!droplet->mixed() || !droplet->detected() ||
+    //         !droplet->isEndDroplet()) {
+    //         return false;
+    //     }
+    // }
+    return droplets.empty();
 }
 
 int State::estimationTime() const { return this->estimation; }
@@ -291,7 +291,7 @@ void State::visualPrint(ostream &os) const {
     for (auto droplet : this->droplets) {
         if (droplet->is_dispensed()) {
             Point position = droplet->getPosition();
-            type[position.r][position.c] = DMFBsolver->get_real_type(droplet->getType());
+            type[position.r][position.c] = droplet->getType();
             // ::type[droplet->getType()];
         }
     }

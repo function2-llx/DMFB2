@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <vector>
 #include <cassert>
+#include <iostream>
 #include <unordered_map>
 #include "math_models/sequencing_graph.h"
 // #include "droplet/DropletData.h"
@@ -26,6 +27,17 @@ struct StringMap {
         assert(0 <= id && id < list.size());
         return list[id];
     }
+};
+
+namespace std {
+    template<>
+    struct hash<pair<int, int> > {
+        size_t operator () (const pair<int, int>& a) const
+        {
+            static size_t base = 23333;
+            return a.first * base + a.second;
+        }
+    };
 };
 
 struct MixTypeMap {
@@ -87,28 +99,39 @@ void SequencingGraph::load_from_file(const char* filename)
     auto file = fopen(filename, "r");
     char buf[1024];
     fgets(buf, sizeof(buf), file);  //  the useless first line
-    fscanf(file, "DagName (%[^)])\n", buf);
+    // puts(buf);
+    fscanf(file, "DAGNAME (%[^)])\n", buf);
+    // puts(buf);
     std::vector<Node*> nodes;
     std::vector<Edge> edges;
     while (fgets(buf, sizeof(buf), file)) {
+        // puts(buf);
+        const char *s = buf;
         char message_type[10];
-        sscanf(buf, "%4[DENGO] (", message_type);
+        sscanf(s, "%4[DENGO] (", message_type);   // math EDGE or NODE
+        s += 6;
         if (strcmp(message_type, "NODE") == 0) {
             Node *u = new Node;
             nodes.push_back(u);
-            int id;
                         
-            char operation[10], drop_type[10], sink_name[10];
-            sscanf(buf, "%d, %[^,], ", &id, operation);
+            char operation[10], drop_type[10], sink_name[10], digit[10];
+            // sscanf(buf, "%d, %[^,], ", &id, operation);
+            sscanf(s, "%[^,]", digit);
+            s += strlen(digit) + 2;
+            int id = atoi(digit);
+            sscanf(s, "%[^,]", operation);
+            s += strlen(operation) + 2;
+            std::cerr << id << ' ' << operation << std::endl;
             assert(id == nodes.size());
             switch (u->type = ::get_type(operation)) {
                 case Node::DISPENSE:
-                    sscanf(buf, "%[^,]", drop_type);
+                    sscanf(s, "%[^,]", drop_type);
+                    // s += strlen(drop_type) + 2;
                     u->drop_type = type_map.get_id(drop_type);
                 break;
 
                 case Node::MIX:
-                    sscanf(buf, "%*[^ ]%d", &u->mixing_time);
+                    sscanf(s, "%*[^ ]%d", &u->mixing_time);
                 break;
 
                 case Node::DILUTE:
@@ -124,7 +147,7 @@ void SequencingGraph::load_from_file(const char* filename)
                 break;
 
                 case Node::DETECT:
-                    sscanf(buf, "%*[^,] %d", &u->detecting_time);
+                    sscanf(s, "%*[^,] %d", &u->detecting_time);
                 break;
 
                 case Node::OUTPUT:
@@ -142,13 +165,15 @@ void SequencingGraph::load_from_file(const char* filename)
             }
         } else {
             int u, v;
-            sscanf(buf, "%d, %d", &u, &v);
+            sscanf(s, "%d, %d", &u, &v);
             edges.push_back(Edge(u - 1, v - 1));
         }
     }
 
-    for (auto edge: edges)
+    for (auto edge: edges) {
+        std::cerr << edge.u << ' ' << edge.v << std::endl;
         nodes[edge.v]->insert(nodes[edge.u]);
+    }
 
     int drop_cnt = 0;
     for (auto node: nodes) {

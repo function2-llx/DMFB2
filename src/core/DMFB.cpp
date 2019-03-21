@@ -42,7 +42,7 @@ Node** node;
 
 DMFB::DMFB()
 {
-	this->typeMap.clear();
+	// this->typeMap.clear();
 	this->nTypes = 0;
 	this->nDispensers = 0;
 }
@@ -82,34 +82,44 @@ static void dfs_least(Node* cur, std::vector<int>& least_time, const std::vector
 
 // std::vector<int> type;
 
-void DMFB::load_sequencing_graph()
+void DMFB::load_sequencing_graph(const std::string& path)
 {
 	using namespace Global;
 
-	std::ifstream is("./input/SequencingGraph.txt");
-	assert(is.is_open());
+	// std::ifstream is(path + "SequencingGraph.txt");
+	// assert(is.is_open());
+    // SequencingGraph graph;
+    graph.load_from_file((path + "SequencingGraph.txt").c_str());
+    this->droplet_data = graph.get_droplet_data();
 
-	is >> this->nDroplets;
+	// is >> this->nDroplets;
+    this->nDroplets = droplet_data.size();
 	node = new Node*[this->nDroplets];
 	to_mix.resize(nDroplets, 0);
-	// toBeDispensed = new bool[this->nDroplets];
 	mixing_result.resize(nDroplets, std::vector<int>(nDroplets, -1));
-    droplet_data.resize(nDroplets);
 	for (int i = 0; i < this->nDroplets; i++)
 		node[i] = new Node();
 	for (int i = 0; i < this->nDroplets; i++) {
 		node[i]->identifier = i;
 		// dropletData[i].identifier = i;
-        droplet_data[i].id = i;
-		is >> node[i]->type;
-		int fatherIndentifier;
-		is >> fatherIndentifier;
-		if (fatherIndentifier != 0) {
-			fatherIndentifier--;
-			node[i]->fa = node[fatherIndentifier];
-			node[fatherIndentifier]->insertChild(node[i]);
-		}
-		is >> droplet_data[i].mixingTime >> droplet_data[i].detectingTime;
+        // droplet_data[i].id = i;
+		// is >> node[i]->type;
+        node[i]->type = droplet_data[i].type;
+		// int fatherIndentifier;
+		// is >> fatherIndentifier;
+		// if (fatherIndentifier != 0) {
+		// 	fatherIndentifier--;
+		// 	node[i]->fa = node[fatherIndentifier];
+		// 	node[fatherIndentifier]->insertChild(node[i]);
+		// }
+
+        int fa_id = droplet_data[i].fa_id;
+        if (droplet_data[i].fa_id != -1) {
+            node[i]->fa = node[fa_id];
+            node[fa_id]->insertChild(node[i]);
+        }
+
+		// is >> droplet_data[i].mixingTime >> droplet_data[i].detectingTime;
 	}
 	for (int i = 0; i < this->nDroplets; i++) {
 		if (node[i]->fa == nullptr)
@@ -123,104 +133,115 @@ void DMFB::load_sequencing_graph()
 			// to_dispense[i] = true;
             dispense_id.push_back(i);
 			assert(node[i]->ch[1] == nullptr);
-			if (!this->typeMap.count(node[i]->type)) {
-				this->typeMap[node[i]->type] = this->nDispensers++;
-				real_type.push_back(node[i]->type);
-			}
-			node[i]->type = this->typeMap[node[i]->type];
+            if (node[i]->type >= this->nTypes)
+                this->nTypes = node[i]->type + 1;
+			// if (!this->typeMap.count(node[i]->type)) {
+			// 	this->typeMap[node[i]->type] = this->nDispensers++;
+			// 	real_type.push_back(node[i]->type);
+			// }
+			// node[i]->type = this->typeMap[node[i]->type];
 		} 
-        // else {
-		// 	to_dispense[i] = false;
-		// }
 	}
     
 	// dispenser = new Dispenser*[this->nDispensers];
 	// for (int i = 0; i < this->nDispensers; i++) 
 	// 	dispenser[i] = new Dispenser(i);
 
-	this->nTypes = this->nDispensers;
-	for (int i = 0; i < this->nDroplets; i++) {
-		if (node[i]->ch[0] != nullptr) {
-			assert(node[i]->ch[1] != nullptr);
-			if (!this->typeMap.count(node[i]->type)) {
-				this->typeMap[node[i]->type] = this->nTypes++;
-				real_type.push_back(node[i]->type);
-			}
-			node[i]->type = this->typeMap[node[i]->type];
-		}
-		droplet_data[i].type = node[i]->type;
-	}
+	this->nDispensers = this->nTypes;
+	// for (int i = 0; i < this->nDroplets; i++) {
+	// 	if (node[i]->ch[0] != nullptr) {
+	// 		assert(node[i]->ch[1] != nullptr);
+	// 		if (!this->typeMap.count(node[i]->type)) {
+	// 			this->typeMap[node[i]->type] = this->nTypes++;
+	// 			real_type.push_back(node[i]->type);
+	// 		}
+	// 		node[i]->type = this->typeMap[node[i]->type];
+	// 	}
+	// 	droplet_data[i].type = node[i]->type;
+	// }
 	// detectorPosition = new Point[this->nTypes];
 
 	//ensure same input types output same type
-	struct data {
-		int a, b;
-		data(int a, int b)
-		{
-			if (a > b) std::swap(a, b);
-			this->a = a;
-			this->b = b;
-		}
-		bool operator < (const data& other) const
-		{
-			if (this->a == other.a) {
-				return this->b < other.b;
-			}
-			return this->a < other.a;
-		}
-	};	
-	std::map<data, int> mixType;
-	mixType.clear();
+	// struct data {
+	// 	int a, b;
+	// 	data(int a, int b)
+	// 	{
+	// 		if (a > b) std::swap(a, b);
+	// 		this->a = a;
+	// 		this->b = b;
+	// 	}
+	// 	bool operator < (const data& other) const
+	// 	{
+	// 		if (this->a == other.a) {
+	// 			return this->b < other.b;
+	// 		}
+	// 		return this->a < other.a;
+	// 	}
+	// };	
+	// std::map<data, int> mixType;
+	// mixType.clear();
 	for (int i = 0; i < this->nDroplets; i++) {
 		if (node[i]->fa == nullptr)
 			to_mix[i] = false;
 		else 
-            to_mix[i] = 1;
+            to_mix[i] = true;
 		if (node[i]->ch[0] == nullptr) {
 			assert(node[i]->ch[0] == nullptr);
 		} else {
 			Node *ch1 = node[i]->ch[0], *ch2 = node[i]->ch[1];
 			assert(ch2 != nullptr);
 			mixing_result[ch1->identifier][ch2->identifier] = mixing_result[ch2->identifier][ch1->identifier] = i;
-			data cur(ch1->type, ch2->type);
-			if (mixType.count(cur)) {
-				assert(node[i]->type == mixType[cur]);
-			} else {
-				mixType[cur] = node[i]->type;
-			}
+			// data cur(ch1->type, ch2->type);
+			// if (mixType.count(cur)) {
+			// 	assert(node[i]->type == mixType[cur]);
+			// } else {
+			// 	mixType[cur] = node[i]->type;
+			// }
 		}
 	}
+
+    least_time.resize(nDroplets, 0);
+
+	for (int i = 0; i < this->nDroplets; i++) 
+		if (node[i]->fa == nullptr) 
+			::dfs_least(node[i], this->least_time, this->droplet_data);
+
+    this->nSinks = 0;
+    for (auto data: droplet_data)
+        if (data.output_sink >= this->nSinks)
+            this->nSinks = data.output_sink + 1;
+
 	std::cerr << "sequencing graph loaded" << std::endl;
 }
 
 // static bool range(int a, int n) { return 0 <= a && a < n; }
 
-void DMFB::loadModuleLibrary()
-{
-	// using namespace Global;
-    using namespace std;
-	ifstream is("./input/ModuleLibrary.txt");
-	assert(is.is_open());
-    least_time.resize(nDroplets, 0);
-	// for (int i = 0; i < this->nDroplets; i++) {
-	// 	leastTime[i] = 0;
-	// }
-	is >> this->nSinks;
-	for (int i = 0; i < this->nDroplets; i++) 
-		if (node[i]->fa == nullptr) 
-			::dfs_least(node[i], this->least_time, this->droplet_data);
-	
-	cerr << "module library loaded" << endl;
-}
+// void DMFB::loadModuleLibrary()
+// {
+// 	// using namespace Global;
+//     using namespace std;
+// 	ifstream is("./input/ModuleLibrary.txt");
+// 	assert(is.is_open());
+//     least_time.resize(nDroplets, 0);
+// 	// for (int i = 0; i < this->nDroplets; i++) {
+// 	// 	leastTime[i] = 0;
+// 	// }
+// 	is >> this->nSinks;
+// 	for (int i = 0; i < this->nDroplets; i++) 
+// 		if (node[i]->fa == nullptr) 
+// 			::dfs_least(node[i], this->least_time, this->droplet_data);
 
-void DMFB::loadDesignObejective()
+// 	cerr << "module library loaded" << endl;
+// }
+
+void DMFB::loadDesignObejective(const std::string& path)
 {
     using namespace std;
-	ifstream is("./input/DesignObjective.txt");
+	// ifstream is("./input/DesignObjective.txt");
+    ifstream is(path + "DesignObjective.txt");
 	assert(is.is_open());
+
 	is >> this->rows >> this->columns;
-
-    
 	this->detector_record = new int*[this->rows];
 	for (int i = 0; i < this->rows; i++) {
 		this->detector_record[i] = new int[this->columns];
@@ -451,8 +472,8 @@ void DMFB::print(std::ostream& os, int x)
 	} else if (x == this->nTypes) {
 		os << "S ";
 	} else {
-		assert(0 <= x && x < this->nTypes && x <= 9);   // why <= 9?
-		os << "D" << real_type[x];
+		assert(0 <= x && x < this->nTypes);   // why <= 9?
+		os << "D" << x;
 	}
 }
 
@@ -655,15 +676,15 @@ bool DMFB::place_entities()
     delete strategy;
 }
 
-void DMFB::init()
+void DMFB::init(const std::string& path)
 {
-    DMFBsolver->load_sequencing_graph();
-	DMFBsolver->loadModuleLibrary();
-	DMFBsolver->loadDesignObejective();
+    DMFBsolver->load_sequencing_graph(path);
+	// DMFBsolver->loadModuleLibrary();
+	DMFBsolver->loadDesignObejective(path);
 
     sinks.reserve(nSinks);
     for (int i = 0; i < nSinks; i++)
-        sinks.push_back(new Sink());
+        sinks.push_back(new Sink(i));
 
     dispensers.reserve(nDispensers);
     for (int i = 0; i < nDispensers; i++)

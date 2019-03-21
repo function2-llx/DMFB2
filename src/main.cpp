@@ -11,7 +11,7 @@
 
 using namespace std;
 
-void solve_all()
+void solve_all(const string& path)
 {
 	Global::start_time = clock();
 	// DMFBsolver = new DMFB();
@@ -19,7 +19,7 @@ void solve_all()
     // DMFBsolver = new BfsSolver();
     // DMFBsolver = new GreedyBfsSolver;
 	
-    DMFBsolver->init();
+    DMFBsolver->init(path);
 	// DMFBsolver->solve_placement_undetermined();
     DMFBsolver->solve_placement_determined();
 
@@ -27,29 +27,15 @@ void solve_all()
 	delete DMFBsolver;
 }
 
-int main()
+int main(int argc, char* argv[])
 {
-    char * const p = "23333";
+    string path = "./input/";
+    if (argc > 1) {
+        path = argv[1];
+        if (path.back() != '/')
+            path += "/";
+    }
 
-
-    // solve_all();
-    // const char *s[] = {
-    //     "233",
-    //     "2444"
-    // };
-    // cout << s[1] << endl;
-
-    char buf[1000];
-    // fscanf(stdin, "DagName (%[^)])", buf);
-    // cerr << fscanf(stdin, "Node") << endl;
-    // fscanf(stdin, "%*[2]%[^\n]", buf);
-    puts(buf);
-
-    // // scanf("233 test (%[^)]", buf);
-    // fgets(buf, 4, stdin);
-    // puts(buf);
-    // printf("%lu\n", strlen(buf));
-    // scanf("%[^23]s", buf);
-    // puts(buf);
+    solve_all(path);
 	return 0;
 }

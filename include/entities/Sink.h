@@ -5,14 +5,14 @@
 
 class Sink {
   private:
-    Point position;
+    int id;
+    Point pos;
     Sink(const Sink& sink);
     Sink& operator = (const Sink& sink);
   public:
-    // explicit Sink(const Point& position);
-    explicit Sink() {}
-    Point get_pos() const{ return this->position; }
-    void set_pos(const Point& pos) { position = pos; }
+    explicit Sink(int id) : id(id) {}
+    Point get_pos() const{ return this->pos; }
+    void set_pos(const Point& pos) { this->pos = pos; }
 };
 
 #endif  //SINK_H
