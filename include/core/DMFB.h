@@ -48,6 +48,7 @@ class DMFB {
     const State* dfs(const State*, int upper_bound, std::unordered_set<State>&) const;
     
     bool place_entities(); //  return true if success
+    std::vector<std::vector<Point> > get_move_sequences(const std::vector<const State*>& ) const;
     SequencingGraph graph;
 
   protected:
@@ -69,6 +70,7 @@ class DMFB {
         assert(0 <= id && id < nDroplets);
         return droplet_data[id];
     }
+    int get_peer_id(const Droplet* droplet) { return droplet_data[droplet->get_id()].peer_id; }
     int get_mixing_result_id(int id_a, int id_b)
     {
         assert(0 <= id_a < nDroplets); 
@@ -78,11 +80,6 @@ class DMFB {
     int get_least_time(const Droplet* droplet) const { return least_time[droplet->get_id()]; }
     bool is_to_mix(const Droplet* droplet) const { return to_mix[droplet->get_id()]; }
     std::vector<int> get_dispense_id() const { return dispense_id; }
-    // int get_real_type(int mapped_type) const
-    // {
-    //     assert(0 <= mapped_type && mapped_type < real_type.size());
-    //     return real_type[mapped_type];
-    // }
 
     int getDropletNumber() const;
     Dispenser* get_dispenser(int type) const
@@ -91,11 +88,7 @@ class DMFB {
         return dispensers[type];
     }
 
-    Detector* get_detector(int type) const { return detector; }
-    // {
-    //     assert(0 <= type && type < nTypes);
-    //     return detectors[type];
-    // }
+    Detector* get_detector() const { return detector; }
 
     Sink* get_sink(int sink_id) const
     {
@@ -112,6 +105,13 @@ class DMFB {
     virtual std::vector<const State*> get_route(const State*) const;
     std::vector<const State*> get_route_bfs(const State* state) const;
     std::vector<const State*> get_route_dfs(const State* state, int lim = 100) const;   //  at most lim steps
+
+    std::vector<std::vector<Point> > get_move_sequences(const State* init) const
+    {
+        auto route = this->get_route(init);
+        
+    } 
+    
     friend class PlacingStrategy;
 };
 

@@ -16,6 +16,7 @@ Droplet::Droplet(const Droplet& droplet)
 {
     this->identifier = droplet.identifier;
     this->type = droplet.type;
+    output_sink = droplet.output_sink;
     this->position = droplet.position;
     this->dispensed = droplet.dispensed;
     this->mixing = droplet.mixing;
@@ -28,6 +29,7 @@ Droplet::Droplet(const DropletData& dropletData)
 {
     this->setData(dropletData);
     this->dispensed = false;
+    output_sink = dropletData.output_sink;
     this->mixing = false;
     this->detecting = false;
     this->position = DMFBsolver->get_dispenser(type)->getPosition();
@@ -103,6 +105,7 @@ bool operator == (const Droplet& a, const Droplet& b)
 
 void Droplet::setData(const DropletData& dropletData)
 {
+    output_sink = dropletData.output_sink;
     this->identifier = dropletData.id;
     this->type = dropletData.type;
     this->remainingMixingTime = dropletData.mixingTime;
@@ -144,7 +147,7 @@ bool Droplet::detected() const
 
 int Droplet::getType() const { return this->type; }
 
-Point Droplet::getPosition() const { return this->position; }
+Point Droplet::get_pos() const { return this->position; }
 
 ostream& operator << (ostream& os, const Droplet& droplet)
 {
@@ -185,8 +188,17 @@ int Droplet::estimatedTime() const
     if (!this->detected()) {
         ret += this->remainingDetectingTime;
         if (!this->underDetection()) {
-            ret += max(manDis(this->position, DMFBsolver->get_detector(type)->get_pos()), this->remainingMixingTime);
+            ret += max(man_dis(this->position, DMFBsolver->get_detector()->get_pos()), this->remainingMixingTime);
         }
+        if (output_sink != -1)
+            ret += man_dis(DMFBsolver->get_sink(output_sink)->get_pos(), position) + 1;
+    } else {
+        // ret = remainingMixingTime;
+        // if (mixing == false && remainingMixingTime != 0)
+        //     ret++;
+
+        if (output_sink != -1)
+            ret += man_dis(position, DMFBsolver->get_sink(output_sink)->get_pos()) + 1;
     }
     if (!this->dispensed) ret++;
     return ret;

@@ -1,5 +1,7 @@
 #include <cassert>
 #include <vector>
+#include <queue>
+#include <unordered_set>
 #include "grid/Grid.h"
 #include "grid/Cell.h"
 #include "math_models/Point.h"
@@ -61,9 +63,9 @@ Point Grid::boundaryPosition(int identifier, int type)
 
 #endif
 
-Grid::Grid(int rows, int columns) : rows(rows), columns(columns)
+Grid::Grid(int rows, int columns) : rows(rows), columns(columns), 
+    dis(0, point_hasher)
 {
-
     this->boundarySize[(int)OuterPos::LEFT] = this->boundarySize[(int)OuterPos::RIGHT] = this->rows;
     this->boundarySize[(int)OuterPos::DOWN] = this->boundarySize[(int)(OuterPos::UP)] = this->columns;
 }
@@ -82,10 +84,12 @@ void Grid::build()
 void Grid::disable(const vector<Point>& disable_pos)
 {
     for (auto pos: disable_pos) {
+        // if (pos.r == 20) std::cerr << "disable: " << pos << std::endl;
         auto cell = get_cell(pos);
         if (cell != nullptr)
             cell->set_available(0);
     }
+    this->init_dis();
 }
 
 int Grid::area() { return this->rows * this->columns; }
@@ -198,12 +202,64 @@ Point Grid::get_target_pos(const Point& pos) const
 
     if (pos.c == columns)
         return Point(pos.r, columns - 1);
+
+    throw "never mind scandal and liber";
 }
 
 bool Grid::pos_available(const Point& pos) const
 {
     auto cell = get_cell(pos);
     return cell != nullptr && cell->is_available();
+}
+
+int Grid::get_dis(const Point& a, const Point& b) const
+{
+    // return man_dis(a, b);
+    return dis.at(a).at(b);
+    // assert(grid->pos_available(a));
+    // auto test = dis.at(a);
+    // cerr << b << endl;
+    // assert(grid->pos_available(b));
+
+    // return test.at(b);
+}
+
+void Grid::bfs(const Point& s)
+{
+    using namespace std;
+    // if (s.r == 30)
+    //     cerr << s << endl;
+    std::unordered_map<Point, int, PointHash> &dis = 
+        this->dis[s] = std::unordered_map<Point, int, PointHash>(0, point_hasher);
+    dis[s] = 0;
+    unordered_set<Point, PointHash> vis(0, point_hasher);
+    queue<Point> que;
+    que.push(s);
+    vis.insert(s);
+    dis[s] = 0;
+    while (!que.empty()) {
+        auto u = que.front();
+        que.pop();
+        int d = dis[u];
+        for (auto dir: ::direction) {
+            auto v = u + dir;
+            if (this->pos_available(v) && !vis.count(v)) {
+                dis[v] = d + 1;
+                vis.insert(v);
+                que.push(v);
+            }
+        }
+    }
+}
+
+void Grid::init_dis()
+{
+    for (int i = 0; i < this->rows; i++)
+        for (int j = 0; j < this->columns; j++) {
+            Point cur(i, j);
+            if (this->pos_available(cur))
+                bfs(cur);
+        }
 }
 
 Grid *grid;

@@ -10,7 +10,6 @@
 #include "grid/Grid.h"
 #include "core/State.h"
 #include "core/DMFB.h"
-#include "core/Map.h"
 #include "useless/PlaceState.h"
 #include "placement/random_placing_strategy.h"
 #include "math_models/sequencing_graph.h"
@@ -18,7 +17,7 @@
 // using namespace std;
 
 struct Node {
-	int identifier, type;
+	int id, type;
 	Node* fa;
 	Node* ch[2];
 	Node() {
@@ -38,7 +37,7 @@ struct Node {
 
 int DMFB::getDropletNumber() const { return this->nDroplets; }
 
-Node** node;
+static Node** node;
 
 DMFB::DMFB()
 {
@@ -74,9 +73,9 @@ static void dfs_least(Node* cur, std::vector<int>& least_time, const std::vector
 	if (cur == nullptr) 
 		return;
 	if (cur->fa != nullptr) 
-		least_time[cur->identifier] += least_time[cur->fa->identifier] + 
-            droplet_data[cur->fa->identifier].mixingTime + 
-            droplet_data[cur->fa->identifier].detectingTime;
+		least_time[cur->id] += least_time[cur->fa->id] + 
+            droplet_data[cur->fa->id].mixingTime + 
+            droplet_data[cur->fa->id].detectingTime;
 	for (int i = 0; i < 2; i++)
 		dfs_least(cur->ch[i], least_time, droplet_data);
 }
@@ -101,18 +100,8 @@ void DMFB::load_sequencing_graph(const std::string& path)
 	for (int i = 0; i < this->nDroplets; i++)
 		node[i] = new Node();
 	for (int i = 0; i < this->nDroplets; i++) {
-		node[i]->identifier = i;
-		// dropletData[i].identifier = i;
-        // droplet_data[i].id = i;
-		// is >> node[i]->type;
+		node[i]->id = i;
         node[i]->type = droplet_data[i].type;
-		// int fatherIndentifier;
-		// is >> fatherIndentifier;
-		// if (fatherIndentifier != 0) {
-		// 	fatherIndentifier--;
-		// 	node[i]->fa = node[fatherIndentifier];
-		// 	node[fatherIndentifier]->insertChild(node[i]);
-		// }
 
         int fa_id = droplet_data[i].fa_id;
         if (droplet_data[i].fa_id != -1) {
@@ -120,8 +109,8 @@ void DMFB::load_sequencing_graph(const std::string& path)
             node[fa_id]->insertChild(node[i]);
         }
 
-		// is >> droplet_data[i].mixingTime >> droplet_data[i].detectingTime;
 	}
+    
 	for (int i = 0; i < this->nDroplets; i++) {
 		if (node[i]->fa == nullptr)
 			to_mix[i] = false;
@@ -131,59 +120,19 @@ void DMFB::load_sequencing_graph(const std::string& path)
 	for (int i = 0 ; i < this->nDroplets; i++) {
 		if (node[i]->ch[0] == nullptr) {
 			assert(droplet_data[i].mixingTime  == 0);
-			// to_dispense[i] = true;
             dispense_id.push_back(i);
 			assert(node[i]->ch[1] == nullptr);
             if (node[i]->type >= this->nTypes)
                 this->nTypes = node[i]->type + 1;
-			// if (!this->typeMap.count(node[i]->type)) {
-			// 	this->typeMap[node[i]->type] = this->nDispensers++;
-			// 	real_type.push_back(node[i]->type);
-			// }
-			// node[i]->type = this->typeMap[node[i]->type];
 		} 
 	}
-    
-	// dispenser = new Dispenser*[this->nDispensers];
-	// for (int i = 0; i < this->nDispensers; i++) 
-	// 	dispenser[i] = new Dispenser(i);
 
 	this->nDispensers = this->nTypes;
-	// for (int i = 0; i < this->nDroplets; i++) {
-	// 	if (node[i]->ch[0] != nullptr) {
-	// 		assert(node[i]->ch[1] != nullptr);
-	// 		if (!this->typeMap.count(node[i]->type)) {
-	// 			this->typeMap[node[i]->type] = this->nTypes++;
-	// 			real_type.push_back(node[i]->type);
-	// 		}
-	// 		node[i]->type = this->typeMap[node[i]->type];
-	// 	}
-	// 	droplet_data[i].type = node[i]->type;
-	// }
-	// detectorPosition = new Point[this->nTypes];
-
-	//ensure same input types output same type
-	// struct data {
-	// 	int a, b;
-	// 	data(int a, int b)
-	// 	{
-	// 		if (a > b) std::swap(a, b);
-	// 		this->a = a;
-	// 		this->b = b;
-	// 	}
-	// 	bool operator < (const data& other) const
-	// 	{
-	// 		if (this->a == other.a) {
-	// 			return this->b < other.b;
-	// 		}
-	// 		return this->a < other.a;
-	// 	}
-	// };	
-	// std::map<data, int> mixType;
-	// mixType.clear();
 	for (int i = 0; i < this->nDroplets; i++) {
-		if (node[i]->fa == nullptr)
+		if (node[i]->fa == nullptr) {
 			to_mix[i] = false;
+            assert(droplet_data[i].output_sink != -1);
+        }
 		else 
             to_mix[i] = true;
 		if (node[i]->ch[0] == nullptr) {
@@ -191,13 +140,9 @@ void DMFB::load_sequencing_graph(const std::string& path)
 		} else {
 			Node *ch1 = node[i]->ch[0], *ch2 = node[i]->ch[1];
 			assert(ch2 != nullptr);
-			mixing_result[ch1->identifier][ch2->identifier] = mixing_result[ch2->identifier][ch1->identifier] = i;
-			// data cur(ch1->type, ch2->type);
-			// if (mixType.count(cur)) {
-			// 	assert(node[i]->type == mixType[cur]);
-			// } else {
-			// 	mixType[cur] = node[i]->type;
-			// }
+            droplet_data[ch1->id].peer_id = ch2->id;
+            droplet_data[ch2->id].peer_id = ch1->id;
+			mixing_result[ch1->id][ch2->id] = mixing_result[ch2->id][ch1->id] = i;
 		}
 	}
 
@@ -215,30 +160,9 @@ void DMFB::load_sequencing_graph(const std::string& path)
 	std::cerr << "sequencing graph loaded" << std::endl;
 }
 
-// static bool range(int a, int n) { return 0 <= a && a < n; }
-
-// void DMFB::loadModuleLibrary()
-// {
-// 	// using namespace Global;
-//     using namespace std;
-// 	ifstream is("./input/ModuleLibrary.txt");
-// 	assert(is.is_open());
-//     least_time.resize(nDroplets, 0);
-// 	// for (int i = 0; i < this->nDroplets; i++) {
-// 	// 	leastTime[i] = 0;
-// 	// }
-// 	is >> this->nSinks;
-// 	for (int i = 0; i < this->nDroplets; i++) 
-// 		if (node[i]->fa == nullptr) 
-// 			::dfs_least(node[i], this->least_time, this->droplet_data);
-
-// 	cerr << "module library loaded" << endl;
-// }
-
 void DMFB::loadDesignObejective(const std::string& path)
 {
     using namespace std;
-	// ifstream is("./input/DesignObjective.txt");
     ifstream is(path + "DesignObjective.txt");
 	assert(is.is_open());
 
@@ -263,6 +187,7 @@ void DMFB::loadDesignObejective(const std::string& path)
     };
 
     set_disable();
+    
 	cerr << "design objective loaded" << endl;
 }
 
@@ -539,6 +464,7 @@ std::vector<const State*> DMFB::get_route_bfs(const State* state) const
 	int head = 0, tail = 1;
 	while (head < tail) {
 		auto cur = que[head++];
+        cerr << cur->step << ' ' << cur->getDroplets().size() << ' ' << que.size() << endl;
 		for (auto suc: cur->get_successors()) {
 			if (suc->isEndState()) {
 				auto route = State::get_whole_route(state, suc);
@@ -558,6 +484,7 @@ std::vector<const State*> DMFB::get_route_bfs(const State* state) const
 
 const State* DMFB::dfs(const State* state, int upper_bound, std::unordered_set<State>& set) const
 {
+    // std::cerr << *state << std::endl;
     using namespace std;
     const State *ret = nullptr;
 
@@ -604,6 +531,7 @@ std::vector<const State*> DMFB::get_route_dfs(const State* state, int lim) const
 
     int lower_bound = state->estimationTime();
     for (int upper_bound = lower_bound; upper_bound <= lim; upper_bound++) {
+        cerr << upper_bound << endl;
         std::unordered_set<State> set;
         
         auto cur = dfs(state, upper_bound, set);
@@ -661,7 +589,8 @@ bool DMFB::place_entities()
     PlacingStrategy *strategy = new RandomPlacingStrategy(2333);
     Placement placement = strategy->get_placement(dispensers, sinks, detector, rows, columns);
     set_placement(placement);
-    print_placement(std::cout);
+    std::ofstream os("placement.txt");
+    print_placement(os);
 
     std::cerr << "placement setted" << std::endl;
     
@@ -696,9 +625,6 @@ void DMFB::init(const std::string& path)
         dispensers.push_back(new Dispenser(i));
 
     detector = new Detector;
-    // detectors.reserve(nTypes);
-    // for (int i = 0; i < nTypes; i++)
-    //     detectors.push_back(new Detector(i));
 }
 
 std::vector<const State*> DMFB::get_route(const State* state) const { return this->get_route_dfs(state); }
@@ -712,10 +638,38 @@ void DMFB::solve_placement_determined()
 
     std::cerr << "route size: " << route.size() << std::endl;
 
-    for (auto state: route) {
-        state->allPrint(std::cout);
-        delete state;
+    auto sequences = DMFBsolver->get_move_sequences(route);
+    for (auto sequence: sequences) {
+        for (auto pos: sequence) {
+            std::cout << pos.r + 1 << ' ' << pos.c + 1<< ' ';
+        }
+        std::cout << std::endl;
     }
+
+    // for (auto state: route) {
+    //     state->allPrint(std::cout);
+    //     delete state;
+    // }
+}
+
+std::vector<std::vector<Point> > DMFB::get_move_sequences(const std::vector<const State*>& route) const
+{
+    std::vector<std::vector<Point> > ret(this->nDroplets);
+    for (auto state: route) {
+        for (auto droplet: state->getDroplets()) {
+            if (droplet->is_dispensed())
+                ret[droplet->get_id()].push_back(droplet->get_pos());
+            else {
+                for (auto dispenser_pos: this->placement.dispenser_positions) {
+                    if (dispenser_pos.first->get_type() == droplet->getType())
+                        ret[droplet->get_id()].push_back(dispenser_pos.second);
+                }
+                // ret[droplet->get_id()].push_back(this->get_dispenser(droplet->get_id())->getPosition());
+            }
+        }
+    }
+
+    return ret;
 }
 
 DMFB *DMFBsolver;

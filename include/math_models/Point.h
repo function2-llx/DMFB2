@@ -11,9 +11,23 @@ struct Point {
     void getData(int& r,int &c);
 };
 
-int manDis(Point a, Point b);
-int absSum(Point a);
-bool adjacent(Point a, Point b);
+// class Grid;
+// extern Grid *grid;
+
+// namespace std {
+//     template<>
+//     struct hash<Point> {
+//         size_t operator () (const Point& a) const {
+//             return grid->getPointIdentifier(a);
+//         }
+//     };
+// }
+
+
+//Manhattan distance
+int man_dis(const Point& a, const Point& b);
+int one_nore(const Point& a);
+bool adjacent(const Point& a, const Point& b);
 
 std::ostream& operator << (std::ostream&, const Point&);
 bool operator == (const Point& a, const Point& b);

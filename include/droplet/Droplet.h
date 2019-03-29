@@ -12,6 +12,7 @@ class Droplet {
   private:
     int identifier;
     int type;
+    int output_sink;
     Point position;
 
     bool dispensed;
@@ -25,6 +26,8 @@ class Droplet {
     void setData(const DropletData& dropletData);
 
     Droplet& operator = (const Droplet& droplet);
+
+    friend class State;
   public:
     Droplet(const DropletData&);    //  construct a droplet before dispensed
     Droplet(const Droplet* precursor, const Direction& direction);
@@ -48,7 +51,7 @@ class Droplet {
     // int getIdentifier() const;
     int get_id() const { return this->identifier; }
     int getType() const;
-    Point getPosition() const;
+    Point get_pos() const;
 
     int estimatedTime() const;
     bool isEndDroplet() const;

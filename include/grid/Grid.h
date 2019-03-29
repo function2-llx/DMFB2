@@ -2,6 +2,8 @@
 #define GRID_H
 
 #include <vector>
+#include <unordered_map>
+#include <functional>
 #include "grid/Cell.h"
 #include "math_models/Point.h"
 
@@ -16,6 +18,18 @@ class Grid {
     explicit Grid(const Grid& grid);
     Grid& operator = (const Grid& grid);
     ~Grid();
+
+    // using PointHash = std::function<size_t(const Point&)>;
+    std::function<size_t(const Point&)> point_hasher = [this] (const Point& pos) -> size_t {
+        return this->getPointIdentifier(pos);
+    };
+
+    using PointHash = decltype(point_hasher);
+
+    std::unordered_map<Point, std::unordered_map<Point, int, PointHash>, PointHash> dis;
+
+    void init_dis();
+    void bfs(const Point& pos);
     
   public:
     enum struct OuterPos: int {
@@ -53,8 +67,22 @@ class Grid {
 
     void disable(const std::vector<Point>& disable_pos);
     bool pos_available(const Point&) const;
+
+    int get_dis(const Point&, const Point&) const;
+
+    bool is_mixing_area(const Point& a) const { return a.r % 7 < 3 && a.c % 7 < 3; }
+    bool is_moving_area(const Point& a) const { return this->pos_available(a) && !this->is_mixing_area(a); }
 };
 
 extern Grid* grid;
+
+// namespace std {
+//     template<>
+//     struct hash<Point> {
+//         size_t operator () (const Point& a) const {
+//             return grid->getPointIdentifier(a);
+//         }
+//     };
+// }
 
 #endif  //GRID_H

@@ -1,4 +1,5 @@
 #include "math_models/Point.h"
+#include "grid/Grid.h"
 
 using namespace std;
 
@@ -37,20 +38,11 @@ Point operator - (const Point& a, const Point& b)
     return Point(a.r - b.r, a.c - b.c);
 }
 
-int absSum(Point a)
-{
-    return abs(a.r) + abs(a.c);
-}
+int one_norm(const Point& a) { return abs(a.r) + abs(a.c); }
 
-int manDis(Point a, Point b)
-{
-    return absSum(a-b);
-}
+int man_dis(const Point& a, const Point& b) { return ::one_norm(a - b); }
 
-bool adjacent(Point a, Point b)
-{
-    return abs(a.r - b.r) <= 1 && abs(a.c - b.c) <= 1;
-}
+bool adjacent(const Point& a, const Point& b) { return abs(a.r - b.r) <= 1 && abs(a.c - b.c) <= 1; }
 
 bool operator < (const Point& a, const Point& b)
 {

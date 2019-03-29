@@ -38,8 +38,12 @@ Placement RandomPlacingStrategy::get_placement(
 
     auto get_random_outer_pos = [size, outer_vis] {
         int outer = rand() % 4, pos = rand() % size[outer];
-        while (outer_vis[outer][pos])
-            outer = rand() % 4, pos = rand() % size[outer];
+        auto target_pos = grid->get_target_pos(grid->get_pos(std::make_pair(static_cast<OuterPos>(outer), pos)));
+        while (outer_vis[outer][pos] || !grid->pos_available(target_pos))
+            outer = rand() % 4, pos = rand() % size[outer], 
+            target_pos = grid->get_target_pos(grid->get_pos(std::make_pair(static_cast<OuterPos>(outer), pos)));
+        std::cerr << target_pos << std::endl;
+        assert(grid->pos_available(target_pos));
 
         return std::make_pair(outer, pos);
     };
@@ -66,7 +70,7 @@ Placement RandomPlacingStrategy::get_placement(
             inner_vis[i][j] = 0;
 
     for (int r = rand() % rows, c = rand() % columns; ; r = rand() % rows, c = rand() % columns) {
-        if (!inner_vis[r][c]) {
+        if (grid->pos_available(Point(r, c)) && !inner_vis[r][c]) {
             inner_vis[r][c] = 1;
             placement.detector_pos = std::make_pair(detector, Point(r, c));
             break;
