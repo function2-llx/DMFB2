@@ -107,21 +107,21 @@ void SequencingGraph::load_from_file(const char* filename)
     while (fgets(buf, sizeof(buf), file)) {
         // puts(buf);
         const char *s = buf;
-        char message_type[10];
+        char message_type[100];
         sscanf(s, "%4[DENGO] (", message_type);   // math EDGE or NODE
         s += 6;
         if (strcmp(message_type, "NODE") == 0) {
             Node *u = new Node;
             nodes.push_back(u);
                         
-            char operation[10], drop_type[10], sink_name[10], digit[10];
+            char operation[100], drop_type[100], sink_name[100], digit[100];
             // sscanf(buf, "%d, %[^,], ", &id, operation);
             sscanf(s, "%[^,]", digit);
             s += strlen(digit) + 2;
             int id = atoi(digit);
             sscanf(s, "%[^,]", operation);
             s += strlen(operation) + 2;
-            std::cerr << id << ' ' << operation << std::endl;
+            // std::cerr << id << ' ' << operation << std::endl;
             assert(id == nodes.size());
             switch (u->type = ::get_type(operation)) {
                 case Node::DISPENSE:
@@ -151,7 +151,9 @@ void SequencingGraph::load_from_file(const char* filename)
                 break;
 
                 case Node::OUTPUT:
-                    sscanf(buf, "%[^,]", sink_name);
+                    sscanf(s, "%[^,]", sink_name);
+                    std::cerr << sink_name << std::endl;
+                    assert(strcmp(sink_name, "output") == 0);
                     u->sink_id = sink_map.get_id(sink_name);
                 break;
 
@@ -161,7 +163,10 @@ void SequencingGraph::load_from_file(const char* filename)
 
                 case Node::GENERAL:
                     //  nothing to do
-                break;                
+                break;    
+
+                default:
+                    assert(false);
             }
         } else {
             int u, v;
@@ -171,7 +176,7 @@ void SequencingGraph::load_from_file(const char* filename)
     }
 
     for (auto edge: edges) {
-        std::cerr << edge.u << ' ' << edge.v << std::endl;
+        // std::cerr << edge.u << ' ' << edge.v << std::endl;
         nodes[edge.v]->insert(nodes[edge.u]);
     }
 
@@ -238,4 +243,7 @@ void SequencingGraph::load_from_file(const char* filename)
             break;       
         }
     }
+
+    for (auto node: nodes)
+        delete node;
 }

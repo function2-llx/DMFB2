@@ -42,7 +42,7 @@ Placement RandomPlacingStrategy::get_placement(
         while (outer_vis[outer][pos] || !grid->pos_available(target_pos))
             outer = rand() % 4, pos = rand() % size[outer], 
             target_pos = grid->get_target_pos(grid->get_pos(std::make_pair(static_cast<OuterPos>(outer), pos)));
-        std::cerr << target_pos << std::endl;
+        // std::cerr << target_pos << std::endl;
         assert(grid->pos_available(target_pos));
 
         return std::make_pair(outer, pos);

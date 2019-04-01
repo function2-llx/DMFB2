@@ -11,6 +11,7 @@ class State {
   private:
     std::vector<const Droplet*> droplets;
     int estimation;
+    int next_min = 233333;
     
     State& operator = (const State& state);
     State(const State* precursor);
@@ -54,6 +55,8 @@ class State {
     void allPrint(std::ostream&) const;
 
     static std::vector<const State*> get_whole_route(const State* start, const State* end);
+    // int get_mix_min() const { return this->mix_min; }
+    int get_next_min() const { return this->next_min; }
     
     friend std::ostream& operator << (std::ostream&, const State&);
     friend bool operator == (const State&, const State&);

@@ -146,6 +146,11 @@ void DMFB::load_sequencing_graph(const std::string& path)
 		}
 	}
 
+    for (int i = 0; i < mixing_result.size(); i++)
+        for (int j = 0; j < mixing_result[i].size(); j++) {
+            std::cerr << "mixing result: " << i << '+' << j << '=' << mixing_result[i][j] << std::endl;
+        }
+
     least_time.resize(nDroplets, 0);
 
 	for (int i = 0; i < this->nDroplets; i++) 
@@ -156,6 +161,7 @@ void DMFB::load_sequencing_graph(const std::string& path)
     for (auto data: droplet_data)
         if (data.output_sink >= this->nSinks)
             this->nSinks = data.output_sink + 1;
+    assert(this->nSinks == 1);
 
 	std::cerr << "sequencing graph loaded" << std::endl;
 }
@@ -172,7 +178,8 @@ void DMFB::loadDesignObejective(const std::string& path)
 		this->detector_record[i] = new int[this->columns];
 	}
 	grid = new Grid(this->rows, this->columns);
-	grid->build();	
+	grid->build();
+    cerr << this->nTypes << endl;
 	assert(this->nTypes <= grid->area());
 	for (int i = 0; i < 4; i++) {
 		this->boundary_record[i] = new int[grid->boundarySize[i]];
@@ -646,10 +653,10 @@ void DMFB::solve_placement_determined()
         std::cout << std::endl;
     }
 
-    // for (auto state: route) {
-    //     state->allPrint(std::cout);
-    //     delete state;
-    // }
+    for (auto state: route) {
+        // state->allPrint(std::cout);
+        delete state;
+    }
 }
 
 std::vector<std::vector<Point> > DMFB::get_move_sequences(const std::vector<const State*>& route) const

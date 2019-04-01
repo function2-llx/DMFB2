@@ -23,7 +23,7 @@ class SequencingGraph {
         };
 
         Type type;
-        int drop_id, mixing_time, detecting_time, drop_type, sink_id;
+        int drop_id, mixing_time = 0, detecting_time = 0, drop_type, sink_id;
         // std::string drop_type;
 
         Node *fa = nullptr;

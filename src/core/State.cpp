@@ -38,7 +38,6 @@ State::~State()
 bool operator == (const State& a, const State& b) 
 {
     if (a.droplets.size() != b.droplets.size()) return 0;
-    // cerr << "hhh" << endl;
 
     for (int i = a.droplets.size() - 1; i >= 0; i--) {
         if (*a.droplets[i] != *b.droplets[i]) return 0;
@@ -49,15 +48,6 @@ bool operator == (const State& a, const State& b)
 
 void State::addDroplet(const Droplet *droplet) {
     int et = DMFBsolver->get_least_time(droplet), move = droplet->remainingMixingTime;
-    // const Droplet *peer = nullptr;
-    // for (auto other: droplets) {
-    //     if (other->get_id() == peer_id) {
-    //         peer = other;
-    //         break;
-    //         // move = (grid->get_dis(peer->get_pos(), droplet->get_pos()) + 1) >> 1;
-    //         // cerr << "move: " << move << endl;
-    //     }
-    // }
     if (!droplet->detected()) {
         et += droplet->remainingDetectingTime;
         move = max(move, grid->get_dis(DMFBsolver->get_detector()->get_pos(), droplet->get_pos()));
@@ -69,16 +59,23 @@ void State::addDroplet(const Droplet *droplet) {
         for (auto other: droplets) {
             if (other->get_id() == peer_id) {
                 peer = other;
+                // if (peer_id == 3 || peer_id == 13)
+                //     cerr << "peer and mix min: " << peer->get_id() << ' ' << droplet->get_id() << ' ' << mix_min << endl;
                 move = max(move, (grid->get_dis(droplet->get_pos(), peer->get_pos()) + 1) >> 1);
+                if (other->dispensed && droplet->dispensed)
+                    next_min = min(next_min, move);
                 break;
-            // move = (grid->get_dis(peer->get_pos(), droplet->get_pos()) + 1) >> 1;
-                // cerr << "move: " << move << endl;
             }
         }        
     }
-    if (droplet->output_sink != -1)
-        move = max(move, grid->get_dis(droplet->get_pos(), DMFBsolver->get_sink(droplet->output_sink)->get_pos()));
+    if (droplet->output_sink != -1) {
+        int cur = grid->get_dis(droplet->get_pos(), DMFBsolver->get_sink(droplet->output_sink)->get_pos()) + 1;
+        if (droplet->detected())
+            next_min = min(next_min, cur);
+        move = max(move, cur);
+    }
 
+    // mix_min = min(mix_min, move);
     this->estimation = max(this->estimation, et + move);
     droplets.push_back(droplet);
     // this->estimation = max(estimation, droplet->estimatedTime());
@@ -98,7 +95,6 @@ State::State() {
     this->estimation = 0;
     this->decision = nullptr;
     for (int id : DMFBsolver->get_dispense_id()) {
-        cerr << "hhh: " << id << endl;
         addDroplet(new Droplet(DMFBsolver->get_droplet_data(id)));
     }
 }
@@ -140,7 +136,7 @@ int State::estimationTime() const { return this->estimation; }
 
 static vector<const State *> successors;
 
-static int **curInfluence, **preInfluence;
+static vector<int> **curInfluence, **preInfluence;
 static vector<Droplet> **content;            // record droplets in every grid
 static vector<const Droplet *> undispensed;  // record undispensed droplets
 
@@ -148,21 +144,33 @@ static bool canPush(const Droplet &droplet) {
     using namespace Global;
     int identifier = droplet.get_id();
     Point position = droplet.get_pos();
-    if (!content[position.r][position.c].empty() && !grid->is_mixing_area(position))
+    // if (!content[position.r][position.c].empty() && !grid->is_mixing_area(position))
+    //     return 0;
+    auto &pres = preInfluence[position.r][position.c],
+        &curs = curInfluence[position.r][position.c];
+
+    if (pres.size() > 2 || curs.size() > 1)
         return 0;
-    int pre = preInfluence[position.r][position.c],
-        cur = curInfluence[position.r][position.c];
+    // int pre = pres.empty() ? -1 : pres.front(), cur = curs.empty() ? -1 : curs.front();
+    for (auto pre: pres)
     if (pre != -1 && pre != identifier) {
         if (!droplet.mixed() || !droplet.detected()) return false;
         // if (mixingResult[pre][identifier] == -1) return false;
         if (DMFBsolver->get_mixing_result_id(pre, identifier) == -1) return 0;
     }
+    for (auto cur: curs)
     if (cur != -1) {
         assert(cur != identifier);
         if (!droplet.mixed() || !droplet.detected()) return false;
         // if (mixingResult[cur][identifier] == -1) return false;
+        // if (cur == 12 && identifier == 16)
+        //     cerr << "test" << endl;
         if (DMFBsolver->get_mixing_result_id(cur, identifier) == -1) return 0;
     }
+
+    // if (identifier == 16 && position == Point(1, 4)) {
+    //     cerr << "pre, cur: " << pre << ' ' << cur << endl;
+    // }
 
     return true;
 }
@@ -171,15 +179,14 @@ void State::pushDroplet(const Droplet &droplet, unsigned int number) const {
     int identifier = droplet.get_id();
     Point position = droplet.get_pos();
     if (canPush(droplet)) {
-        // cerr << identifier << ' ' << position << endl;
         content[position.r][position.c].push_back(droplet);
-        int record[3][3];
+        // int record[3][3];
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 Point cur(position.r + i, position.c + j);
                 if (grid->inside(cur)) {
-                    record[i + 1][j + 1] = curInfluence[cur.r][cur.c];
-                    curInfluence[cur.r][cur.c] = identifier;
+                    // record[i + 1][j + 1] = curInfluence[cur.r][cur.c];
+                    curInfluence[cur.r][cur.c].push_back(identifier);
                 }
             }
         }
@@ -188,7 +195,7 @@ void State::pushDroplet(const Droplet &droplet, unsigned int number) const {
             for (int j = -1; j <= 1; j++) {
                 Point cur(position.r + i, position.c + j);
                 if (grid->inside(cur)) {
-                    curInfluence[cur.r][cur.c] = record[i + 1][j + 1];
+                    curInfluence[cur.r][cur.c].pop_back();
                 }
             }
         }
@@ -203,6 +210,10 @@ void State::sort_droplets()
     });
 }
 
+#include <stack>
+
+stack<const Droplet*> dumped;
+
 void State::dfsMove(unsigned int number) const {
     if (number == this->droplets.size()) {
         State *successor = new State(this);
@@ -212,25 +223,24 @@ void State::dfsMove(unsigned int number) const {
         for (int i = 0; i < grid->getRows(); i++) {
             for (int j = 0; j < grid->getColumns(); j++) {
                 if (content[i][j].size() == 1) {
-                    // cerr << "single id: " << content[i][j][0].get_id() << endl;
                     successor->addDroplet(new Droplet(content[i][j][0]));
                 }
                 if (content[i][j].size() == 2) {
+                    successor->next_min = 0;
                     successor->addDroplet(new Droplet(content[i][j][0], content[i][j][1]));
                 }
             }
         }
 
         successor->sort_droplets();
+        if (!::dumped.empty())
+            successor->next_min = 0;
 
-        // cerr << "droplets size: " << successor->getDroplets().size() << endl;
-        // cerr << *successor << endl;
 
 #ifdef UNIQUE
         ULL hash = successor->hash();
         if (!hashSet.count(hash)) {
             hashSet.insert(hash);
-            // cerr << hashSet.size() << endl;
             successors.push_back(successor);
         } else {
             delete successor;
@@ -244,15 +254,20 @@ void State::dfsMove(unsigned int number) const {
         Point position = droplet->get_pos();
 
         if (!droplet->is_dispensed()) {  // deal with undispensed droplet
-            this->pushDroplet(Droplet(droplet, zeroDirection),
-                              number);  // dispense and continue dfs implicitly
-
+                this->pushDroplet(Droplet(droplet, zeroDirection), number);  // dispense and continue dfs implicitly
+            // if (this->get_droplets_on_board_size() <= 8) {
+                
+            // }
+            
             undispensed.push_back(droplet);  // still not dispense
             this->dfsMove(number + 1);
             undispensed.pop_back();
         } else if (droplet->underMixing()) {  // droplet under mixing must move(?)
             for (int i = 0; i < 5; i++) {
-                if (direction[i] != zeroDirection && grid->is_mixing_area(position + direction[i])) {
+                if (direction[i] != zeroDirection 
+                && grid->pos_available(position + direction[i])
+                // && grid->is_mixing_area(position + direction[i])
+                ) {
                     this->pushDroplet(Droplet(droplet, direction[i]), number);
                 }
             }
@@ -261,9 +276,15 @@ void State::dfsMove(unsigned int number) const {
         } else {                        // free droplet
             if (droplet->detected()) {  // attempt to dump into sink
                 if (!DMFBsolver->is_to_mix(droplet)) {
-                    Cell *cell = grid->get_cell(position);
-                    if (cell->existSink() && cell->getSink()->get_id() == DMFBsolver->get_droplet_data(identifier).output_sink)
+                    auto sink = DMFBsolver->get_sink(DMFBsolver->get_droplet_data(identifier).output_sink);
+                    if (sink->get_pos() == position) {
+                        dumped.push(droplet);
                         this->dfsMove(number + 1);
+                        dumped.pop();
+                    }
+                    // Cell *cell = grid->get_cell(position);
+
+                    // if (cell->existSink() && cell->getSink()->get_id() == DMFBsolver->get_droplet_data(identifier).output_sink)
                 }
             } else {  // attempt to start detection
                 Cell *cell = grid->get_cell(position);
@@ -274,27 +295,32 @@ void State::dfsMove(unsigned int number) const {
                     this->pushDroplet(newDroplet, number);
                 }
             }
+
             for (int i = 0; i < 5; i++) {  // trivial move
                 if (grid->pos_available(position + direction[i])) {
                     pushDroplet(Droplet(droplet, direction[i]), number);
                 }
             }
+            // if (content[position.r][position.c].empty()) {
+            // } else {    //  two droplets cannot cross each other
+            //     pushDroplet(Droplet(droplet, zeroDirection), number);
+            // }
         }
     }
 }
 
 vector<const State *> State::get_successors() const {
     successors.clear();
-    preInfluence = new int *[grid->getRows()];
-    curInfluence = new int *[grid->getRows()];
+    preInfluence = new vector<int> *[grid->getRows()];
+    curInfluence = new vector<int> *[grid->getRows()];
     content = new vector<Droplet> *[grid->getRows()];
     for (int i = 0; i < grid->getRows(); i++) {
-        preInfluence[i] = new int[grid->getColumns()];
-        curInfluence[i] = new int[grid->getColumns()];
+        preInfluence[i] = new vector<int>[grid->getColumns()];
+        curInfluence[i] = new vector<int>[grid->getColumns()];
         content[i] = new vector<Droplet>[grid->getColumns()];
-        for (int j = 0; j < grid->getColumns(); j++) {
-            curInfluence[i][j] = preInfluence[i][j] = -1;
-        }
+        // for (int j = 0; j < grid->getColumns(); j++) {
+        //     curInfluence[i][j] = preInfluence[i][j] = -1;
+        // }
     }
     for (auto droplet : this->droplets) {
         if (droplet->is_dispensed()) {
@@ -303,7 +329,7 @@ vector<const State *> State::get_successors() const {
             for (int i = position.r - 1; i <= position.r + 1; i++) {
                 for (int j = position.c - 1; j <= position.c + 1; j++) {
                     if (grid->inside(Point(i, j))) {
-                        preInfluence[i][j] = identifier;
+                        preInfluence[i][j].push_back(identifier);
                     }
                 }
             }
@@ -320,7 +346,6 @@ vector<const State *> State::get_successors() const {
     delete[] preInfluence;
     delete[] curInfluence;
     delete[] content;
-    // cerr << successors.size() << endl;
     return successors;
 }
 

@@ -73,7 +73,9 @@ class DMFB {
     int get_peer_id(const Droplet* droplet) { return droplet_data[droplet->get_id()].peer_id; }
     int get_mixing_result_id(int id_a, int id_b)
     {
-        assert(0 <= id_a < nDroplets); 
+        assert(0 <= id_a < nDroplets);
+        assert(0 <= id_b < nDroplets); 
+
         return mixing_result[id_a][id_b];
     }
     int get_mixing_result_id(const Droplet* a, const Droplet* b) const { return mixing_result[a->get_id()][b->get_id()]; }
