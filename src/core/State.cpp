@@ -50,7 +50,9 @@ void State::addDroplet(const Droplet *droplet) {
     int et = DMFBsolver->get_least_time(droplet), move = droplet->remainingMixingTime;
     if (!droplet->detected()) {
         et += droplet->remainingDetectingTime;
-        move = max(move, grid->get_dis(DMFBsolver->get_detector()->get_pos(), droplet->get_pos()));
+        int cur = grid->get_dis(DMFBsolver->get_detector()->get_pos(), droplet->get_pos());
+        move = max(move, cur);
+        next_min = min(next_min, cur);
         // cur += droplet->remainingDetectingTime;
         // if (!droplet->underDetection()) {}
     } else {
@@ -254,10 +256,9 @@ void State::dfsMove(unsigned int number) const {
         Point position = droplet->get_pos();
 
         if (!droplet->is_dispensed()) {  // deal with undispensed droplet
+            // if (this->get_droplets_on_board_size() <= 5)
                 this->pushDroplet(Droplet(droplet, zeroDirection), number);  // dispense and continue dfs implicitly
-            // if (this->get_droplets_on_board_size() <= 8) {
                 
-            // }
             
             undispensed.push_back(droplet);  // still not dispense
             this->dfsMove(number + 1);

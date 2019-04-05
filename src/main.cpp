@@ -44,13 +44,12 @@ void solve_all(const string& path)
 
 int main(int argc, char* argv[])
 {
-    string path = "./input/";
+    string path = "./path/";
     if (argc > 1) {
         path = argv[1];
-        if (path.back() != '/')
-            path += "/";
     }
-
+    if (path.back() != '/')
+        path += "/";
 
     solve_all(path);
 	return 0;

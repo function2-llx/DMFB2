@@ -648,7 +648,7 @@ void DMFB::solve_placement_determined()
     auto sequences = DMFBsolver->get_move_sequences(route);
     for (auto sequence: sequences) {
         for (auto pos: sequence) {
-            std::cout << pos.r + 1 << ' ' << pos.c + 1<< ' ';
+            std::cout << pos.r << ' ' << pos.c<< ' ';
         }
         std::cout << std::endl;
     }
@@ -662,19 +662,54 @@ void DMFB::solve_placement_determined()
 std::vector<std::vector<Point> > DMFB::get_move_sequences(const std::vector<const State*>& route) const
 {
     std::vector<std::vector<Point> > ret(this->nDroplets);
-    for (auto state: route) {
-        for (auto droplet: state->getDroplets()) {
-            if (droplet->is_dispensed())
-                ret[droplet->get_id()].push_back(droplet->get_pos());
-            else {
-                for (auto dispenser_pos: this->placement.dispenser_positions) {
-                    if (dispenser_pos.first->get_type() == droplet->getType())
-                        ret[droplet->get_id()].push_back(dispenser_pos.second);
-                }
-                // ret[droplet->get_id()].push_back(this->get_dispenser(droplet->get_id())->getPosition());
+    for (auto &seq: ret)
+        seq.resize(route.size(), Point(-2, -2));
+
+    auto dispense_pos = std::vector<Point>(nDroplets);
+    for (auto id: dispense_id) {
+        for (auto dispenser_pos: this->placement.dispenser_positions) {
+            if (dispenser_pos.first->get_type() == droplet_data[id].type) {
+                dispense_pos[id] = dispenser_pos.second;
             }
         }
     }
+
+    // auto mix_pos = std::vector<Point>
+    std::vector<Point> start_pos(nDroplets, Point(-2, -2));
+    std::vector<int> end_step(nDroplets);
+
+    for (auto state: route) {
+        for (auto droplet: state->getDroplets()) {
+            if (droplet->is_dispensed()) {
+                ret[droplet->get_id()][state->step] = droplet->get_pos();
+                if (start_pos[droplet->get_id()] == Point(-2, -2))
+                    start_pos[droplet->get_id()] = droplet->get_pos();
+                // ret[droplet->get_id()].push_back(droplet->get_pos());
+            } else {
+                ret[droplet->get_id()][state->step] = dispense_pos[droplet->get_id()];
+                // for (auto dispenser_pos: this->placement.dispenser_positions) {
+                //     if (dispenser_pos.first->get_type() == droplet->getType())
+                //         ret[droplet->get_id()][state->step] = dispenser_pos.second;
+                // }
+                // ret[droplet->get_id()].push_back(this->get_dispenser(droplet->get_id())->getPosition());
+            }
+            end_step[droplet->get_id()] = state->step;
+        }
+    }
+
+    for (int i = 0; i < nDroplets; i++) {
+        if (droplet_data[i].fa_id != -1)
+            ret[i][end_step[i] + 1] = start_pos[droplet_data[i].fa_id];
+
+        if (droplet_data[i].output_sink != -1) {
+            for (auto sink_pos: placement.sink_positions) {
+                if (sink_pos.first->get_id() == droplet_data[i].output_sink) {
+                    ret[i][end_step[i] + 1] = sink_pos.second;
+                    break;
+                }
+            }
+        }
+    }    
 
     return ret;
 }
