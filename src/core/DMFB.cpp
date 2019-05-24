@@ -698,8 +698,8 @@ using namespace IDMFB;
 std::vector<MoveSequence> DMFB::get_move_sequences(const std::vector<const State*>& route) const
 {
     std::vector<MoveSequence> ret(this->nDroplets);
-    for (auto &seq: ret)
-        seq.route.resize(route.size(), Point(-2, -2));
+    // for (auto &seq: ret)
+    //     seq.route.resize(route.size(), Point(-2, -2));
 
     // auto dispense_pos = std::vector<Point>(nDroplets);
     // for (auto id: dispense_id) {
@@ -717,9 +717,12 @@ std::vector<MoveSequence> DMFB::get_move_sequences(const std::vector<const State
     for (auto state: route) {
         for (auto droplet: state->getDroplets()) {
             if (droplet->is_dispensed()) {
-                ret[droplet->get_id()].route[state->step] = droplet->get_pos();
-                if (start_pos[droplet->get_id()] == Point(-2, -2))
+                ret[droplet->get_id()].route.push_back(droplet->get_pos());
+                if (start_pos[droplet->get_id()] == Point(-2, -2)) {
                     start_pos[droplet->get_id()] = droplet->get_pos();
+                    // auto a = ret[i]
+                    ret[droplet->get_id()].t = state->step;
+                }
                 // ret[droplet->get_id()].push_back(droplet->get_pos());
             } else {
                 //  do nothing
@@ -735,23 +738,25 @@ std::vector<MoveSequence> DMFB::get_move_sequences(const std::vector<const State
     }
 
     for (int i = 0; i < nDroplets; i++) {
-        if (droplet_data[i].fa_id != -1)
-            ret[i].route[end_step[i] + 1] = start_pos[droplet_data[i].fa_id];
-
-        if (droplet_data[i].output_sink != -1) {
-            for (auto sink_pos: placement.sink_positions) {
-                if (sink_pos.first->get_id() == droplet_data[i].output_sink) {
-                    ret[i].route[end_step[i] + 1] = sink_pos.second;
-                    break;
-                }
-            }
+        if (droplet_data[i].fa_id != -1) {
+            ret[i].route.push_back(start_pos[droplet_data[i].fa_id]);
+            ret[droplet_data[i].fa_id].t = end_step[i] + 1;
         }
+
+        // if (droplet_data[i].output_sink != -1) {
+        //     for (auto sink_pos: placement.sink_positions) {
+        //         if (sink_pos.first->get_id() == droplet_data[i].output_sink) {
+        //             ret[i].route[end_step[i] + 1] = sink_pos.second;
+        //             break;
+        //         }
+        //     }
+        // }
         ret[i].droplet_id = i;
-        for (int j = 0; j < route.size(); j++)
-            if (ret[i].route[j] != Point(-2, -2)) {
-                ret[i].t = j;
-            }
-    }    
+        // for (int j = 0; j < route.size(); j++)
+        //     if (ret[i].route[j] != Point(-2, -2)) {
+        //         ret[i].t = j;
+        //     }
+    }
 
     return ret;
 }
