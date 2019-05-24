@@ -10,8 +10,7 @@ namespace IDMFB {
         std::vector<Point> route;
     };
 
-    std::vector<MoveSequence> get_move_sequences(const std::string& filename, int n, int m);
-
+    std::vector<MoveSequence> get_move_sequences(const std::string& filename, int n, int m, int lim=1000);
 }
 
 extern std::ostream& operator << (std::ostream& os, const IDMFB::MoveSequence& seq);

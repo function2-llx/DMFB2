@@ -759,13 +759,13 @@ std::vector<MoveSequence> DMFB::get_move_sequences(const std::vector<const State
 using namespace IDMFB;
 using namespace std;
 
-vector<MoveSequence> DMFB::get_move_sequences(const string& filename, int n, int m)
+vector<MoveSequence> DMFB::get_move_sequences(const string& filename, int n, int m, int lim)
 {
     this->init(filename, n, m);
     this->declare();
     this->place_entities();
     const State* init_state = new State();
-    auto route = this->get_route(init_state);
+    auto route = this->get_route(init_state, lim);
     std::cerr << "route size: " << route.size() << std::endl;
     if (route.empty()) {
         return {};

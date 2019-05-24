@@ -72,9 +72,9 @@ static const State* select(const State* state, std::unordered_set<State>& set)
     // return nullptr;
 }
 
-std::vector<const State*> BruteSolver::get_route(const State* state) const
+std::vector<const State*> BruteSolver::get_route(const State* state, int lim) const
 {
-    const int lim = 100;
+    // const int lim = 200;
     using namespace std;
     for (;;) {
         unordered_set<State> set;

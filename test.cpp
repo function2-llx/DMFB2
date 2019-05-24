@@ -6,7 +6,7 @@ using namespace std;
 int main(int argc, char* argv[])
 {
     string path = "material/Assays/B1/MixSplit/PCR.txt";
-    int n = 10, m = 10;
+    int n = 21, m = 21;
     if (argc > 1) {
         path = argv[2];
         if (argc > 3) {
@@ -16,7 +16,7 @@ int main(int argc, char* argv[])
     }
 
 
-    for (auto seq: IDMFB::get_move_sequences(path, n, m)) {
+    for (auto seq: IDMFB::get_move_sequences(path, n, m, 300)) {
         cout << seq << endl;
     }
     return 0;

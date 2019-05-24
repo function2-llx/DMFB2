@@ -5,10 +5,10 @@ using namespace IDMFB;
 
 using namespace std;
 
-vector<MoveSequence> IDMFB::get_move_sequences(const string& filename, int n, int m)
+vector<MoveSequence> IDMFB::get_move_sequences(const string& filename, int n, int m, int lim)
 {
     DMFBsolver = new BruteSolver;
-    return DMFBsolver->get_move_sequences(filename, n, m);
+    return DMFBsolver->get_move_sequences(filename, n, m, lim);
     // DMFBsolver->init(filename);
 }
 

@@ -65,7 +65,7 @@ class DMFB {
     // void loadModuleLibrary();
     void loadDesignObejective(const std::string& path);
 
-    // DropletData get_mix_data(const Droplet*, const Droplet*);
+// DropletData get_mix_data(const Droplet*, const Droplet*);
     DropletData get_droplet_data(int id) const
     {
         assert(0 <= id && id < nDroplets);
@@ -107,10 +107,11 @@ class DMFB {
     void set_placement(const Placement& placement);
 
     virtual std::vector<const State*> get_route(const State*) const;
+    virtual std::vector<const State*> get_route(const State*, int lim) const = 0;
     std::vector<const State*> get_route_bfs(const State* state) const;
     std::vector<const State*> get_route_dfs(const State* state, int lim = 100) const;   //  at most lim steps
 
-    std::vector<IDMFB::MoveSequence> get_move_sequences(const std::string& filename, int n, int m);
+    std::vector<IDMFB::MoveSequence> get_move_sequences(const std::string& filename, int n, int m, int lim);
     
     friend class PlacingStrategy;
 };
