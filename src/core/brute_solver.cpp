@@ -1,10 +1,13 @@
+#include <cstdlib>
 #include <algorithm>
 #include <unordered_set>
 #include "core/brute_solver.h"
 
 static const State* select(const State* state, std::vector<const State*>& successors, std::unordered_set<State>& set)
 {
+    srand(time(NULL));
     // auto successors = state->get_successors();
+    std::random_shuffle(successors.begin(), successors.end());
     sort(successors.begin(), successors.end(), [](const State* a, const State* b) {
         // return a->estimationTime() < b->estimationTime();
         return (a->get_next_min() == b->get_next_min() ? a->estimationTime() < b->estimationTime() : a->get_next_min() < b->get_next_min());
@@ -31,6 +34,7 @@ static const State* select(const State* state, std::vector<const State*>& succes
 
     if (!successors.empty())
         return successors.front();
+        // return *(successors.begin() + rand() % successors.size());
 
     return nullptr;
 }
@@ -38,7 +42,7 @@ static const State* select(const State* state, std::unordered_set<State>& set)
 {
     auto successors = state->get_successors();
     auto ret = ::select(state, successors, set);
-    std::cerr << "next min:" << ret->get_next_min() << std::endl;
+    // std::cerr << "next min:" << ret->get_next_min() << std::endl;
     for (auto successor: successors) {
         if (successor != ret)
             delete successor;
@@ -70,38 +74,36 @@ static const State* select(const State* state, std::unordered_set<State>& set)
 
 std::vector<const State*> BruteSolver::get_route(const State* state) const
 {
+    const int lim = 100;
     using namespace std;
-    unordered_set<State> set;
-    std::vector<const State*> ret = {state};
-    // std::unordered_set<State> set;
-    // if (state->isEndState())
-    //     return ret;
-    for (auto cur = state;;) {
-        set.insert(*cur);
-        using namespace std;
-        cerr << cur->step << endl;
-        cerr << *cur << endl;
-        if (cur->isEndState()) {
-            // cerr << "end: " << cur->getDroplets().size() << *cur << endl;
-            return ret;
-        }
-        // auto successors = cur->get_successors();
-        cur = ::select(cur, set);
-        // for (auto successor: successors) {
-        //     if (cur != successor)
-        //         delete successor;
-        // }
-        // cerr << "size: " << successors.size() << endl;
+    for (;;) {
+        unordered_set<State> set;
+        std::vector<const State*> ret = {state};
+        // std::unordered_set<State> set;
+        // if (state->isEndState())
+        //     return ret;
+        // cerr << "233" << endl;
+        for (auto cur = state;;) {
+            set.insert(*cur);
+            using namespace std;
+            // cerr << "next min: " << cur->get_next_min() << endl;
+            cerr << *cur << endl;
+            if (cur->isEndState()) {
+                // cerr << "end: " << cur->getDroplets().size() << *cur << endl;
+                return ret;
+            }
+            // auto successors = cur->get_successors();
+            cur = ::select(cur, set);
+            if (cur == nullptr || ret.size() == lim) {
+                for (int i = 1; i < ret.size(); i++) {
+                    delete ret[i];
+                }
+                ret.resize(1);
+                break;
+            }
 
-        if (cur == nullptr) {
-            for (auto state: ret)
-                delete state;
-            return {};
+            ret.push_back(cur);
         }
-
-        ret.push_back(cur);     
-        // break;
+        // return ret;
     }
-    return ret;
-    // return {};
 }

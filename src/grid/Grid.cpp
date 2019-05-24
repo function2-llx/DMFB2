@@ -215,6 +215,7 @@ bool Grid::pos_available(const Point& pos) const
 int Grid::get_dis(const Point& a, const Point& b) const
 {
     // return man_dis(a, b);
+    // cerr << a << ' ' << b << endl;
     return dis.at(a).at(b);
     // assert(grid->pos_available(a));
     // auto test = dis.at(a);

@@ -11,7 +11,8 @@ class State {
   private:
     std::vector<const Droplet*> droplets;
     int estimation;
-    int next_min = 233333;
+    const static int INF = 233333;
+    int next_min = INF;
     
     State& operator = (const State& state);
     State(const State* precursor);

@@ -146,8 +146,10 @@ static bool canPush(const Droplet &droplet) {
     using namespace Global;
     int identifier = droplet.get_id();
     Point position = droplet.get_pos();
-    // if (!content[position.r][position.c].empty() && !grid->is_mixing_area(position))
-    //     return 0;
+#ifdef BONE
+    if (!content[position.r][position.c].empty() && !grid->is_mixing_area(position))
+        return 0;
+#endif
     auto &pres = preInfluence[position.r][position.c],
         &curs = curInfluence[position.r][position.c];
 
@@ -214,7 +216,8 @@ void State::sort_droplets()
 
 #include <stack>
 
-stack<const Droplet*> dumped;
+static stack<const Droplet*> dumped;
+static int dispense_cnt = 0;
 
 void State::dfsMove(unsigned int number) const {
     if (number == this->droplets.size()) {
@@ -256,18 +259,23 @@ void State::dfsMove(unsigned int number) const {
         Point position = droplet->get_pos();
 
         if (!droplet->is_dispensed()) {  // deal with undispensed droplet
-            // if (this->get_droplets_on_board_size() <= 5)
-                this->pushDroplet(Droplet(droplet, zeroDirection), number);  // dispense and continue dfs implicitly
-                
-            
             undispensed.push_back(droplet);  // still not dispense
             this->dfsMove(number + 1);
             undispensed.pop_back();
+
+            if (dispense_cnt <= 1  && (this->get_droplets_on_board_size() <= 5 || this->next_min == State::INF)) {
+                dispense_cnt++;
+                this->pushDroplet(Droplet(droplet, zeroDirection), number);  // dispense and continue dfs implicitly
+                dispense_cnt--;
+            }    
         } else if (droplet->underMixing()) {  // droplet under mixing must move(?)
             for (int i = 0; i < 5; i++) {
                 if (direction[i] != zeroDirection 
                 && grid->pos_available(position + direction[i])
-                // && grid->is_mixing_area(position + direction[i])
+
+#ifdef BONE
+                && grid->is_mixing_area(position + direction[i])
+#endif
                 ) {
                     this->pushDroplet(Droplet(droplet, direction[i]), number);
                 }
@@ -397,7 +405,9 @@ void State::allPrint(ostream &os) const {
             }
         }
     }
+    os << "next min: " << this->next_min << endl;
     os << "current step: " << this->step << endl;
+    os << "board size: " << this->get_droplets_on_board_size() << endl;
     os << "estimated eventually step: " << this->step + this->estimation
        << endl;
     os << "======================================" << endl;

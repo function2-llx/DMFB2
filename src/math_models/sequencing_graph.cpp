@@ -96,6 +96,8 @@ void SequencingGraph::load_from_file(const char* filename)
     // std::unordered_map<std::string, int> type_map;
     // int type_cnt = 0;
     StringMap type_map, sink_map;
+    system("pwd");
+    std::cerr << filename << std::endl;
     auto file = fopen(filename, "r");
     char buf[1024];
     fgets(buf, sizeof(buf), file);  //  the useless first line
@@ -114,7 +116,7 @@ void SequencingGraph::load_from_file(const char* filename)
             Node *u = new Node;
             nodes.push_back(u);
                         
-            char operation[100], drop_type[100], sink_name[100], digit[100];
+            char operation[1024], drop_type[1024], sink_name[1024], digit[1024];
             // sscanf(buf, "%d, %[^,], ", &id, operation);
             sscanf(s, "%[^,]", digit);
             s += strlen(digit) + 2;

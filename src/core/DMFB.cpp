@@ -82,14 +82,16 @@ static void dfs_least(Node* cur, std::vector<int>& least_time, const std::vector
 
 // std::vector<int> type;
 
-void DMFB::load_sequencing_graph(const std::string& path)
+
+
+void DMFB::load_sequencing_graph(const std::string& filename)
 {
 	using namespace Global;
 
 	// std::ifstream is(path + "SequencingGraph.txt");
 	// assert(is.is_open());
     // SequencingGraph graph;
-    graph.load_from_file((path + "SequencingGraph.txt").c_str());
+    graph.load_from_file(filename.c_str());
     this->droplet_data = graph.get_droplet_data();
 
 	// is >> this->nDroplets;
@@ -146,10 +148,10 @@ void DMFB::load_sequencing_graph(const std::string& path)
 		}
 	}
 
-    for (int i = 0; i < mixing_result.size(); i++)
-        for (int j = 0; j < mixing_result[i].size(); j++) {
-            std::cerr << "mixing result: " << i << '+' << j << '=' << mixing_result[i][j] << std::endl;
-        }
+    // for (int i = 0; i < mixing_result.size(); i++)
+    //     for (int j = 0; j < mixing_result[i].size(); j++) {
+    //         std::cerr << "mixing result: " << i << '+' << j << '=' << mixing_result[i][j] << std::endl;
+    //     }
 
     least_time.resize(nDroplets, 0);
 
@@ -634,6 +636,38 @@ void DMFB::init(const std::string& path)
     detector = new Detector;
 }
 
+void DMFB::init(const std::string& filename, int rows, int columns)
+{
+    this->load_sequencing_graph(filename);
+	// is >> this->rows >> this->columns;
+    this->rows = rows;
+    this->columns = columns;
+	this->detector_record = new int*[this->rows];
+	for (int i = 0; i < this->rows; i++) {
+		this->detector_record[i] = new int[this->columns];
+	}
+	grid = new Grid(this->rows, this->columns);
+	grid->build();
+    // cerr << this->nTypes << endl;
+	assert(this->nTypes <= grid->area());
+	for (int i = 0; i < 4; i++) {
+		this->boundary_record[i] = new int[grid->boundarySize[i]];
+	}
+
+    grid->disable({});
+
+    sinks.reserve(nSinks);
+    for (int i = 0; i < nSinks; i++)
+        sinks.push_back(new Sink(i));
+
+    dispensers.reserve(nDispensers);
+    for (int i = 0; i < nDispensers; i++)
+        dispensers.push_back(new Dispenser(i));
+
+    detector = new Detector;
+
+}
+
 std::vector<const State*> DMFB::get_route(const State* state) const { return this->get_route_dfs(state); }
 
 void DMFB::solve_placement_determined()
@@ -647,7 +681,7 @@ void DMFB::solve_placement_determined()
 
     auto sequences = DMFBsolver->get_move_sequences(route);
     for (auto sequence: sequences) {
-        for (auto pos: sequence) {
+        for (auto pos: sequence.route) {
             std::cout << pos.r << ' ' << pos.c<< ' ';
         }
         std::cout << std::endl;
@@ -659,20 +693,22 @@ void DMFB::solve_placement_determined()
     }
 }
 
-std::vector<std::vector<Point> > DMFB::get_move_sequences(const std::vector<const State*>& route) const
-{
-    std::vector<std::vector<Point> > ret(this->nDroplets);
-    for (auto &seq: ret)
-        seq.resize(route.size(), Point(-2, -2));
+using namespace IDMFB;
 
-    auto dispense_pos = std::vector<Point>(nDroplets);
-    for (auto id: dispense_id) {
-        for (auto dispenser_pos: this->placement.dispenser_positions) {
-            if (dispenser_pos.first->get_type() == droplet_data[id].type) {
-                dispense_pos[id] = dispenser_pos.second;
-            }
-        }
-    }
+std::vector<MoveSequence> DMFB::get_move_sequences(const std::vector<const State*>& route) const
+{
+    std::vector<MoveSequence> ret(this->nDroplets);
+    for (auto &seq: ret)
+        seq.route.resize(route.size(), Point(-2, -2));
+
+    // auto dispense_pos = std::vector<Point>(nDroplets);
+    // for (auto id: dispense_id) {
+    //     for (auto dispenser_pos: this->placement.dispenser_positions) {
+    //         if (dispenser_pos.first->get_type() == droplet_data[id].type) {
+    //             dispense_pos[id] = dispenser_pos.second;
+    //         }
+    //     }
+    // }
 
     // auto mix_pos = std::vector<Point>
     std::vector<Point> start_pos(nDroplets, Point(-2, -2));
@@ -681,12 +717,13 @@ std::vector<std::vector<Point> > DMFB::get_move_sequences(const std::vector<cons
     for (auto state: route) {
         for (auto droplet: state->getDroplets()) {
             if (droplet->is_dispensed()) {
-                ret[droplet->get_id()][state->step] = droplet->get_pos();
+                ret[droplet->get_id()].route[state->step] = droplet->get_pos();
                 if (start_pos[droplet->get_id()] == Point(-2, -2))
                     start_pos[droplet->get_id()] = droplet->get_pos();
                 // ret[droplet->get_id()].push_back(droplet->get_pos());
             } else {
-                ret[droplet->get_id()][state->step] = dispense_pos[droplet->get_id()];
+                //  do nothing
+                // ret[droplet->get_id()].route[state->step] = dispense_pos[droplet->get_id()];
                 // for (auto dispenser_pos: this->placement.dispenser_positions) {
                 //     if (dispenser_pos.first->get_type() == droplet->getType())
                 //         ret[droplet->get_id()][state->step] = dispenser_pos.second;
@@ -699,18 +736,45 @@ std::vector<std::vector<Point> > DMFB::get_move_sequences(const std::vector<cons
 
     for (int i = 0; i < nDroplets; i++) {
         if (droplet_data[i].fa_id != -1)
-            ret[i][end_step[i] + 1] = start_pos[droplet_data[i].fa_id];
+            ret[i].route[end_step[i] + 1] = start_pos[droplet_data[i].fa_id];
 
         if (droplet_data[i].output_sink != -1) {
             for (auto sink_pos: placement.sink_positions) {
                 if (sink_pos.first->get_id() == droplet_data[i].output_sink) {
-                    ret[i][end_step[i] + 1] = sink_pos.second;
+                    ret[i].route[end_step[i] + 1] = sink_pos.second;
                     break;
                 }
             }
         }
+        ret[i].droplet_id = i;
+        for (int j = 0; j < route.size(); j++)
+            if (ret[i].route[j] != Point(-2, -2)) {
+                ret[i].t = j;
+            }
     }    
 
+    return ret;
+}
+
+using namespace IDMFB;
+using namespace std;
+
+vector<MoveSequence> DMFB::get_move_sequences(const string& filename, int n, int m)
+{
+    this->init(filename, n, m);
+    this->declare();
+    this->place_entities();
+    const State* init_state = new State();
+    auto route = this->get_route(init_state);
+    std::cerr << "route size: " << route.size() << std::endl;
+    if (route.empty()) {
+        return {};
+    }
+    
+    auto ret = this->get_move_sequences(route);
+    for (auto state: route) {
+        delete state;
+    }
     return ret;
 }
 

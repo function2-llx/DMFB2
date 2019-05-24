@@ -7,6 +7,7 @@
 #include "core/State.h"
 #include "placement/placement.h"
 #include "math_models/sequencing_graph.h"
+#include "IDMFB.h"
 
 
 class Sink;
@@ -48,7 +49,7 @@ class DMFB {
     const State* dfs(const State*, int upper_bound, std::unordered_set<State>&) const;
     
     bool place_entities(); //  return true if success
-    std::vector<std::vector<Point> > get_move_sequences(const std::vector<const State*>& ) const;
+    std::vector<IDMFB::MoveSequence> get_move_sequences(const std::vector<const State*>& ) const;
     SequencingGraph graph;
 
   protected:
@@ -99,6 +100,7 @@ class DMFB {
     }
 
     void init(const std::string& path);
+    void init(const std::string& path, int n, int m);
     // void solve_placement_undetermined();
     void solve_placement_determined();
     void print_placement(std::ostream&);
@@ -108,14 +110,9 @@ class DMFB {
     std::vector<const State*> get_route_bfs(const State* state) const;
     std::vector<const State*> get_route_dfs(const State* state, int lim = 100) const;   //  at most lim steps
 
-    std::vector<std::vector<Point> > get_move_sequences(const State* init) const
-    {
-        auto route = this->get_route(init);
-        
-    } 
+    std::vector<IDMFB::MoveSequence> get_move_sequences(const std::string& filename, int n, int m);
     
     friend class PlacingStrategy;
 };
 
 extern DMFB *DMFBsolver;
-// extern std::vector<int> type;
