@@ -4,8 +4,6 @@
 #include <vector>
 #include "math_models/Point.h"
 
-typedef unsigned long long ULL;
-
 class Dispenser {
 private:
     int type;

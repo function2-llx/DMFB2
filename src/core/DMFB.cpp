@@ -670,7 +670,7 @@ void DMFB::init(const std::string& filename, int rows, int columns)
 
 std::vector<const State*> DMFB::get_route(const State* state) const { return this->get_route_dfs(state); }
 
-void DMFB::solve_placement_determined()
+std::vector<const State*> DMFB::solve_placement_determined()
 {
     this->declare();
     this->place_entities();
@@ -687,10 +687,11 @@ void DMFB::solve_placement_determined()
         std::cout << std::endl;
     }
 
-    for (auto state: route) {
-        // state->allPrint(std::cout);
-        delete state;
-    }
+    // for (auto state: route) {
+    //     // state->allPrint(std::cout);
+    //     delete state;
+    // }
+    return route;
 }
 
 using namespace IDMFB;

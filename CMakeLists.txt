@@ -15,9 +15,10 @@ AUX_SOURCE_DIRECTORY(src/math_models DIR_SRCS)
 AUX_SOURCE_DIRECTORY(src/placement DIR_SRCS)
 AUX_SOURCE_DIRECTORY(src/useless DIR_SRCS)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
+add_compile_options("-Ofast")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
 # set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 
@@ -25,11 +26,12 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 # add_definitions(-D UNIQUE)
 
 
-# set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
-# ADD_EXECUTABLE(${PROJECT_NAME} ${DIR_SRCS} main.cpp)
+set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
+ADD_EXECUTABLE(${PROJECT_NAME} ${DIR_SRCS} main.cpp)
 # set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/../run)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/lib)
 ADD_LIBRARY(i_dmfb SHARED ${DIR_SRCS})
+ADD_LIBRARY(pylib SHARED ${DIR_SRCS} src/pylib.cpp)
 
-add_definitions(-DBONE)
+# add_definitions(-DBONE)
 add_definitions(-DNDEBUG)

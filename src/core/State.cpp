@@ -382,11 +382,18 @@ void State::visualPrint(ostream &os) const {
         for (int j = 0; j < grid->getColumns(); j++) {
             if (type[i][j] == -1) {
                 if (grid->pos_available(Point(i, j)))
-                    os << "N  ";
+                    os << "N   ";
                 else
-                    os << "X  ";
+                    os << "X   ";
             } else {
-                os << "D" << type[i][j] << " ";
+                string s = "D" + to_string(type[i][j]);
+                // if (s.length() < 4)
+                //     for (int i = s.length())
+                for (int i = s.length(); i < 4; i++) s.push_back(' ');
+                // sprintf(s, "D%3d", type[i][j]);
+
+                os << s;
+                // os << "D" << type[i][j] << " ";
             }
         }
         os << endl;

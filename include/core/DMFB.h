@@ -102,7 +102,7 @@ class DMFB {
     void init(const std::string& path);
     void init(const std::string& path, int n, int m);
     // void solve_placement_undetermined();
-    void solve_placement_determined();
+    std::vector<const State*> solve_placement_determined();
     void print_placement(std::ostream&);
     void set_placement(const Placement& placement);
 

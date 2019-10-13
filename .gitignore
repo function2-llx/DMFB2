@@ -38,3 +38,5 @@ build
 run/
 bin/
 lib/
+
+placement.txt
