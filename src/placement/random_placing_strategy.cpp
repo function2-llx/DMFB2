@@ -11,8 +11,7 @@ Placement RandomPlacingStrategy::get_placement(
     const std::vector<Sink*>& sinks,
     // const std::vector<Detector*>& detectors,
     Detector* detector,
-    int rows, int columns) const
-{
+    int rows, int columns) const {
     Placement placement;
     placement.dispenser_positions.reserve(dispensers.size());
     // placement.detector_positions.reserve(detectors.size());
@@ -23,12 +22,14 @@ Placement RandomPlacingStrategy::get_placement(
 
     assert(dispensers.size() + sinks.size() <= (rows + columns) * 2);
     // assert(detectors.size() <= rows * columns);
-
+    using namespace std;
     bool *outer_vis[4];
     int size[4];
     for (int i = 0; i < 4; i++) {
         OuterPos pos = static_cast<OuterPos>(i);
         size[i] = get_size(pos);
+        cerr << "placing" << i << endl;
+        cerr << "size: " << size[i] << endl;
         outer_vis[i] = new bool[size[i]];
         for (int j = 0; j < size[i]; j++)
             outer_vis[i][j] = 0;

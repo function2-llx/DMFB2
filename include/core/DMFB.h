@@ -66,14 +66,12 @@ class DMFB {
     void loadDesignObejective(const std::string& path);
 
 // DropletData get_mix_data(const Droplet*, const Droplet*);
-    DropletData get_droplet_data(int id) const
-    {
+    DropletData get_droplet_data(int id) const {
         assert(0 <= id && id < nDroplets);
         return droplet_data[id];
     }
     int get_peer_id(const Droplet* droplet) { return droplet_data[droplet->get_id()].peer_id; }
-    int get_mixing_result_id(int id_a, int id_b)
-    {
+    int get_mixing_result_id(int id_a, int id_b) {
         assert(0 <= id_a < nDroplets);
         assert(0 <= id_b < nDroplets); 
 
@@ -85,16 +83,14 @@ class DMFB {
     std::vector<int> get_dispense_id() const { return dispense_id; }
 
     int getDropletNumber() const;
-    Dispenser* get_dispenser(int type) const
-    {
+    Dispenser* get_dispenser(int type) const {
         assert(0 <= type && type < nTypes);
         return dispensers[type];
     }
 
     Detector* get_detector() const { return detector; }
 
-    Sink* get_sink(int sink_id) const
-    {
+    Sink* get_sink(int sink_id) const {
         assert(0 <= sink_id && sink_id < sinks.size());
         return sinks[sink_id];
     }
@@ -102,7 +98,7 @@ class DMFB {
     void init(const std::string& path);
     void init(const std::string& path, int n, int m);
     // void solve_placement_undetermined();
-    std::vector<const State*> solve_placement_determined();
+    std::vector<const State*> solve_placement_determined(int lim);
     void print_placement(std::ostream&);
     void set_placement(const Placement& placement);
 

@@ -593,10 +593,11 @@ void DMFB::set_placement(const Placement& placement)
     }
 }
 
-bool DMFB::place_entities()
-{
+bool DMFB::place_entities() {
+    using namespace std;
     PlacingStrategy *strategy = new RandomPlacingStrategy(2333);
     Placement placement = strategy->get_placement(dispensers, sinks, detector, rows, columns);
+    // cerr << "placed" << endl;
     set_placement(placement);
     std::ofstream os("placement.txt");
     print_placement(os);
@@ -670,12 +671,13 @@ void DMFB::init(const std::string& filename, int rows, int columns)
 
 std::vector<const State*> DMFB::get_route(const State* state) const { return this->get_route_dfs(state); }
 
-std::vector<const State*> DMFB::solve_placement_determined()
-{
+std::vector<const State*> DMFB::solve_placement_determined(int lim) {
+    using namespace std;
     this->declare();
     this->place_entities();
+    // cerr << "placed" << endl;
     const State* init_state = new State();
-    auto route = this->get_route(init_state);
+    auto route = this->get_route(init_state, lim);
 
     std::cerr << "route size: " << route.size() << std::endl;
 

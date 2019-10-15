@@ -82,7 +82,7 @@ std::vector<const State*> BruteSolver::get_route(const State* state, int lim) co
         // std::unordered_set<State> set;
         // if (state->isEndState())
         //     return ret;
-        // cerr << "233" << endl;
+        cerr << "233" << endl;
         for (auto cur = state;;) {
             set.insert(*cur);
             using namespace std;
