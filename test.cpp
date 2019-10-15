@@ -26,7 +26,7 @@ Data test(string name) {
     data.steps = IDMFB::get_steps(name, 15, 15, 500);
     auto b = chrono::steady_clock::now() - a;
     using typeb = decltype(b);
-    data.time = chrono::duration_cast<chrono::seconds, typeb::rep, typeb::period>(b).count();
+    data.time = chrono::duration_cast<chrono::milliseconds, typeb::rep, typeb::period>(b).count();
     return data;
 }
 
