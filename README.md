@@ -88,7 +88,24 @@ estimated eventually step: 183
 ======================================
 ```
 
-当路径规划完成后，会打印出所有液滴的的移动路径（move sequence）。
+当路径规划完成后，会打印出所有液滴的的移动路径（move sequence），当然程序中也有相关接口可以获得，比如可以得到最终规划后的路径中每个时刻的状态：
+
+```cpp
+// IDMFB.h
+namespace IDMFB {
+    struct MoveSequence {
+        int droplet_id, t;
+        std::vector<Point> route;
+    };
+
+    std::vector<MoveSequence> get_move_sequences(const std::string& filename, int n, int m, int lim=1000);
+    int get_steps(std::string filename, int n, int m, int lim);
+    std::vector<const State*> get_route(
+        const std::string filename, int n, int m, int lim);
+}
+```
+
+
 
 ## 实现简述
 
@@ -101,5 +118,27 @@ estimated eventually step: 183
 
 经过测试，第一种方法是最有效的。目前可以在较快的时间内（通常不超过半分钟）通过所有不含分裂（split）操作的测例。
 
+并且，在这种情况下，可以有很大的余裕保证规划的正确性（比如满足 Fluidic 约束等），并且还有很大的发挥和提升空间。
+
 ## 测试结果
+
+测试机器 CPU 型号为 AMD Ryzen 7 3700X，程序为单线程程序。
+
+测试程序包含在工程中，使用 cmake 构建后，使用如下命令测试：
+
+```bash
+./bin/test_time
+```
+
+一些测试结果见下表。
+
+|文件名| 输入文件行数 | 解用时（步数） | 程序用时(ms) |
+|-------|---------- | ------- | ---- |
+|B1/MixSplit/PCR.txt| 33 | 38 | 87 |
+|InVitro_Ex1_2s_2r.txt| 38 | 36 | 33 |
+|InVitro_Ex2_2s_3r.txt| 56 | 76 | 280 |
+|InVitro_Ex3_3s_3r.txt| 83 | 103 | 1735 |
+|InVitro_Ex4_3s_4r.txt| 110 | 198 | 6474 |
+|InVitro_Ex5_4s_4r.txt| 146 | 269 | 8901 |
+
 

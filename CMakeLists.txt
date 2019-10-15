@@ -15,16 +15,7 @@ AUX_SOURCE_DIRECTORY(src/math_models DIR_SRCS)
 AUX_SOURCE_DIRECTORY(src/placement DIR_SRCS)
 AUX_SOURCE_DIRECTORY(src/useless DIR_SRCS)
 
-# add_compile_options("-Ofast")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Ofast")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
-# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -ggdb")
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
-
-# add_definitions(-D NDEBUG)
-# add_definitions(-D UNIQUE)
-
+add_compile_options("-Ofast")
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 ADD_EXECUTABLE(${PROJECT_NAME} ${DIR_SRCS} main.cpp)
